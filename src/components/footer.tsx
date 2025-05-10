@@ -1,0 +1,130 @@
+"use client";
+
+import Link from "next/link";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Mail,
+  Phone,
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+
+export function Footer() {
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = [
+    {
+      title: "Product",
+      links: [
+        { name: "Features", href: "#features" },
+        { name: "Pricing", href: "#pricing" },
+        { name: "Comparison", href: "#comparison" },
+        { name: "FAQ", href: "#faq" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { name: "About", href: "/about" },
+        { name: "Blog", href: "/blog" },
+        { name: "Careers", href: "/careers" },
+        { name: "Contact", href: "/contact" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { name: "Privacy Policy", href: "/privacy" },
+        { name: "Terms of Service", href: "/terms" },
+        { name: "Cookie Policy", href: "/cookies" },
+      ],
+    },
+  ];
+
+  const socialLinks = [
+    { name: "Facebook", icon: Facebook, href: "#" },
+    { name: "Twitter", icon: Twitter, href: "#" },
+    { name: "Instagram", icon: Instagram, href: "#" },
+    { name: "LinkedIn", icon: Linkedin, href: "#" },
+  ];
+
+  return (
+    <footer className="w-full bg-background">
+      <div className="w-full py-12 px-4 md:px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
+            <div className="col-span-1 sm:col-span-2">
+              <Link href="/" className="flex items-center mb-4">
+                <span className="text-xl font-bold text-yellow-500">
+                  Reebews
+                </span>
+              </Link>
+              <p className="text-sm text-muted-foreground mb-4 max-w-xs">
+                Helping Amazon sellers increase visibility and build trust
+                through authentic customer reviews.
+              </p>
+              <div className="flex items-center gap-4">
+                {socialLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={link.name}
+                  >
+                    <link.icon className="h-5 w-5" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-span-1 sm:col-span-2 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
+              {footerLinks.map((group) => (
+                <div key={group.title} className="space-y-4">
+                  <h3 className="text-sm font-semibold">{group.title}</h3>
+                  <ul className="space-y-2">
+                    {group.links.map((link) => (
+                      <li key={link.name}>
+                        <Link
+                          href={link.href}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Separator className="my-8" />
+
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              © {currentYear} Reebews. All rights reserved.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <Link
+                href="mailto:info@reebews.com"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                <span>info@reebews.com</span>
+              </Link>
+              <Link
+                href="tel:+1234567890"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+              >
+                <Phone className="h-4 w-4" />
+                <span>+1 (234) 567-890</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
