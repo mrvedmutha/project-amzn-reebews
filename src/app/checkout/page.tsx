@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
+import { Suspense } from "react";
 
 // Define form schema with all fields
 const checkoutFormSchema = z.object({
@@ -488,183 +489,77 @@ export default function CheckoutPage() {
   const isIndianUser = selectedCountry === "India";
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-1">
-        <div className="container max-w-6xl py-8 mx-auto px-4">
-          <Link
-            href="/"
-            className="flex items-center mb-6 text-yellow-500 font-bold text-2xl"
-          >
-            Reebews
-          </Link>
+    <Suspense>
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex-1">
+          <div className="container max-w-6xl py-8 mx-auto px-4">
+            <Link
+              href="/"
+              className="flex items-center mb-6 text-yellow-500 font-bold text-2xl"
+            >
+              Reebews
+            </Link>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="lg:col-span-2">
-              <div className="bg-card rounded-lg border p-6 mb-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Checkout</h2>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link href="/" className="flex items-center gap-1">
-                      <ArrowLeft className="h-4 w-4" />
-                      <span>Back to home</span>
-                    </Link>
-                  </Button>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="lg:col-span-2">
+                <div className="bg-card rounded-lg border p-6 mb-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold">Checkout</h2>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href="/" className="flex items-center gap-1">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Back to home</span>
+                      </Link>
+                    </Button>
+                  </div>
 
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
-                  >
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">
-                        Billing Information
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-6"
+                    >
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">
+                          Billing Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>First Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="John" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
                         <FormField
                           control={form.control}
-                          name="firstName"
+                          name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>First Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="John" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Last Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Doe" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="john.doe@example.com"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="companyName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Company Name (Optional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="ACME Inc." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address</FormLabel>
-                            <FormControl>
-                              <Input placeholder="123 Main St" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <FormControl>
-                                <Input placeholder="New York" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="postalCode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Postal Code</FormLabel>
-                              <FormControl>
-                                <Input placeholder="10001" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="country"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel>Country</FormLabel>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                setSelectedCountry(value);
-                              }}
-                              defaultValue={field.value}
-                              value={field.value || selectedCountry}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select a country" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country} value={country}>
-                                    {country}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {isIndianUser && (
-                        <FormField
-                          control={form.control}
-                          name="gstNumber"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>GST Number (Optional)</FormLabel>
+                              <FormLabel>Email Address</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="22AAAAA0000A1Z5"
+                                  placeholder="john.doe@example.com"
                                   {...field}
                                 />
                               </FormControl>
@@ -672,142 +567,127 @@ export default function CheckoutPage() {
                             </FormItem>
                           )}
                         />
-                      )}
-                    </div>
 
-                    <div className="space-y-4">
-                      {plan !== "free" && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">
-                              Payment Information
-                            </h3>
-                            <Lock className="h-4 w-4 text-muted-foreground" />
-                          </div>
+                        <FormField
+                          control={form.control}
+                          name="companyName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Company Name (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="ACME Inc." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                          {isIndianUser ? (
-                            <FormField
-                              control={form.control}
-                              name="paymentMethod"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Payment Method</FormLabel>
-                                  <FormControl>
-                                    <RadioGroup
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                      className="flex flex-col space-y-3"
-                                    >
-                                      <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
-                                        <FormControl>
-                                          <RadioGroupItem value="card" />
-                                        </FormControl>
-                                        <div className="flex items-center justify-between w-full">
-                                          <FormLabel className="font-normal cursor-pointer">
-                                            Credit/Debit Card
-                                          </FormLabel>
-                                          <div className="flex gap-2">
-                                            <Image
-                                              src="/uploads/icons/mode-of-payments/visa.svg"
-                                              alt="Visa"
-                                              width={24}
-                                              height={24}
-                                              className="dark:invert"
-                                            />
-                                            <Image
-                                              src="/uploads/icons/mode-of-payments/mastercard.svg"
-                                              alt="Mastercard"
-                                              width={24}
-                                              height={24}
-                                              className="dark:invert"
-                                            />
-                                            <Image
-                                              src="/uploads/icons/mode-of-payments/card-amex.svg"
-                                              alt="American Express"
-                                              width={24}
-                                              height={24}
-                                              className="dark:invert"
-                                            />
-                                          </div>
-                                        </div>
-                                      </FormItem>
-                                      <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
-                                        <FormControl>
-                                          <RadioGroupItem value="upi" />
-                                        </FormControl>
-                                        <div className="flex items-center justify-between w-full">
-                                          <FormLabel className="font-normal cursor-pointer">
-                                            UPI
-                                          </FormLabel>
-                                          <Image
-                                            src="/uploads/icons/mode-of-payments/upi.svg"
-                                            alt="UPI"
-                                            width={24}
-                                            height={24}
-                                            className="dark:invert"
-                                          />
-                                        </div>
-                                      </FormItem>
-                                      <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
-                                        <FormControl>
-                                          <RadioGroupItem value="netbanking" />
-                                        </FormControl>
-                                        <div className="flex items-center justify-between w-full">
-                                          <FormLabel className="font-normal cursor-pointer">
-                                            Net Banking
-                                          </FormLabel>
-                                          <Image
-                                            src="/uploads/icons/mode-of-payments/netbanking.svg"
-                                            alt="Net Banking"
-                                            width={24}
-                                            height={24}
-                                            className="dark:invert"
-                                          />
-                                        </div>
-                                      </FormItem>
-                                      <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
-                                        <FormControl>
-                                          <RadioGroupItem value="wallet" />
-                                        </FormControl>
-                                        <div className="flex items-center justify-between w-full">
-                                          <FormLabel className="font-normal cursor-pointer">
-                                            Wallet
-                                          </FormLabel>
-                                          <Image
-                                            src="/uploads/icons/mode-of-payments/wallet.svg"
-                                            alt="Wallet"
-                                            width={24}
-                                            height={24}
-                                            className="dark:invert"
-                                          />
-                                        </div>
-                                      </FormItem>
-                                    </RadioGroup>
-                                  </FormControl>
-                                  <FormMessage />
-                                  <div className="mt-4">
-                                    <p className="text-sm text-muted-foreground mb-2">
-                                      You will be redirected to RazorPay to
-                                      complete your payment.
-                                    </p>
-                                    <div className="flex items-center gap-3">
-                                      <p className="text-xs text-muted-foreground">
-                                        Powered by
-                                      </p>
-                                      <Image
-                                        src="/uploads/icons/payment-gateways/razorpay-icon.svg"
-                                        alt="Razorpay"
-                                        width={80}
-                                        height={24}
-                                        className="dark:invert"
-                                      />
-                                    </div>
-                                  </div>
-                                </FormItem>
-                              )}
-                            />
-                          ) : (
-                            <>
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address</FormLabel>
+                              <FormControl>
+                                <Input placeholder="123 Main St" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="city"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>City</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="New York" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="postalCode"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Postal Code</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="10001" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name="country"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel>Country</FormLabel>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  setSelectedCountry(value);
+                                }}
+                                defaultValue={field.value}
+                                value={field.value || selectedCountry}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select a country" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {countries.map((country) => (
+                                    <SelectItem key={country} value={country}>
+                                      {country}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {isIndianUser && (
+                          <FormField
+                            control={form.control}
+                            name="gstNumber"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>GST Number (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="22AAAAA0000A1Z5"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+
+                      <div className="space-y-4">
+                        {plan !== "free" && (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-semibold">
+                                Payment Information
+                              </h3>
+                              <Lock className="h-4 w-4 text-muted-foreground" />
+                            </div>
+
+                            {isIndianUser ? (
                               <FormField
                                 control={form.control}
                                 name="paymentMethod"
@@ -815,423 +695,546 @@ export default function CheckoutPage() {
                                   <FormItem>
                                     <FormLabel>Payment Method</FormLabel>
                                     <FormControl>
-                                      <div className="p-4 border rounded-md">
-                                        <div className="flex items-center justify-between mb-3">
-                                          <div className="flex items-center space-x-2">
-                                            <CreditCard className="h-5 w-5" />
-                                            <span>Credit/Debit Card</span>
+                                      <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col space-y-3"
+                                      >
+                                        <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
+                                          <FormControl>
+                                            <RadioGroupItem value="card" />
+                                          </FormControl>
+                                          <div className="flex items-center justify-between w-full">
+                                            <FormLabel className="font-normal cursor-pointer">
+                                              Credit/Debit Card
+                                            </FormLabel>
+                                            <div className="flex gap-2">
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/visa.svg"
+                                                alt="Visa"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/mastercard.svg"
+                                                alt="Mastercard"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/card-amex.svg"
+                                                alt="American Express"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                            </div>
                                           </div>
-                                          <div className="flex gap-2">
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
+                                          <FormControl>
+                                            <RadioGroupItem value="upi" />
+                                          </FormControl>
+                                          <div className="flex items-center justify-between w-full">
+                                            <FormLabel className="font-normal cursor-pointer">
+                                              UPI
+                                            </FormLabel>
                                             <Image
-                                              src="/uploads/icons/mode-of-payments/visa.svg"
-                                              alt="Visa"
+                                              src="/uploads/icons/mode-of-payments/upi.svg"
+                                              alt="UPI"
                                               width={24}
                                               height={24}
                                               className="dark:invert"
                                             />
+                                          </div>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
+                                          <FormControl>
+                                            <RadioGroupItem value="netbanking" />
+                                          </FormControl>
+                                          <div className="flex items-center justify-between w-full">
+                                            <FormLabel className="font-normal cursor-pointer">
+                                              Net Banking
+                                            </FormLabel>
                                             <Image
-                                              src="/uploads/icons/mode-of-payments/mastercard.svg"
-                                              alt="Mastercard"
-                                              width={24}
-                                              height={24}
-                                              className="dark:invert"
-                                            />
-                                            <Image
-                                              src="/uploads/icons/mode-of-payments/card-amex.svg"
-                                              alt="American Express"
+                                              src="/uploads/icons/mode-of-payments/netbanking.svg"
+                                              alt="Net Banking"
                                               width={24}
                                               height={24}
                                               className="dark:invert"
                                             />
                                           </div>
-                                        </div>
-                                        <div className="mt-4">
-                                          <div className="flex items-center gap-3">
-                                            <p className="text-xs text-muted-foreground">
-                                              Powered by
-                                            </p>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
+                                          <FormControl>
+                                            <RadioGroupItem value="wallet" />
+                                          </FormControl>
+                                          <div className="flex items-center justify-between w-full">
+                                            <FormLabel className="font-normal cursor-pointer">
+                                              Wallet
+                                            </FormLabel>
                                             <Image
-                                              src="/uploads/icons/payment-gateways/icons8-stripe.svg"
-                                              alt="Stripe"
-                                              width={60}
+                                              src="/uploads/icons/mode-of-payments/wallet.svg"
+                                              alt="Wallet"
+                                              width={24}
                                               height={24}
                                               className="dark:invert"
                                             />
                                           </div>
-                                        </div>
-                                      </div>
+                                        </FormItem>
+                                      </RadioGroup>
                                     </FormControl>
                                     <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                control={form.control}
-                                name="cardName"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Name on Card</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="John Doe"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                control={form.control}
-                                name="cardNumber"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Card Number</FormLabel>
-                                    <FormControl>
-                                      <div className="relative">
-                                        <Input
-                                          placeholder="1234 5678 9012 3456"
-                                          {...field}
-                                          maxLength={19}
+                                    <div className="mt-4">
+                                      <p className="text-sm text-muted-foreground mb-2">
+                                        You will be redirected to RazorPay to
+                                        complete your payment.
+                                      </p>
+                                      <div className="flex items-center gap-3">
+                                        <p className="text-xs text-muted-foreground">
+                                          Powered by
+                                        </p>
+                                        <Image
+                                          src="/uploads/icons/payment-gateways/razorpay-icon.svg"
+                                          alt="Razorpay"
+                                          width={80}
+                                          height={24}
+                                          className="dark:invert"
                                         />
-                                        <CreditCard className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                       </div>
-                                    </FormControl>
-                                    <FormMessage />
+                                    </div>
                                   </FormItem>
                                 )}
                               />
-
-                              <div className="grid grid-cols-3 gap-4">
-                                <div className="col-span-2">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <FormField
-                                      control={form.control}
-                                      name="expiryMonth"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Expiry Month</FormLabel>
-                                          <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                          >
-                                            <FormControl>
-                                              <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="MM" />
-                                              </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                              {months.map((month) => (
-                                                <SelectItem
-                                                  key={month}
-                                                  value={month}
-                                                >
-                                                  {month}
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <FormField
-                                      control={form.control}
-                                      name="expiryYear"
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Expiry Year</FormLabel>
-                                          <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                          >
-                                            <FormControl>
-                                              <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="YY" />
-                                              </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                              {years.map((year) => (
-                                                <SelectItem
-                                                  key={year}
-                                                  value={year}
-                                                >
-                                                  {year}
-                                                </SelectItem>
-                                              ))}
-                                            </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                  </div>
-                                </div>
+                            ) : (
+                              <>
                                 <FormField
                                   control={form.control}
-                                  name="cvc"
+                                  name="paymentMethod"
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>CVC</FormLabel>
+                                      <FormLabel>Payment Method</FormLabel>
+                                      <FormControl>
+                                        <div className="p-4 border rounded-md">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <div className="flex items-center space-x-2">
+                                              <CreditCard className="h-5 w-5" />
+                                              <span>Credit/Debit Card</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/visa.svg"
+                                                alt="Visa"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/mastercard.svg"
+                                                alt="Mastercard"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                              <Image
+                                                src="/uploads/icons/mode-of-payments/card-amex.svg"
+                                                alt="American Express"
+                                                width={24}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="mt-4">
+                                            <div className="flex items-center gap-3">
+                                              <p className="text-xs text-muted-foreground">
+                                                Powered by
+                                              </p>
+                                              <Image
+                                                src="/uploads/icons/payment-gateways/icons8-stripe.svg"
+                                                alt="Stripe"
+                                                width={60}
+                                                height={24}
+                                                className="dark:invert"
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={form.control}
+                                  name="cardName"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Name on Card</FormLabel>
                                       <FormControl>
                                         <Input
-                                          placeholder="123"
+                                          placeholder="John Doe"
                                           {...field}
-                                          maxLength={4}
-                                          className="w-full"
                                         />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}
                                 />
+
+                                <FormField
+                                  control={form.control}
+                                  name="cardNumber"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Card Number</FormLabel>
+                                      <FormControl>
+                                        <div className="relative">
+                                          <Input
+                                            placeholder="1234 5678 9012 3456"
+                                            {...field}
+                                            maxLength={19}
+                                          />
+                                          <CreditCard className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                        </div>
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div className="col-span-2">
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <FormField
+                                        control={form.control}
+                                        name="expiryMonth"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Expiry Month</FormLabel>
+                                            <Select
+                                              onValueChange={field.onChange}
+                                              defaultValue={field.value}
+                                            >
+                                              <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                  <SelectValue placeholder="MM" />
+                                                </SelectTrigger>
+                                              </FormControl>
+                                              <SelectContent>
+                                                {months.map((month) => (
+                                                  <SelectItem
+                                                    key={month}
+                                                    value={month}
+                                                  >
+                                                    {month}
+                                                  </SelectItem>
+                                                ))}
+                                              </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                      <FormField
+                                        control={form.control}
+                                        name="expiryYear"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Expiry Year</FormLabel>
+                                            <Select
+                                              onValueChange={field.onChange}
+                                              defaultValue={field.value}
+                                            >
+                                              <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                  <SelectValue placeholder="YY" />
+                                                </SelectTrigger>
+                                              </FormControl>
+                                              <SelectContent>
+                                                {years.map((year) => (
+                                                  <SelectItem
+                                                    key={year}
+                                                    value={year}
+                                                  >
+                                                    {year}
+                                                  </SelectItem>
+                                                ))}
+                                              </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                  <FormField
+                                    control={form.control}
+                                    name="cvc"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>CVC</FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            placeholder="123"
+                                            {...field}
+                                            maxLength={4}
+                                            className="w-full"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="agreeToTerms"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                  I agree to the{" "}
+                                  <Link
+                                    href="/terms"
+                                    className="text-yellow-500 hover:underline"
+                                  >
+                                    terms and conditions
+                                  </Link>
+                                </FormLabel>
                               </div>
-                            </>
+                            </FormItem>
                           )}
-                        </>
-                      )}
-                    </div>
+                        />
+                      </div>
 
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="agreeToTerms"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>
-                                I agree to the{" "}
-                                <Link
-                                  href="/terms"
-                                  className="text-yellow-500 hover:underline"
-                                >
-                                  terms and conditions
-                                </Link>
-                              </FormLabel>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Add coupon code section */}
-                    {plan !== "free" && (
-                      <div className="pt-4 border-t">
-                        <h4 className="font-medium mb-2">Have a coupon?</h4>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Enter coupon code"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value)}
-                            className="flex-grow"
-                          />
-                          <Button
-                            type="button"
-                            onClick={applyCoupon}
-                            variant="outline"
-                            size="sm"
-                            className="whitespace-nowrap"
-                          >
-                            Apply
-                          </Button>
-                        </div>
-                        {couponError && (
-                          <p className="text-sm text-red-500 mt-1">
-                            {couponError}
-                          </p>
-                        )}
-                        {couponApplied && couponDetails && (
-                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-md">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                                  {couponDetails.code}
-                                </p>
-                                <p className="text-xs text-green-600 dark:text-green-400">
-                                  {couponDetails.description}
-                                </p>
-                              </div>
-                              <Button
-                                type="button"
-                                onClick={() => {
-                                  setCouponCode("");
-                                  setCouponApplied(false);
-                                  setCouponDetails(null);
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 text-xs hover:bg-green-100 dark:hover:bg-green-900"
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                              You save:{" "}
-                              {currency === "USD"
-                                ? `$${formatPrice(discountAmount.USD)}`
-                                : `₹${formatPrice(discountAmount.INR)}`}
-                            </p>
+                      {/* Add coupon code section */}
+                      {plan !== "free" && (
+                        <div className="pt-4 border-t">
+                          <h4 className="font-medium mb-2">Have a coupon?</h4>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Enter coupon code"
+                              value={couponCode}
+                              onChange={(e) => setCouponCode(e.target.value)}
+                              className="flex-grow"
+                            />
+                            <Button
+                              type="button"
+                              onClick={applyCoupon}
+                              variant="outline"
+                              size="sm"
+                              className="whitespace-nowrap"
+                            >
+                              Apply
+                            </Button>
                           </div>
-                        )}
+                          {couponError && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {couponError}
+                            </p>
+                          )}
+                          {couponApplied && couponDetails && (
+                            <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-md">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                    {couponDetails.code}
+                                  </p>
+                                  <p className="text-xs text-green-600 dark:text-green-400">
+                                    {couponDetails.description}
+                                  </p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  onClick={() => {
+                                    setCouponCode("");
+                                    setCouponApplied(false);
+                                    setCouponDetails(null);
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 text-xs hover:bg-green-100 dark:hover:bg-green-900"
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                You save:{" "}
+                                {currency === "USD"
+                                  ? `$${formatPrice(discountAmount.USD)}`
+                                  : `₹${formatPrice(discountAmount.INR)}`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting
+                          ? "Processing..."
+                          : plan === "free"
+                          ? "Get Started Free"
+                          : "Complete Order"}
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+              </div>
+
+              <div className="lg:col-span-1">
+                <div className="bg-card rounded-lg border p-6 sticky top-24">
+                  <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span>Plan</span>
+                      <span className="font-medium">{planDetails.name}</span>
+                    </div>
+
+                    {plan !== "free" && (
+                      <div className="flex justify-between">
+                        <span>Billing Cycle</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setBillingCycle("monthly")}
+                            className={`text-sm px-2 py-1 rounded ${
+                              billingCycle === "monthly"
+                                ? "bg-yellow-500 text-black font-medium"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            Monthly
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBillingCycle("yearly")}
+                            className={`text-sm px-2 py-1 rounded flex items-center gap-1 ${
+                              billingCycle === "yearly"
+                                ? "bg-yellow-500 text-black font-medium"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            Yearly
+                            {billingCycle === "yearly" && (
+                              <span className="text-xs font-bold">-30%</span>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    <Button
-                      type="submit"
-                      className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting
-                        ? "Processing..."
-                        : plan === "free"
-                        ? "Get Started Free"
-                        : "Complete Order"}
-                    </Button>
-                  </form>
-                </Form>
-              </div>
-            </div>
-
-            <div className="lg:col-span-1">
-              <div className="bg-card rounded-lg border p-6 sticky top-24">
-                <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Plan</span>
-                    <span className="font-medium">{planDetails.name}</span>
-                  </div>
-
-                  {plan !== "free" && (
                     <div className="flex justify-between">
-                      <span>Billing Cycle</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setBillingCycle("monthly")}
-                          className={`text-sm px-2 py-1 rounded ${
-                            billingCycle === "monthly"
-                              ? "bg-yellow-500 text-black font-medium"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          Monthly
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setBillingCycle("yearly")}
-                          className={`text-sm px-2 py-1 rounded flex items-center gap-1 ${
-                            billingCycle === "yearly"
-                              ? "bg-yellow-500 text-black font-medium"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          Yearly
-                          {billingCycle === "yearly" && (
-                            <span className="text-xs font-bold">-30%</span>
-                          )}
-                        </button>
+                      <span>Description</span>
+                      <span className="text-muted-foreground">
+                        {planDetails.description}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between font-medium text-lg">
+                      <span>Total</span>
+                      <div className="flex flex-col items-end">
+                        {showDiscount && plan !== "free" && (
+                          <span className="text-sm line-through text-muted-foreground">
+                            {currency === "USD"
+                              ? `$${formatPrice(originalPrice.USD)}`
+                              : `₹${formatPrice(originalPrice.INR)}`}
+                            /{billingCycle === "monthly" ? "month" : "year"}
+                          </span>
+                        )}
+                        <span>
+                          {currency === "USD"
+                            ? `$${formatPrice(finalPrice.USD)}`
+                            : `₹${formatPrice(finalPrice.INR)}`}
+                          {plan !== "free" &&
+                            `/${billingCycle === "monthly" ? "month" : "year"}`}
+                        </span>
+                        {showDiscount && plan !== "free" && (
+                          <span className="text-xs text-green-500">
+                            {currency === "USD"
+                              ? `$${formatPrice(discountAmount.USD)}`
+                              : `₹${formatPrice(discountAmount.INR)}`}{" "}
+                            off
+                          </span>
+                        )}
                       </div>
                     </div>
-                  )}
 
-                  <div className="flex justify-between">
-                    <span>Description</span>
-                    <span className="text-muted-foreground">
-                      {planDetails.description}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between font-medium text-lg">
-                    <span>Total</span>
-                    <div className="flex flex-col items-end">
-                      {showDiscount && plan !== "free" && (
-                        <span className="text-sm line-through text-muted-foreground">
-                          {currency === "USD"
-                            ? `$${formatPrice(originalPrice.USD)}`
-                            : `₹${formatPrice(originalPrice.INR)}`}
-                          /{billingCycle === "monthly" ? "month" : "year"}
-                        </span>
-                      )}
-                      <span>
-                        {currency === "USD"
-                          ? `$${formatPrice(finalPrice.USD)}`
-                          : `₹${formatPrice(finalPrice.INR)}`}
-                        {plan !== "free" &&
-                          `/${billingCycle === "monthly" ? "month" : "year"}`}
-                      </span>
-                      {showDiscount && plan !== "free" && (
-                        <span className="text-xs text-green-500">
-                          {currency === "USD"
-                            ? `$${formatPrice(discountAmount.USD)}`
-                            : `₹${formatPrice(discountAmount.INR)}`}{" "}
-                          off
-                        </span>
-                      )}
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-2">Plan Features:</h4>
+                      <ul className="space-y-1 text-sm">
+                        {planDetails.features.map((feature, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-500">✓</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
 
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-2">Plan Features:</h4>
-                    <ul className="space-y-1 text-sm">
-                      {planDetails.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-green-500">✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-4 border-t">
-                    <h4 className="font-medium mb-2">Additional Options:</h4>
-                    <div className="space-y-2">
-                      {getUpgradeOptions().map((planOption) => (
-                        <Link
-                          key={planOption}
-                          href={`/checkout?plan=${planOption}&billing=${billingCycle}`}
-                          className="flex items-center justify-between p-2 border rounded hover:bg-muted transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            {planOption === "pro" && plan !== "pro" && (
-                              <Badge className="bg-green-500">Upgrade</Badge>
-                            )}
-                            {planOption === "basic" && plan === "pro" && (
-                              <Badge variant="outline">Downgrade</Badge>
-                            )}
-                            {planOption === "basic" && plan === "free" && (
-                              <Badge className="bg-green-500">Upgrade</Badge>
-                            )}
-                            <span>{getPlanName(planOption)}</span>
-                          </div>
-                          <ArrowUpRight className="h-4 w-4" />
-                        </Link>
-                      ))}
+                    <div className="pt-4 border-t">
+                      <h4 className="font-medium mb-2">Additional Options:</h4>
+                      <div className="space-y-2">
+                        {getUpgradeOptions().map((planOption) => (
+                          <Link
+                            key={planOption}
+                            href={`/checkout?plan=${planOption}&billing=${billingCycle}`}
+                            className="flex items-center justify-between p-2 border rounded hover:bg-muted transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              {planOption === "pro" && plan !== "pro" && (
+                                <Badge className="bg-green-500">Upgrade</Badge>
+                              )}
+                              {planOption === "basic" && plan === "pro" && (
+                                <Badge variant="outline">Downgrade</Badge>
+                              )}
+                              {planOption === "basic" && plan === "free" && (
+                                <Badge className="bg-green-500">Upgrade</Badge>
+                              )}
+                              <span>{getPlanName(planOption)}</span>
+                            </div>
+                            <ArrowUpRight className="h-4 w-4" />
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="pt-4 border-t">
-                    <div className="text-sm text-muted-foreground space-y-2">
-                      {plan !== "free" && (
-                        <>
-                          <div className="flex items-center gap-1">
-                            <Lock className="h-3 w-3" />
-                            <span>Secure checkout</span>
-                          </div>
-                          <p>
-                            Your payment information is processed securely. We
-                            do not store credit card details.
-                          </p>
-                        </>
-                      )}
+                    <div className="pt-4 border-t">
+                      <div className="text-sm text-muted-foreground space-y-2">
+                        {plan !== "free" && (
+                          <>
+                            <div className="flex items-center gap-1">
+                              <Lock className="h-3 w-3" />
+                              <span>Secure checkout</span>
+                            </div>
+                            <p>
+                              Your payment information is processed securely. We
+                              do not store credit card details.
+                            </p>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1240,6 +1243,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
