@@ -1,0 +1,389 @@
+---
+description: how to write mongoose service
+globs: 
+alwaysApply: false
+---
+# Service Layer Patterns - Cursor Rules
+
+## File Structure
+
+```
+project/
+├── src/
+│   └── services/
+│       ├── admin/
+│       │   ├── blog.services.ts          // Blog CRUD operations
+│       │   ├── user.services.ts          // User management operations
+│       │   └── category.services.ts      // Category operations
+│       ├── auth/
+│       │   ├── authentication.services.ts // Auth operations
+│       │   └── session.services.ts       // Session management
+│       └── public/
+│           ├── content.services.ts       // Public content operations
+│           └── search.services.ts        // Search operations
+├── models/
+│   └── admin/
+│       ├── blogs/
+│       │   └── blog.model.ts            // Blog Mongoose model
+│       └── users/
+│           └── user.model.ts            // User Mongoose model
+├── schemas/
+│   └── zod/
+│       └── admin/
+│           ├── blogs/
+│           │   └── blog.zod.ts          // Blog Zod validation
+│           └── users/
+│               └── user.zod.ts          // User Zod validation
+├── types/
+│   └── admin/
+│       ├── blogs/
+│       │   └── blog.types.ts            // Blog TypeScript types
+│       └── users/
+│           └── user.types.ts            // User TypeScript types
+└── lib/
+    └── database/
+        └── db.ts                        // Database connection
+```
+
+## Cursor Rules
+
+### 1. Rule - Service File Location and Dependencies
+- **Always write services in `./src/services` folder**
+- File names must end with `.services.ts`
+- Before writing service, scan `./models` folder for relevant model
+- If model doesn't exist, create it following model rules first
+- Always import and use the database connection from `./lib/database/db.ts`
+
+### 2. Rule - Schema Validation Integration
+- **Check `./schemas/zod/` folder for relevant Zod schema before writing service**
+- If Zod schema doesn't exist, create it following zod schema rules first
+- Always validate input data using Zod schemas in create/update operations
+- Use `safeParse()` for validation and handle errors appropriately
+- Provide meaningful error messages from validation failures
+
+### 3. Rule - Database Operations and Connection
+- **Always call `await dbConnect()` before any database operation**
+- Import database connection from `./lib/database/db.ts`
+- Use Mongoose model methods (save, find, findById, etc.)
+- Handle database connection errors gracefully
+- Use `.lean()` for read operations to improve performance
+
+### 4. Rule - Service Function Structure and Limits
+- **Always add limiters to `getAll` functions with default values**
+- Structure services as object exports with named methods
+- Include standard CRUD operations: create, getAll, getById, updateById, deleteById
+- Add pagination support with `limit` and `skip` parameters
+- Use TypeScript types for all function parameters and return values
+
+### 5. Rule - Data Transformation and Population
+- **Use populate() for related data and select specific fields**
+- Transform MongoDB documents to plain objects using `toObject()` or `.lean()`
+- Handle null/undefined cases in get operations
+- Generate computed fields (like slugs) in create operations
+- Use partial validation for update operations
+
+## Example Code
+
+### ✅ Complete Service Implementation
+
+```typescript
+// src/services/admin/blog.services.ts
+import { Blog } from "@/models/admin/blogs/blog.model";
+import { BlogZod } from "@/schemas/zod/admin/blogs/blog.zod";
+import type { Blog as BlogType } from "@/types/admin/blogs/blog.types";
+import { dbConnect } from "@/lib/database/db";
+
+export const blogService = {
+  async create(
+    data: Omit<BlogType, "_id" | "createdAt" | "updatedAt">
+  ): Promise<BlogType> {
+    await dbConnect();
+    
+    // Generate slug if empty
+    if (!data.slug || data.slug.trim() === "") {
+      data.slug = data.title
+        .toLowerCase()
+        .replace(/\s+/g, "-") // Replace whitespace with hyphens
+        .replace(/[^a-z0-9-]/g, "") // Remove special characters except hyphens
+        .replace(/-+/g, "-") // Replace multiple hyphens with single
+        .replace(/^-+|-+$/g, ""); // Trim hyphens from start/end
+    }
+    
+    // Validate input using Zod schema
+    const parsed = BlogZod.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.errors.map((e: any) => e.message).join(", ")
+      );
+    }
+    
+    // Save to database
+    const blog = new Blog(parsed.data);
+    await blog.save();
+    return blog.toObject();
+  },
+
+  async getAll(limit = 25, skip = 0): Promise<BlogType[]> {
+    await dbConnect();
+    const blogs = await Blog.find({})
+      .populate({ path: "author", select: "name avatarUrl" })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return blogs as unknown as BlogType[];
+  },
+
+  async getById(id: string): Promise<BlogType | null> {
+    await dbConnect();
+    const blog = await Blog.findById(id)
+      .populate({ path: "author", select: "name avatarUrl" })
+      .lean();
+    return blog ? (blog as unknown as BlogType) : null;
+  },
+
+  async getBySlug(slug: string): Promise<BlogType | null> {
+    await dbConnect();
+    const blog = await Blog.findOne({ slug })
+      .populate({ path: "author", select: "name avatarUrl" })
+      .lean();
+    return blog ? (blog as unknown as BlogType) : null;
+  },
+
+  async updateById(
+    id: string,
+    data: Partial<Omit<BlogType, "_id" | "createdAt" | "updatedAt">>
+  ): Promise<BlogType | null> {
+    await dbConnect();
+    
+    // Use partial validation for updates
+    const parsed = (BlogZod as unknown as import("zod").ZodObject<any>)
+      .partial()
+      .safeParse(data);
+    if (!parsed.success) {
+      throw new Error(
+        parsed.error.errors
+          .map((e: import("zod").ZodIssue) => e.message)
+          .join(", ")
+      );
+    }
+    
+    const updated = await Blog.findByIdAndUpdate(id, parsed.data, {
+      new: true,
+    }).lean();
+    return updated ? (updated as unknown as BlogType) : null;
+  },
+
+  async deleteById(id: string): Promise<void> {
+    await dbConnect();
+    await Blog.findByIdAndDelete(id);
+  },
+};
+```
+
+### ✅ Service with Advanced Queries
+
+```typescript
+// src/services/admin/user.services.ts
+import { User } from "@/models/admin/users/user.model";
+import { UserZod } from "@/schemas/zod/admin/users/user.zod";
+import type { User as UserType } from "@/types/admin/users/user.types";
+import { dbConnect } from "@/lib/database/db";
+
+export const userService = {
+  async create(data: Omit<UserType, "_id" | "createdAt" | "updatedAt">): Promise<UserType> {
+    await dbConnect();
+    
+    // Validate input
+    const parsed = UserZod.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
+    }
+    
+    const user = new User(parsed.data);
+    await user.save();
+    return user.toObject();
+  },
+
+  async getAll(limit = 25, skip = 0, search?: string): Promise<UserType[]> {
+    await dbConnect();
+    
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+    
+    const users = await User.find(query)
+      .select("-password") // Exclude sensitive data
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    return users as unknown as UserType[];
+  },
+
+  async getById(id: string): Promise<UserType | null> {
+    await dbConnect();
+    const user = await User.findById(id).select("-password").lean();
+    return user ? (user as unknown as UserType) : null;
+  },
+
+  async updateById(
+    id: string,
+    data: Partial<Omit<UserType, "_id" | "createdAt" | "updatedAt">>
+  ): Promise<UserType | null> {
+    await dbConnect();
+    
+    const parsed = UserZod.partial().safeParse(data);
+    if (!parsed.success) {
+      throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
+    }
+    
+    const updated = await User.findByIdAndUpdate(id, parsed.data, { new: true })
+      .select("-password")
+      .lean();
+    return updated ? (updated as unknown as UserType) : null;
+  },
+
+  async deleteById(id: string): Promise<void> {
+    await dbConnect();
+    await User.findByIdAndDelete(id);
+  },
+};
+```
+
+### ❌ Bad Service Implementation
+
+```typescript
+// src/services/bad-example.js // Wrong: No TypeScript, wrong location
+import mongoose from "mongoose"; // Wrong: Direct mongoose import
+
+export const badService = {
+  // Wrong: No database connection
+  async create(data) { // Wrong: No types
+    // Wrong: No validation
+    const item = new SomeModel(data);
+    await item.save(); // Wrong: No error handling
+    return item; // Wrong: No data transformation
+  },
+
+  // Wrong: No limiter on getAll
+  async getAll() {
+    const items = await SomeModel.find({}); // Wrong: No connection, no limit
+    return items;
+  },
+
+  // Wrong: No error handling
+  async getById(id) {
+    return await SomeModel.findById(id);
+  },
+};
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|--------|------------------|-----------------|
+| **File Location** | Place in `./src/services/` with `.services.ts` extension | Place in random folders with `.ts` extension |
+| **Database Connection** | Always `await dbConnect()` before operations | Direct database operations without connection |
+| **Validation** | Use Zod schemas with `safeParse()` and error handling | No input validation or basic checks |
+| **Limiters** | `getAll(limit = 25, skip = 0)` with default values | Unlimited queries that can crash the system |
+| **Types** | Full TypeScript with imported types | JavaScript or `any` types |
+| **Data Transform** | Use `.lean()` and `toObject()` for performance | Return raw Mongoose documents |
+| **Error Handling** | Try-catch with meaningful error messages | No error handling or generic errors |
+| **Population** | Select specific fields: `populate({ path: "author", select: "name" })` | Populate everything or no population |
+
+## Key Differences Table
+
+| Component | Effective Service | Ineffective Service |
+|-----------|------------------|-------------------|
+| **Dependencies** | Check models/schemas first, create if missing | Write service without checking dependencies |
+| **Validation** | Zod schema validation with detailed error messages | No validation or basic string checks |
+| **Database** | Proper connection handling with `dbConnect()` | Direct database queries without connection |
+| **Performance** | Use `.lean()`, limiters, selective population | No optimization, unlimited queries |
+| **Types** | Full TypeScript with proper type imports | No types or generic `any` usage |
+| **Structure** | Object export with named methods | Function exports or mixed patterns |
+| **Error Messages** | Descriptive errors from validation | Generic or no error messages |
+
+## Implementation Checklist
+
+### Before Writing Service
+- [ ] Check if relevant model exists in `./models` folder
+- [ ] Check if Zod schema exists in `./schemas/zod/` folder
+- [ ] Verify TypeScript types exist in `./types` folder
+- [ ] Confirm database connection file exists at `./lib/database/db.ts`
+- [ ] Plan the CRUD operations needed for the service
+
+### While Writing Service
+- [ ] Create file in `./src/services/` with `.services.ts` extension
+- [ ] Import model, Zod schema, types, and database connection
+- [ ] Structure service as object export with named methods
+- [ ] Add `await dbConnect()` to all database operations
+- [ ] Implement Zod validation for create/update operations
+- [ ] Add limiters to `getAll` functions (default limit = 25)
+- [ ] Use `.lean()` for read operations and `.toObject()` for writes
+- [ ] Add proper TypeScript types for all parameters and returns
+
+### After Writing Service
+- [ ] Test all CRUD operations with valid and invalid data
+- [ ] Verify Zod validation works with various input scenarios
+- [ ] Check database connection handling under different conditions
+- [ ] Validate limiter functionality prevents unlimited queries
+- [ ] Ensure error messages are meaningful and helpful
+- [ ] Test population and data transformation
+
+### Dependencies Check
+- [ ] If model doesn't exist, create following model rules
+- [ ] If Zod schema doesn't exist, create following zod schema rules
+- [ ] Import only necessary dependencies
+- [ ] Handle missing dependencies gracefully
+- [ ] Update types if service methods change
+
+## References
+
+- @https://mongoosejs.com/docs/
+- @https://zod.dev/basics
+- @https://www.mongodb.com/docs/manual/core/query-optimization/
+
+## Reminders
+
+### ⚡ Critical Service Development Rules
+
+1. **Location**: Always place services in `./src/services/` with `.services.ts` extension
+2. **Dependencies**: Check models and Zod schemas first, create if missing
+3. **Database**: Always `await dbConnect()` before any database operation
+4. **Validation**: Use Zod schemas for all create/update operations
+5. **Limiters**: Add default limiters to `getAll` functions (limit = 25)
+6. **Performance**: Use `.lean()` for reads, `.toObject()` for transformation
+7. **Types**: Import and use proper TypeScript types throughout
+8. **Structure**: Export service as object with named methods
+
+### 🎯 Quality Indicators
+
+- Does the service file exist in `./src/services/` with `.services.ts` extension?
+- Are model, Zod schema, and types properly imported and used?
+- Is `dbConnect()` called before every database operation?
+- Do `getAll` functions have proper limiters and pagination?
+- Are all inputs validated using Zod schemas?
+- Do error messages provide helpful debugging information?
+
+### 📋 Service File Template Structure
+
+```typescript
+// Import dependencies
+import { ModelName } from "@/models/path/model.model";
+import { SchemaZod } from "@/schemas/zod/path/schema.zod";
+import type { Type } from "@/types/path/type.types";
+import { dbConnect } from "@/lib/database/db";
+
+export const entityService = {
+  async create(data: CreateType): Promise<Type> { /* ... */ },
+  async getAll(limit = 25, skip = 0): Promise<Type[]> { /* ... */ },
+  async getById(id: string): Promise<Type | null> { /* ... */ },
+  async updateById(id: string, data: UpdateType): Promise<Type | null> { /* ... */ },
+  async deleteById(id: string): Promise<void> { /* ... */ },
+};
+```

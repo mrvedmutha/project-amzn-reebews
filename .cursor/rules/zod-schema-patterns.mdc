@@ -1,0 +1,420 @@
+---
+description: how to write zod schema
+globs: 
+alwaysApply: false
+---
+# Zod Schema Patterns - Cursor Rules
+
+## File Structure
+
+```
+project/
+├── schemas/
+│   └── zod/
+│       ├── admin/
+│       │   ├── blogs/
+│       │   │   └── blog.zod.ts           // Blog + Author + Category + Tag + Comment Zod schemas
+│       │   ├── users/
+│       │   │   ├── user.zod.ts           // User + Profile + Settings Zod schemas
+│       │   │   └── authentication.zod.ts // Login + Register + Reset Zod schemas
+│       │   └── ecommerce/
+│       │       ├── product.zod.ts        // Product + Category + Review + Variant Zod schemas
+│       │       └── order.zod.ts          // Order + OrderItem + Payment + Shipping Zod schemas
+│       ├── auth/
+│       │   ├── session.zod.ts            // Session + Token Zod schemas
+│       │   └── verification.zod.ts       // Email + Phone verification Zod schemas
+│       └── public/
+│           ├── contact.zod.ts            // Contact + Feedback + Message Zod schemas
+│           └── search.zod.ts             // Search + Filter + Pagination Zod schemas
+├── enums/
+│   ├── admin/
+│   │   ├── blogs/
+│   │   │   ├── status.enum.ts            // Blog status enum values
+│   │   │   └── content-type.enum.ts      // Content type enum values
+│   │   └── users/
+│   │       ├── user-role.enum.ts         // User role enum values
+│   │       └── user-status.enum.ts       // User status enum values
+│   └── shared/
+│       ├── status.enum.ts                // General status enum values
+│       └── priority.enum.ts              // Priority level enum values
+├── types/
+│   └── admin/
+│       ├── blogs/
+│       │   └── blog.types.ts             // Blog TypeScript interfaces
+│       └── users/
+│           └── user.types.ts             // User TypeScript interfaces
+└── src/
+    └── services/
+        └── admin/
+            ├── blog.services.ts          // Blog service using Zod validation
+            └── user.services.ts          // User service using Zod validation
+```
+
+## Cursor Rules
+
+### 1. Rule - Enum Dependencies and Validation
+- **Always check `./enums` folder for relevant enum types before writing Zod schema**
+- If enum doesn't exist, create it following enum rules first
+- Import and use enum values in Zod validation with `z.nativeEnum(EnumName)`
+- Ensure enum path matches the Zod schema domain structure
+- Prefer `z.nativeEnum()` over `z.enum(Object.values())` for TypeScript enums
+
+### 2. Rule - File Location and Naming
+- **Always write Zod schemas in `./schemas/zod` folder**
+- File names must end with `.zod.ts`
+- Organize files by domain and feature area
+- Use kebab-case for file naming (e.g., `blog.zod.ts`, `user-authentication.zod.ts`)
+- Mirror the application's domain structure in folder organization
+
+### 3. Rule - Schema Grouping and Organization
+- **Group related Zod schemas based on the main entity in the same file**
+- Include all schemas that relate to the main entity in one file
+- For example: blog.zod.ts should contain Blog, Author, Category, Tag, Comment schemas
+- Export each schema individually with descriptive names
+- Use clear naming conventions: `BlogZod`, `AuthorZod`, `CategoryZod`, `CommentZod`
+
+### 4. Rule - Zod Schema Structure and Validation
+- **Use appropriate validation patterns and message formats**
+- Use `{ message: "Error text" }` object format for error messages
+- Include optional fields with `.optional()` and nullable with `.nullable()`
+- Use `z.preprocess()` for data transformation (e.g., string to Date)
+- Avoid `.strict()` unless specifically needed for form validation
+
+### 5. Rule - Import Organization and Type Safety
+- **Import Zod as `z` and use consistent patterns**
+- Import enums at the top of the file
+- Export schemas with TypeScript type inference
+- Use `z.infer<typeof SchemaName>` for type extraction
+- Group imports logically: Zod, enums, other dependencies
+
+## Example Code
+
+### ✅ Complete Zod Schema Implementation with Grouping
+
+```typescript
+// schemas/zod/admin/blogs/blog.zod.ts
+import { z } from "zod";
+import { BlogStatus } from "@/enums/admin/blogs/status.enum";
+
+// Author Zod Schema
+export const AuthorZod = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  avatarUrl: z.string().optional(),
+});
+
+// Category Zod Schema
+export const CategoryZod = z.object({
+  id: z.number(),
+  name: z.string(),
+  description: z.string().optional(),
+  slug: z.string(),
+  parentId: z.number().nullable().optional(),
+});
+
+// Tag Zod Schema
+export const TagZod = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+});
+
+// Comment User Zod Schema (for blog comments)
+export const CommentUserZod = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  avatarUrl: z.string().optional(),
+});
+
+// Comment Zod Schema
+export const CommentZod = z.object({
+  user: CommentUserZod,
+  content: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+// Main Blog Zod Schema
+export const BlogZod = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  slug: z.string().min(1, { message: "Slug is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+  status: z.nativeEnum(BlogStatus),
+  author: z.string().optional(),
+  allowComments: z.boolean().optional(),
+  comments: z.array(CommentZod).optional(),
+  categories: z.array(CategoryZod).optional(),
+  tags: z.array(TagZod),
+  mainImage: z.string().optional(),
+  scheduledAt: z.preprocess(
+    (val) => (val ? new Date(val as string) : undefined),
+    z.date().optional()
+  ),
+});
+
+// Type inference exports
+export type BlogType = z.infer<typeof BlogZod>;
+export type AuthorType = z.infer<typeof AuthorZod>;
+export type CategoryType = z.infer<typeof CategoryZod>;
+export type TagType = z.infer<typeof TagZod>;
+export type CommentType = z.infer<typeof CommentZod>;
+export type CommentUserType = z.infer<typeof CommentUserZod>;
+```
+
+### ✅ User Authentication Zod Schemas
+
+```typescript
+// schemas/zod/admin/users/authentication.zod.ts
+import { z } from "zod";
+import { UserRole } from "@/enums/admin/users/user-role.enum";
+import { UserStatus } from "@/enums/admin/users/user-status.enum";
+
+// Login Zod Schema
+export const LoginZod = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+  rememberMe: z.boolean().optional(),
+});
+
+// Register Zod Schema
+export const RegisterZod = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  confirmPassword: z.string(),
+  role: z.nativeEnum(UserRole).optional(),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "You must accept the terms and conditions"
+  }),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"]
+});
+
+// Password Reset Zod Schema
+export const PasswordResetZod = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+});
+
+// Change Password Zod Schema
+export const ChangePasswordZod = z.object({
+  currentPassword: z.string().min(1, { message: "Current password is required" }),
+  newPassword: z.string().min(8, { message: "New password must be at least 8 characters" }),
+  confirmNewPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmNewPassword, {
+  message: "New passwords do not match",
+  path: ["confirmNewPassword"]
+});
+
+// User Profile Update Zod Schema
+export const UserProfileUpdateZod = z.object({
+  name: z.string().optional(),
+  bio: z.string().optional(),
+  avatarUrl: z.string().optional(),
+  status: z.nativeEnum(UserStatus).optional(),
+  socialLinks: z.object({
+    twitter: z.string().optional(),
+    linkedin: z.string().optional(),
+    github: z.string().optional(),
+    website: z.string().optional(),
+  }).optional(),
+});
+
+// Type inference exports
+export type LoginType = z.infer<typeof LoginZod>;
+export type RegisterType = z.infer<typeof RegisterZod>;
+export type PasswordResetType = z.infer<typeof PasswordResetZod>;
+export type ChangePasswordType = z.infer<typeof ChangePasswordZod>;
+export type UserProfileUpdateType = z.infer<typeof UserProfileUpdateZod>;
+```
+
+### ❌ Bad Zod Schema Implementation
+
+```typescript
+// Wrong: Single schema per file, no enum usage, poor validation
+// schemas/zod/admin/blog-title.zod.ts
+import { z } from "zod";
+
+// Wrong: Only one simple schema, no grouping
+export const BlogTitleZod = z.object({
+  title: z.string(), // Wrong: No validation rules
+});
+
+// Wrong: Separate file for category
+// schemas/zod/admin/blog-category.zod.ts
+export const CategoryZod = z.object({
+  name: z.string(),
+  status: z.string() // Wrong: No enum validation
+});
+```
+
+```typescript
+// Wrong: Poor enum usage, validation patterns, message format
+// schemas/zod/badExample.js
+const zod = require("zod"); // Wrong: CommonJS import
+import { BlogStatus } from "@/enums/admin/blogs/status.enum";
+
+// Wrong: Using Object.values instead of z.nativeEnum
+export const badBlogSchema = zod.object({
+  status: zod.enum(Object.values(BlogStatus)), // Wrong: Should use z.nativeEnum
+  title: zod.string().min(1, "Title required"), // Wrong: Message format inconsistent
+  email: zod.string(), // Wrong: No email validation
+  scheduledAt: zod.date(), // Wrong: No preprocessing for string to date
+});
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|--------|------------------|-----------------|
+| **Enum Usage** | Import enums and use `z.nativeEnum(EnumName)` | Use `z.enum(Object.values())` or hardcoded arrays |
+| **File Grouping** | Group related schemas by main entity (blog + author + category + tag + comment) | One schema per file or random grouping |
+| **File Naming** | Use `.zod.ts` extension with kebab-case names | Use `.ts` or other extensions |
+| **Message Format** | Use `{ message: "Error text" }` object format | String messages or inconsistent format |
+| **Type Inference** | Export `z.infer<typeof SchemaName>` types | No type inference or exports |
+| **Optional Fields** | Use `.optional()` and `.nullable()` appropriately | Required fields when optional needed |
+| **Date Handling** | Use `z.preprocess()` for string to Date conversion | Direct `z.date()` without preprocessing |
+| **Dependencies** | Check enums exist, create if missing | Assume enums exist or hardcode values |
+
+## Key Differences Table
+
+| Component | Effective Zod Schema | Ineffective Zod Schema |
+|-----------|---------------------|------------------------|
+| **Enum Integration** | Import enums, use `z.nativeEnum(EnumName)` | Use `z.enum(Object.values())` or hardcoded arrays |
+| **File Organization** | Group related schemas by main entity in single files | Scatter schemas across many files |
+| **Message Format** | Use `{ message: "Error text" }` object format | String messages or inconsistent format |
+| **Type Safety** | Export inferred types for reuse | No type exports or inference |
+| **Optional Handling** | Use `.optional()` and `.nullable()` correctly | Incorrect required/optional field handling |
+| **Date Processing** | Use `z.preprocess()` for data transformation | Direct types without preprocessing |
+| **Field Validation** | Appropriate validation rules for field types | No validation or wrong validation types |
+
+## Implementation Checklist
+
+### Before Writing Zod Schema
+- [ ] Check if relevant enums exist in `./enums` folder
+- [ ] Identify all related schemas that should be grouped together
+- [ ] Plan the validation rules and constraints needed
+- [ ] Determine required vs optional fields
+- [ ] Define custom error messages for user experience
+
+### While Writing Zod Schema
+- [ ] Create file in `./schemas/zod/` with `.zod.ts` extension
+- [ ] Import zod as `z` and relevant enums
+- [ ] Group related schemas in the same file
+- [ ] Use PascalCase naming with `Zod` suffix (BlogZod, CategoryZod)
+- [ ] Add comprehensive validation rules with custom messages
+- [ ] Use `z.nativeEnum(EnumName)` for enum validation
+- [ ] Use `{ message: "Error text" }` format for custom messages
+- [ ] Export type inference with `z.infer<typeof SchemaName>`
+
+### After Writing Zod Schema
+- [ ] Test all validation scenarios with valid and invalid data
+- [ ] Verify enum validation works with `z.nativeEnum()`
+- [ ] Test custom error messages use object format
+- [ ] Ensure type inference works in services/APIs
+- [ ] Validate schema grouping makes logical sense
+- [ ] Test date preprocessing and optional field handling
+
+### Enum Dependencies
+- [ ] If enum doesn't exist, create following enum rules first
+- [ ] Import enums from correct paths matching domain structure
+- [ ] Verify enum values work with z.nativeEnum() validation
+- [ ] Ensure enum and schema names are consistent
+- [ ] Update enums if schema validation requirements change
+
+## References
+
+- https://zod.dev/basics
+- https://zod.dev/api
+
+## Reminders
+
+### ⚡ Critical Zod Schema Development Rules
+
+1. **Enum Dependencies**: Check `./enums` folder first, create enums if missing
+2. **File Location**: Always place schemas in `./schemas/zod/` with `.zod.ts` extension
+3. **Schema Grouping**: Group related schemas by main entity (blog + author + category + tag + comment)
+4. **Enum Validation**: Use `z.nativeEnum(EnumName)` for enum fields
+5. **Message Format**: Use `{ message: "Error text" }` object format for error messages
+6. **Type Inference**: Export `z.infer<typeof SchemaName>` for type safety
+7. **Optional Fields**: Use `.optional()` and `.nullable()` appropriately
+8. **Date Processing**: Use `z.preprocess()` for string to Date conversion
+
+### 🎯 Quality Indicators
+
+- Does the schema import and use relevant enums from `./enums` folder?
+- Are related schemas grouped together in the same file?
+- Is the file located in `./schemas/zod/` with `.zod.ts` extension?
+- Are enum fields using `z.nativeEnum(EnumName)` pattern?
+- Do error messages use `{ message: "Error text" }` object format?
+- Are type inference exports provided for TypeScript integration?
+- Are `.optional()` and `.nullable()` used appropriately for fields?
+
+### 📋 Zod Schema File Template Structure
+
+```typescript
+// Import dependencies
+import { z } from "zod";
+import { StatusEnum } from "@/enums/path/status.enum";
+import { TypeEnum } from "@/enums/path/type.enum";
+
+// Related Schema 1
+export const EntityZod = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  status: z.nativeEnum(StatusEnum).optional(),
+  // ... other fields
+});
+
+// Related Schema 2  
+export const SubEntityZod = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  type: z.nativeEnum(TypeEnum),
+  // ... other fields
+});
+
+// Main Schema using related schemas
+export const MainEntityZod = z.object({
+  entity: EntityZod,
+  subEntities: z.array(SubEntityZod),
+  // ... other fields
+});
+
+// Type inference exports
+export type EntityType = z.infer<typeof EntityZod>;
+export type SubEntityType = z.infer<typeof SubEntityZod>;
+export type MainEntityType = z.infer<typeof MainEntityZod>;
+```
+
+### 🔧 Common Zod Schema Patterns
+
+#### Grouped Entity Schemas
+```typescript
+// schemas/zod/admin/blogs/blog.zod.ts - All blog-related schemas
+export const AuthorZod = z.object({...});
+export const CategoryZod = z.object({...});
+export const TagZod = z.object({...});
+export const CommentZod = z.object({...});
+export const BlogZod = z.object({
+  author: z.string().optional(),
+  categories: z.array(CategoryZod).optional(),
+  tags: z.array(TagZod),
+  comments: z.array(CommentZod).optional()
+});
+```
+
+#### Authentication Schemas
+```typescript
+// schemas/zod/auth/authentication.zod.ts
+export const LoginZod = z.object({...});
+export const RegisterZod = z.object({...});
+export const ResetPasswordZod = z.object({...});
+```
+
+#### Public Form Schemas
+```typescript
+// schemas/zod/public/contact.zod.ts - All contact-related schemas
+export const ContactZod = z.object({...});
+export const FeedbackZod = z.object({...});
+export const MessageZod = z.object({...});
+export const NewsletterZod = z.object({...});
+```

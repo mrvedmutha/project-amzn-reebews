@@ -1,0 +1,587 @@
+---
+description: How to write context
+globs: 
+alwaysApply: false
+---
+# Context Code Design and Organization Rules
+
+## File Structure
+
+```
+src/
+└── context/
+    ├── icons.context.ts           // Icon mappings and configurations
+    ├── socials.context.tsx         // Social media data with components
+    ├── navigation.context.ts       // Navigation menu configurations
+    ├── theme.context.tsx           // Theme configurations with components
+    ├── api-endpoints.context.ts    // API endpoint configurations
+    ├── feature-flags.context.ts    // Feature flag configurations
+    ├── form-fields.context.tsx     // Form field configurations with components
+    └── dashboard.context.tsx       // Dashboard widget configurations
+```
+
+## Cursor Rules
+
+### 1. Rule - Context File Location and Naming
+- **Always place context files in `./src/context` folder**
+- **File names must end with `.context.ts` for pure data/configuration**
+- **File names must end with `.context.tsx` when using React components**
+- Use kebab-case for context file names (e.g., `social-media.context.tsx`)
+- File name should reflect the domain/purpose of the context
+
+### 2. Rule - Context File Type Selection
+- **Use `.context.ts`** for pure data, configurations, constants, and mappings
+- **Use `.context.tsx`** when context includes React components, JSX elements, or component references
+- **Import React types** when using JSX elements in `.context.tsx` files
+- Always use TypeScript for type safety
+
+### 3. Rule - Context Content Organization
+- **Export const arrays/objects** for data collections
+- **Use `as const`** for immutable data that shouldn't be modified
+- **Group related configurations** in the same context file
+- **Use descriptive export names** that indicate the data purpose
+- **Add JSDoc comments** for complex context configurations
+
+### 4. Rule - Component Integration in Context
+- **Import all required components/icons** at the top of the file
+- **Create component mappings** using Record types for icon/component maps
+- **Use consistent component props** across similar mappings
+- **Export both data and component maps** when needed
+
+### 5. Rule - Context Import and Usage
+- **Import context using `@/context/filename.context`** pattern
+- **Use named imports** for specific context exports
+- **Type context exports properly** using interfaces or types
+- **Use context in components** for dynamic rendering and configuration
+
+### 6. Rule - Context Data Structure Standards
+- **Use consistent data structures** across similar contexts
+- **Include all necessary metadata** (name, url, description, etc.)
+- **Use enums for predefined values** when applicable
+- **Maintain data integrity** with proper typing
+
+## Examples
+
+### ✅ Good Context Structure (Pure Data)
+
+```typescript
+// ./src/context/navigation.context.ts
+import { UserRole } from '@/enums/user.enum';
+
+/**
+ * Main navigation menu items
+ */
+export const mainNavigation = [
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    requiredRole: UserRole.USER,
+    isActive: true,
+  },
+  {
+    name: 'Users',
+    href: '/users',
+    requiredRole: UserRole.ADMIN,
+    isActive: true,
+  },
+  {
+    name: 'Settings',
+    href: '/settings',
+    requiredRole: UserRole.USER,
+    isActive: true,
+  },
+] as const;
+
+/**
+ * Footer navigation links
+ */
+export const footerNavigation = [
+  {
+    name: 'Privacy Policy',
+    href: '/privacy',
+    external: false,
+  },
+  {
+    name: 'Terms of Service',
+    href: '/terms',
+    external: false,
+  },
+  {
+    name: 'Contact',
+    href: '/contact',
+    external: false,
+  },
+] as const;
+
+/**
+ * Social media navigation
+ */
+export const socialNavigation = [
+  {
+    name: 'Twitter',
+    href: 'https://twitter.com/yourcompany',
+    external: true,
+  },
+  {
+    name: 'GitHub',
+    href: 'https://github.com/yourcompany',
+    external: true,
+  },
+] as const;
+```
+
+### ✅ Good Context Structure (With Components)
+
+```typescript
+// ./src/context/icons.context.tsx
+import { JSX } from 'react';
+import { 
+  Code, 
+  Database, 
+  Paintbrush, 
+  PenTool, 
+  Zap, 
+  Check,
+  Settings,
+  User,
+  Home 
+} from 'lucide-react';
+
+/**
+ * Available Lucide icons with their components
+ */
+export const lucideIcons = [
+  { name: 'Code', icon: Code },
+  { name: 'Database', icon: Database },
+  { name: 'Paintbrush', icon: Paintbrush },
+  { name: 'PenTool', icon: PenTool },
+  { name: 'Zap', icon: Zap },
+  { name: 'Check', icon: Check },
+  { name: 'Settings', icon: Settings },
+  { name: 'User', icon: User },
+  { name: 'Home', icon: Home },
+] as const;
+
+/**
+ * Icon mapping for dynamic icon rendering
+ */
+export const iconMap: Record<string, JSX.Element> = {
+  Code: <Code size={24} />,
+  Database: <Database size={24} />,
+  Paintbrush: <Paintbrush size={24} />,
+  PenTool: <PenTool size={24} />,
+  Zap: <Zap size={24} />,
+  Check: <Check size={24} />,
+  Settings: <Settings size={24} />,
+  User: <User size={24} />,
+  Home: <Home size={24} />,
+};
+
+/**
+ * Status icons with consistent styling
+ */
+export const statusIcons: Record<string, JSX.Element> = {
+  success: <Check size={20} className="text-green-500" />,
+  error: <Zap size={20} className="text-red-500" />,
+  warning: <PenTool size={20} className="text-yellow-500" />,
+  info: <Database size={20} className="text-blue-500" />,
+};
+```
+
+### ✅ Complex Context Example
+
+```typescript
+// ./src/context/socials.context.tsx
+import { JSX } from 'react';
+import type { ISocialLinkInterface } from '@/types/ISocialLinkInterface';
+import {
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandTwitter,
+  IconBrandLinkedin,
+  IconBrandGithub,
+  IconBrandYoutube,
+} from '@tabler/icons-react';
+
+/**
+ * Social media platform configurations
+ */
+export const socials: Omit<ISocialLinkInterface, 'icon'>[] = [
+  {
+    name: 'Facebook',
+    username: '@yourfacebook',
+    url: 'https://facebook.com/yourfacebook',
+    description: 'Follow us on Facebook for updates',
+    isActive: true,
+    followerCount: 1200,
+  },
+  {
+    name: 'Instagram',
+    username: '@yourinstagram',
+    url: 'https://instagram.com/yourinstagram',
+    description: 'See our latest photos and stories',
+    isActive: true,
+    followerCount: 850,
+  },
+  {
+    name: 'Twitter',
+    username: '@yourtwitter',
+    url: 'https://twitter.com/yourtwitter',
+    description: 'Get real-time updates and news',
+    isActive: true,
+    followerCount: 2100,
+  },
+  {
+    name: 'LinkedIn',
+    username: '@yourlinkedin',
+    url: 'https://linkedin.com/in/yourlinkedin',
+    description: 'Connect with us professionally',
+    isActive: true,
+    followerCount: 650,
+  },
+  {
+    name: 'GitHub',
+    username: '@yourgithub',
+    url: 'https://github.com/yourgithub',
+    description: 'Check out our open source projects',
+    isActive: true,
+    followerCount: 340,
+  },
+  {
+    name: 'YouTube',
+    username: '@youryoutube',
+    url: 'https://youtube.com/@youryoutube',
+    description: 'Watch our tutorials and demos',
+    isActive: false,
+    followerCount: 0,
+  },
+] as const;
+
+/**
+ * Social media icon mapping with consistent styling
+ */
+export const socialIconMap: Record<string, JSX.Element> = {
+  Facebook: <IconBrandFacebook size={32} stroke={1.5} className="text-blue-600" />,
+  Instagram: <IconBrandInstagram size={32} stroke={1.5} className="text-pink-600" />,
+  Twitter: <IconBrandTwitter size={32} stroke={1.5} className="text-blue-400" />,
+  LinkedIn: <IconBrandLinkedin size={32} stroke={1.5} className="text-blue-700" />,
+  GitHub: <IconBrandGithub size={32} stroke={1.5} className="text-gray-800" />,
+  YouTube: <IconBrandYoutube size={32} stroke={1.5} className="text-red-600" />,
+};
+
+/**
+ * Small social media icons for compact displays
+ */
+export const socialIconMapSmall: Record<string, JSX.Element> = {
+  Facebook: <IconBrandFacebook size={16} stroke={1.5} />,
+  Instagram: <IconBrandInstagram size={16} stroke={1.5} />,
+  Twitter: <IconBrandTwitter size={16} stroke={1.5} />,
+  LinkedIn: <IconBrandLinkedin size={16} stroke={1.5} />,
+  GitHub: <IconBrandGithub size={16} stroke={1.5} />,
+  YouTube: <IconBrandYoutube size={16} stroke={1.5} />,
+};
+```
+
+### ✅ Feature Configuration Context
+
+```typescript
+// ./src/context/features.context.ts
+import { UserRole } from '@/enums/user.enum';
+
+/**
+ * Feature flag configurations
+ */
+export const featureFlags = {
+  enableDarkMode: true,
+  enableNotifications: true,
+  enableAnalytics: true,
+  enableBetaFeatures: false,
+  enablePayments: true,
+  enableSocialLogin: true,
+} as const;
+
+/**
+ * Feature access control by user role
+ */
+export const featureAccess = {
+  [UserRole.ADMIN]: [
+    'userManagement',
+    'systemSettings',
+    'analytics',
+    'billing',
+    'apiAccess',
+  ],
+  [UserRole.MODERATOR]: [
+    'contentModeration',
+    'userReports',
+    'basicAnalytics',
+  ],
+  [UserRole.USER]: [
+    'profileManagement',
+    'contentCreation',
+    'notifications',
+  ],
+  [UserRole.GUEST]: [
+    'viewContent',
+  ],
+} as const;
+
+/**
+ * API endpoint configurations
+ */
+export const apiEndpoints = {
+  auth: {
+    login: '/api/auth/login',
+    logout: '/api/auth/logout',
+    register: '/api/auth/register',
+    refresh: '/api/auth/refresh',
+  },
+  users: {
+    profile: '/api/users/profile',
+    list: '/api/users',
+    create: '/api/users',
+    update: (id: string) => `/api/users/${id}`,
+    delete: (id: string) => `/api/users/${id}`,
+  },
+  content: {
+    posts: '/api/posts',
+    comments: '/api/comments',
+    media: '/api/media',
+  },
+} as const;
+```
+
+### ✅ Dashboard Widget Context
+
+```typescript
+// ./src/context/dashboard.context.tsx
+import { JSX } from 'react';
+import { BarChart, PieChart, LineChart, Users, DollarSign, Activity } from 'lucide-react';
+import type { IDashboardWidgetInterface } from '@/types/IDashboardWidgetInterface';
+
+/**
+ * Dashboard widget configurations
+ */
+export const dashboardWidgets: IDashboardWidgetInterface[] = [
+  {
+    id: 'user-stats',
+    title: 'User Statistics',
+    description: 'Overview of user registrations and activity',
+    type: 'chart',
+    size: 'medium',
+    position: { x: 0, y: 0 },
+    isVisible: true,
+    refreshInterval: 300000, // 5 minutes
+  },
+  {
+    id: 'revenue-chart',
+    title: 'Revenue Overview',
+    description: 'Monthly revenue trends and projections',
+    type: 'chart',
+    size: 'large',
+    position: { x: 1, y: 0 },
+    isVisible: true,
+    refreshInterval: 600000, // 10 minutes
+  },
+  {
+    id: 'activity-feed',
+    title: 'Recent Activity',
+    description: 'Latest user actions and system events',
+    type: 'feed',
+    size: 'small',
+    position: { x: 0, y: 1 },
+    isVisible: true,
+    refreshInterval: 60000, // 1 minute
+  },
+] as const;
+
+/**
+ * Widget icon mapping
+ */
+export const widgetIconMap: Record<string, JSX.Element> = {
+  'user-stats': <Users size={24} className="text-blue-500" />,
+  'revenue-chart': <DollarSign size={24} className="text-green-500" />,
+  'activity-feed': <Activity size={24} className="text-purple-500" />,
+  'bar-chart': <BarChart size={24} className="text-orange-500" />,
+  'pie-chart': <PieChart size={24} className="text-red-500" />,
+  'line-chart': <LineChart size={24} className="text-indigo-500" />,
+};
+```
+
+### ❌ Bad Context Structure
+
+```typescript
+// Wrong: Mixed file extension and poor organization
+// ./src/context/mixed.context.ts (should be .tsx since it has JSX)
+import { Code } from 'lucide-react';
+
+// Wrong: No type safety, poor naming
+export const stuff = [
+  { name: 'code', thing: Code }, // Wrong: inconsistent naming
+  'some string', // Wrong: mixed data types
+  123, // Wrong: mixed data types
+];
+
+// Wrong: No JSDoc comments, unclear purpose
+export const data = {
+  thing1: 'value1',
+  thing2: 'value2',
+};
+
+// Wrong: Using JSX without .tsx extension
+export const icons = {
+  code: <Code />, // Wrong: JSX in .ts file
+};
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|-----|---|-----|
+| **File Extension** | `.context.tsx` for JSX, `.context.ts` for data | `.ts` for everything |
+| **File Naming** | `social-media.context.tsx` | `socialMedia.tsx` |
+| **Data Structure** | Consistent, typed objects with metadata | Mixed types, unclear structure |
+| **Imports** | All components imported at top | Missing imports, inline requires |
+| **Exports** | Named exports with descriptive names | Default exports, unclear names |
+| **Typing** | Proper TypeScript interfaces | `any` types, no type safety |
+
+## Context Types Comparison
+
+| Context Type | File Extension | Contains | Example |
+|-----|---|-----|-----|
+| **Pure Data** | `.context.ts` | Constants, configurations, API endpoints | `navigation.context.ts` |
+| **With Components** | `.context.tsx` | JSX elements, component mappings | `icons.context.tsx` |
+| **Feature Flags** | `.context.ts` | Boolean flags, access control | `features.context.ts` |
+| **Widget Config** | `.context.tsx` | Dashboard widgets with icons | `dashboard.context.tsx` |
+
+## Usage in Components
+
+### ✅ Good Context Usage
+
+```typescript
+// ./src/components/SocialLinks.tsx
+import React from 'react';
+import { socials, socialIconMap } from '@/context/socials.context';
+
+const SocialLinks: React.FC = () => {
+  return (
+    <div className="flex space-x-4">
+      {socials
+        .filter(social => social.isActive)
+        .map(social => (
+          <a
+            key={social.name}
+            href={social.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={social.description}
+            className="hover:opacity-75 transition-opacity"
+          >
+            {socialIconMap[social.name]}
+          </a>
+        ))}
+    </div>
+  );
+};
+
+export { SocialLinks };
+```
+
+### ✅ Dynamic Icon Rendering
+
+```typescript
+// ./src/components/DynamicIcon.tsx
+import React from 'react';
+import { iconMap } from '@/context/icons.context';
+
+interface DynamicIconProps {
+  iconName: string;
+  fallback?: React.ReactNode;
+}
+
+const DynamicIcon: React.FC<DynamicIconProps> = ({ iconName, fallback }) => {
+  const icon = iconMap[iconName];
+  
+  if (!icon && fallback) {
+    return <>{fallback}</>;
+  }
+  
+  return icon || null;
+};
+
+export { DynamicIcon };
+```
+
+## Implementation Checklist
+
+### Before Creating Context
+- [ ] Determine if context needs JSX components (.tsx) or pure data (.ts)
+- [ ] Plan the data structure and required metadata
+- [ ] Identify all component imports needed
+- [ ] Consider type safety requirements
+
+### While Creating Context
+- [ ] Use correct file extension (.context.ts or .context.tsx)
+- [ ] Place file in `./src/context/` directory
+- [ ] Import all required components at the top
+- [ ] Use consistent data structures
+- [ ] Add JSDoc comments for complex configurations
+- [ ] Use `as const` for immutable data
+- [ ] Export with descriptive names
+
+### After Creating Context
+- [ ] Import context using `@/context/filename.context` pattern
+- [ ] Test context usage in components
+- [ ] Verify TypeScript compilation passes
+- [ ] Ensure all component mappings work correctly
+- [ ] Update related interfaces if needed
+
+### Context Organization Checks
+- [ ] Context file is in correct directory
+- [ ] File extension matches content type
+- [ ] Related configurations are grouped together
+- [ ] Consistent naming patterns used
+- [ ] Proper TypeScript types applied
+- [ ] All imports are at the top of the file
+
+## References
+
+- [TypeScript Const Assertions](mdc:https:/www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions)
+- [React TypeScript Best Practices](mdc:https:/react-typescript-cheatsheet.netlify.app)
+- [JSX Type Checking](mdc:https:/www.typescriptlang.org/docs/handbook/jsx.html)
+
+## Reminders
+
+### ⚡ Key Context Rules to Remember
+
+1. **File Extension**: Use `.context.tsx` for JSX, `.context.ts` for pure data
+2. **Location**: All context files go in `./src/context/` directory
+3. **Imports**: Import all components at the top of the file
+4. **Typing**: Use proper TypeScript interfaces and types
+5. **Naming**: Use descriptive names for exports and consistent structure
+6. **Organization**: Group related configurations in same file
+7. **Documentation**: Add JSDoc comments for complex configurations
+8. **Immutability**: Use `as const` for data that shouldn't change
+9. **Consistency**: Maintain consistent data structures across similar contexts
+10. **Usage**: Import using `@/context/filename.context` pattern
+
+### 🎯 Context Quality Indicators
+
+- Do context files have the correct extension for their content?
+- Are all required components imported properly?
+- Is the data structure consistent and well-typed?
+- Are exports named descriptively?
+- Is the context used effectively in components?
+
+### 📋 Context Creation Checklist
+
+- [ ] File name follows `domain-name.context.ts/tsx` pattern
+- [ ] File located in `./src/context/` directory
+- [ ] Correct file extension for content type
+- [ ] All component imports at the top
+- [ ] Consistent data structures used
+- [ ] JSDoc comments added for complex configs
+- [ ] Proper TypeScript typing applied
+- [ ] Named exports with descriptive names
+- [ ] Use `as const` for immutable data
+- [ ] Import using `@/context/filename.context` pattern

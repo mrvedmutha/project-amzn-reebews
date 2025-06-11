@@ -1,0 +1,357 @@
+---
+description: how to write an api
+globs: 
+alwaysApply: false
+---
+# API Design Patterns - Cursor Rules
+
+## File Structure
+
+```
+project/
+├── app/
+│   └── api/
+│       └── v1/
+│           ├── auth/
+│           │   ├── login/
+│           │   │   └── route.ts          // POST /api/v1/auth/login
+│           │   └── register/
+│           │       └── route.ts          // POST /api/v1/auth/register
+│           ├── users/
+│           │   ├── route.ts              // GET,POST /api/v1/users
+│           │   └── [id]/
+│           │       └── route.ts          // GET,PUT,DELETE /api/v1/users/[id]
+│           └── posts/
+│               ├── route.ts              // GET,POST /api/v1/posts
+│               └── [postId]/
+│                   └── route.ts          // GET,PUT,DELETE /api/v1/posts/[postId]
+├── services/
+│   ├── user.services.ts                  // User CRUD operations
+│   ├── post.services.ts                  // Post CRUD operations
+│   └── auth.services.ts                  // Authentication operations
+└── lib/
+    └── api/
+        └── responses.ts                  // Standardized API responses
+```
+
+## Cursor Rules
+
+### 1. Rule - Service Layer First Analysis
+- **Always scan `./services` folder before writing any API**
+- Check if relevant service exists for your API domain
+- If service exists, import and use the service functions
+- If service doesn't exist, write the service first following [service-layer-patterns.mdc](mdc:.cursor/rules/service-layer-patterns.mdc)
+- Never write database operations directly in API routes
+
+### 2. Rule - Response Standardization
+- **Check if `./lib/api/responses.ts` exists before writing first API**
+- If responses.ts doesn't exist, create it with `successResponse` and `errorResponse` functions
+- Always import and use standardized response functions
+- Use appropriate HTTP status codes (1xx, 2xx, 3xx, 4xx, 5xx)
+- Include meaningful messages and proper data structure
+
+### 3. Rule - Session Management
+- **Check if API requires authentication before implementation**
+- Use session validation for protected endpoints
+- Import session utilities and validate tokens
+- Return 401 for unauthorized access
+- Return 403 for forbidden access to resources
+
+### 4. Rule - Dynamic Route Patterns
+- **Use proper Next.js 15+ App Router syntax for dynamic routes**
+- Always use `Promise<{ param: string }>` for dynamic parameters
+- Await params before destructuring: `const { id } = await params;`
+- Handle parameter validation and type conversion
+- Use descriptive parameter names in folder structure
+
+### 5. Rule - Error Handling and Validation
+- **Implement comprehensive error handling in every API route**
+- Validate input parameters and request body
+- Use try-catch blocks for all async operations
+- Return appropriate error responses with meaningful messages
+- Log errors for debugging purposes
+
+## Example Code
+
+### ✅ Complete API Route Implementation
+
+```typescript
+// app/api/v1/users/[id]/route.ts
+import { NextRequest } from "next/server";
+import { successResponse, errorResponse } from "@/lib/api/responses";
+import { getUserById, updateUser, deleteUser } from "@/services/user.services";
+import { validateSession } from "@/lib/auth/session";
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    // Validate ID parameter
+    if (!id || typeof id !== 'string') {
+      return errorResponse("Invalid user ID", 400);
+    }
+
+    // Get user from service
+    const user = await getUserById(id);
+    
+    if (!user) {
+      return errorResponse("User not found", 404);
+    }
+
+    return successResponse("User retrieved successfully", 200, user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return errorResponse("Internal server error", 500, error);
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Validate session for protected endpoint
+    const session = await validateSession(req);
+    if (!session) {
+      return errorResponse("Unauthorized", 401);
+    }
+
+    const { id } = await params;
+    const body = await req.json();
+
+    // Validate ID parameter
+    if (!id || typeof id !== 'string') {
+      return errorResponse("Invalid user ID", 400);
+    }
+
+    // Check if user can update this resource
+    if (session.userId !== id && session.role !== 'admin') {
+      return errorResponse("Forbidden", 403);
+    }
+
+    // Update user using service
+    const updatedUser = await updateUser(id, body);
+    
+    if (!updatedUser) {
+      return errorResponse("User not found", 404);
+    }
+
+    return successResponse("User updated successfully", 200, updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return errorResponse("Internal server error", 500, error);
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Validate session for protected endpoint
+    const session = await validateSession(req);
+    if (!session) {
+      return errorResponse("Unauthorized", 401);
+    }
+
+    const { id } = await params;
+
+    // Validate ID parameter
+    if (!id || typeof id !== 'string') {
+      return errorResponse("Invalid user ID", 400);
+    }
+
+    // Check admin permissions for deletion
+    if (session.role !== 'admin') {
+      return errorResponse("Forbidden", 403);
+    }
+
+    // Delete user using service
+    const deletedUser = await deleteUser(id);
+    
+    if (!deletedUser) {
+      return errorResponse("User not found", 404);
+    }
+
+    return successResponse("User deleted successfully", 204);
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return errorResponse("Internal server error", 500, error);
+  }
+}
+```
+
+### ✅ Response Functions Template
+
+```typescript
+// lib/api/responses.ts
+import { NextResponse } from "next/server";
+
+export function successResponse(
+  message: string = "Success",
+  statusCode: number = 200,
+  data: any = null
+) {
+  return NextResponse.json(
+    {
+      success: true,
+      message: message,
+      data,
+    },
+    {
+      status: statusCode,
+    }
+  );
+}
+
+export function errorResponse(
+  message: string = "Failed",
+  statusCode: number = 500,
+  error: any = null
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: message,
+      error: error,
+    },
+    {
+      status: statusCode,
+    }
+  );
+}
+```
+
+### ❌ Bad API Implementation
+
+```typescript
+// app/api/v1/users/[id]/route.ts
+import { NextRequest } from "next/server";
+import { connectDB } from "@/lib/db"; // Wrong: Direct DB access
+
+export async function GET(req: NextRequest, { params }: any) { // Wrong: No proper typing
+  const { id } = params; // Wrong: Not awaiting params
+  
+  // Wrong: Direct database operations in API route
+  const db = await connectDB();
+  const user = await db.collection('users').findOne({ _id: id });
+  
+  // Wrong: Inconsistent response format
+  return Response.json(user);
+}
+
+export async function PUT(req: NextRequest, { params }: any) {
+  // Wrong: No session validation for protected endpoint
+  // Wrong: No error handling
+  // Wrong: No input validation
+  
+  const { id } = params;
+  const body = await req.json();
+  
+  const db = await connectDB();
+  const result = await db.collection('users').updateOne(
+    { _id: id }, 
+    { $set: body }
+  );
+  
+  return Response.json({ success: true }); // Wrong: No proper response structure
+}
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|--------|------------------|-----------------|
+| **Service Usage** | Import and use service functions: `getUserById(id)` | Direct DB queries in API routes |
+| **Response Format** | Use standardized responses: `successResponse()`, `errorResponse()` | Inconsistent JSON responses |
+| **Parameter Handling** | `const { id } = await params;` | `const { id } = params;` (not awaiting) |
+| **Error Handling** | Try-catch with meaningful error messages | No error handling or generic errors |
+| **Session Validation** | Check session for protected endpoints | Skip authentication checks |
+| **Status Codes** | Use appropriate codes: 200, 201, 400, 401, 403, 404, 500 | Always return 200 or generic codes |
+| **Input Validation** | Validate parameters and request body | Trust all input without validation |
+
+## Key Differences Table
+
+| Component | Effective Implementation | Ineffective Implementation |
+|-----------|--------------------------|----------------------------|
+| **Service Integration** | Scan services folder, import existing functions | Write database operations inline |
+| **Response Structure** | Consistent `{ success, message, data/error }` format | Random response formats |
+| **Type Safety** | `Promise<{ id: string }>` for params | `any` type for parameters |
+| **Authentication** | Session validation for protected routes | No authentication checks |
+| **Error Messages** | Descriptive, user-friendly messages | Generic or technical error messages |
+| **HTTP Methods** | Proper REST semantics (GET, POST, PUT, DELETE) | Incorrect HTTP method usage |
+
+## Implementation Checklist
+
+### Before Writing API
+- [ ] Scan `./services` folder for existing relevant services
+- [ ] Check if `./lib/api/responses.ts` exists and is properly structured
+- [ ] Identify if the API requires authentication/session validation
+- [ ] Plan the HTTP methods needed (GET, POST, PUT, DELETE)
+- [ ] Define the expected request/response structure
+
+### While Writing API
+- [ ] Import necessary service functions (never write DB operations directly)
+- [ ] Import `successResponse` and `errorResponse` from responses.ts
+- [ ] Use proper Next.js 13+ App Router syntax for dynamic routes
+- [ ] Await params before destructuring: `const { id } = await params;`
+- [ ] Implement session validation for protected endpoints
+- [ ] Add comprehensive input validation
+- [ ] Use appropriate HTTP status codes
+- [ ] Include meaningful error messages
+
+### After Writing API
+- [ ] Test all HTTP methods with different scenarios
+- [ ] Verify error responses return correct status codes
+- [ ] Test authentication/authorization flows
+- [ ] Validate parameter handling and edge cases
+- [ ] Ensure consistent response format across all endpoints
+- [ ] Check that services are properly utilized
+
+### Service Dependencies
+- [ ] If service doesn't exist, create it following service rules first
+- [ ] Import only necessary service functions
+- [ ] Handle service errors gracefully in API layer
+- [ ] Don't expose internal service implementation details
+
+## References
+
+- @https://nextjs.org/docs/pages/building-your-application/routing/api-routes
+- @https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+- @https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
+
+## Reminders
+
+### ⚡ Critical API Development Rules
+
+1. **Service First**: Always check `./services` folder before writing API logic
+2. **Response Consistency**: Use standardized response functions from `./lib/api/responses.ts`
+3. **Parameter Awaiting**: Always `await params` in dynamic routes: `const { id } = await params;`
+4. **Session Validation**: Check authentication for protected endpoints
+5. **Proper Status Codes**: Use meaningful HTTP status codes (401, 403, 404, 500)
+6. **Input Validation**: Validate all parameters and request body data
+7. **Error Handling**: Wrap all async operations in try-catch blocks
+8. **Service Integration**: Never write database operations directly in API routes
+
+### 🎯 Quality Indicators
+
+- Does the API use existing service functions instead of direct DB operations?
+- Are standardized response functions used consistently?
+- Is session validation implemented for protected endpoints?
+- Are parameters properly awaited and validated?
+- Do error responses include meaningful messages and correct status codes?
+- Are all async operations wrapped in proper error handling?
+
+### 📋 Quick Reference - HTTP Status Codes
+
+- **200**: OK (successful GET, PUT)
+- **201**: Created (successful POST)
+- **204**: No Content (successful DELETE)
+- **400**: Bad Request (invalid input)
+- **401**: Unauthorized (missing/invalid token)
+- **403**: Forbidden (insufficient permissions)
+- **404**: Not Found (resource doesn't exist)
+- **500**: Internal Server Error (server-side error) 

@@ -1,0 +1,76 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Rules Index
+
+## Overview
+This file provides a comprehensive index of all cursor rules in the project. Each rule enforces consistent coding patterns and file organization.
+
+**📌 Important**: When new rules are written, they must be added to this index file.
+
+## Rules Reference Table
+
+```
+╔═══════════════════════════════════════╦════════════════════════════════════════════════════════╗
+║               Rule File               ║                      Purpose                           ║
+╠═══════════════════════════════════════╬════════════════════════════════════════════════════════╣
+║ [typescript-interface-patterns.mdc](mdc:.cursor/rules/typescript-interface-patterns.mdc)    ║ TypeScript interfaces & props organization in types/   ║
+║ [import-patterns.mdc](mdc:.cursor/rules/import-patterns.mdc)                  ║ Import organization with @/ alias and proper grouping ║
+║ [enum-patterns.mdc](mdc:.cursor/rules/enum-patterns.mdc)                  ║ Enum definitions in src/enums with consistent naming  ║
+║ [context-patterns.mdc](mdc:.cursor/rules/context-patterns.mdc)                 ║ Context files organization for data and components    ║
+║ [helper-patterns.mdc](mdc:.cursor/rules/helper-patterns.mdc)                 ║ Utility functions structure in src/helpers folder     ║
+║ [custom-hooks-patterns.mdc](mdc:.cursor/rules/custom-hooks-patterns.mdc)            ║ React hooks with use prefix in src/hooks folder       ║
+║ [code-quality-patterns.mdc](mdc:.cursor/rules/code-quality-patterns.mdc)            ║ 500-line limit and code decomposition strategies      ║
+║ [file-structure-patterns.mdc](mdc:.cursor/rules/file-structure-patterns.mdc)          ║ Feature-based project organization over file types    ║
+║ [api-design-patterns.mdc](mdc:.cursor/rules/api-design-patterns.mdc)              ║ API routes with service layer and error handling      ║
+║ [schema-design-patterns.mdc](mdc:.cursor/rules/schema-design-patterns.mdc)           ║ Mongoose schemas with validation and relationships     ║
+║ [model-layer-patterns.mdc](mdc:.cursor/rules/model-layer-patterns.mdc)             ║ Mongoose models with TypeScript integration           ║
+║ [service-layer-patterns.mdc](mdc:.cursor/rules/service-layer-patterns.mdc)           ║ Service classes for database operations and CRUD      ║
+║ [zod-schema-patterns.mdc](mdc:.cursor/rules/zod-schema-patterns.mdc)              ║ Zod validation schemas for forms and API validation   ║
+║ [writing-cursor-rules.mdc](mdc:.cursor/rules/writing-cursor-rules.mdc)             ║ Guidelines for creating and maintaining cursor rules  ║
+╚═══════════════════════════════════════╩════════════════════════════════════════════════════════╝
+```
+
+## Rule Categories
+
+### **File Organization**
+- `file-structure-patterns`: Project structure and feature grouping
+- `typescript-interface-patterns`: Interface and props organization
+- `import-patterns`: Import organization and aliases
+
+### **Code Structure**
+- `enum-patterns`: Enum definitions and naming
+- `context-patterns`: Context data organization
+- `helper-patterns`: Utility function structure
+- `custom-hooks-patterns`: React hooks patterns
+
+### **Quality & Standards**
+- `code-quality-patterns`: File size limits and decomposition
+- `api-design-patterns`: API route implementation
+- `writing-cursor-rules`: Rule creation guidelines
+
+### **Data Layer**
+- `schema-design-patterns`: Mongoose schema design
+- `model-layer-patterns`: Model definitions
+- `service-layer-patterns`: Service layer architecture
+- `zod-schema-patterns`: Validation schemas
+
+## Usage Guidelines
+
+1. **Before creating new files**: Review relevant patterns for file location and naming
+2. **When implementing features**: Follow domain-specific organization rules
+3. **For code quality**: Adhere to size limits and decomposition strategies
+4. **When adding rules**: Update this index file immediately
+5. **For consistency**: Cross-reference multiple rules when they overlap
+
+## Maintenance
+
+This index must be updated whenever:
+- New rule files are added to `.cursor/rules/`
+- Existing rules are significantly modified
+- Rule categories or purposes change
+- New usage patterns emerge
+
+Last updated: This file should be updated with each new rule addition.

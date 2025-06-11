@@ -1,0 +1,446 @@
+---
+description: how to structure files
+globs: 
+alwaysApply: false
+---
+# File Structure and Grouping Patterns
+
+## File Structure Overview
+
+```
+src/
+├── components/
+│   ├── ui/                           // Reusable UI components
+│   │   ├── Button/
+│   │   ├── Input/
+│   │   └── Modal/
+│   ├── layout/                       // Layout components
+│   │   ├── Header/
+│   │   ├── Footer/
+│   │   └── Sidebar/
+│   ├── home/                         // Home page specific components
+│   │   ├── Hero/
+│   │   ├── FeaturedProducts/
+│   │   └── Newsletter/
+│   ├── auth/                         // Authentication components
+│   │   ├── LoginForm/
+│   │   ├── SignupForm/
+│   │   └── ForgotPassword/
+│   ├── dashboard/                    // Dashboard components
+│   │   ├── Overview/
+│   │   ├── Analytics/
+│   │   └── Settings/
+│   └── product/                      // Product-related components
+│       ├── ProductCard/
+│       ├── ProductDetails/
+│       └── ProductReviews/
+├── hooks/
+│   ├── auth/                         // Authentication hooks
+│   │   ├── useAuth.hooks.ts
+│   │   └── usePermissions.hooks.ts
+│   ├── dashboard/                    // Dashboard hooks
+│   │   ├── useAnalytics.hooks.ts
+│   │   └── useDashboardData.hooks.ts
+│   ├── product/                      // Product hooks
+│   │   ├── useProductSearch.hooks.ts
+│   │   └── useProductCart.hooks.ts
+│   └── shared/                       // Shared utility hooks
+│       ├── useLocalStorage.hooks.ts
+│       └── useDebounce.hooks.ts
+├── types/
+│   ├── auth/                         // Authentication types
+│   │   ├── IUserInterface.types.ts
+│   │   └── IAuthInterface.types.ts
+│   ├── product/                      // Product types
+│   │   ├── IProductInterface.types.ts
+│   │   └── ICartInterface.types.ts
+│   ├── dashboard/                    // Dashboard types
+│   │   └── IDashboardInterface.types.ts
+│   ├── props/                        // Component props
+│   │   ├── auth/
+│   │   ├── product/
+│   │   └── dashboard/
+│   └── shared/                       // Shared types
+│       └── IApiInterface.types.ts
+├── services/
+│   ├── auth/                         // Authentication services
+│   │   ├── auth.service.ts
+│   │   └── user.service.ts
+│   ├── product/                      // Product services
+│   │   ├── product.service.ts
+│   │   └── cart.service.ts
+│   └── shared/                       // Shared services
+│       └── api.service.ts
+├── schemas/
+│   ├── auth/                         // Authentication schemas
+│   │   ├── login.schema.ts
+│   │   └── register.schema.ts
+│   ├── product/                      // Product schemas
+│   │   └── product.schema.ts
+│   └── shared/                       // Shared schemas
+│       └── common.schema.ts
+├── context/
+│   ├── auth/                         // Auth context
+│   │   └── auth.context.tsx
+│   ├── theme/                        // Theme context
+│   │   └── theme.context.tsx
+│   └── shared/                       // Shared context
+│       └── app.context.tsx
+├── helpers/
+│   ├── auth/                         // Auth helpers
+│   │   └── auth.helpers.ts
+│   ├── product/                      // Product helpers
+│   │   └── product.helpers.ts
+│   └── shared/                       // Shared helpers
+│       ├── date.helpers.ts
+│       └── validation.helpers.ts
+└── enums/
+    ├── auth/                         // Auth enums
+    │   └── user-role.enum.ts
+    ├── product/                      // Product enums
+    │   └── product-status.enum.ts
+    └── shared/                       // Shared enums
+        └── api-status.enum.ts
+```
+
+## Cursor Rules
+
+### 1. Rule - Feature-Based Grouping
+- **Group files by domain/feature, not by file type**
+- **Create feature folders for related functionality** (e.g., `auth/`, `product/`, `dashboard/`)
+- **Place all feature-related files within the same feature folder**
+- **Use consistent folder naming with lowercase and hyphens for multi-word features**
+
+### 2. Rule - Component Organization
+- **Create individual folders for each component within feature folders**
+- **Component folders should contain the component file, styles, tests, and related files**
+- **Use nested structure for complex features** (e.g., `./home/navbar/components/`)
+- **Separate reusable UI components in dedicated `ui/` folder**
+
+### 3. Rule - Domain-Specific File Grouping
+- **Group hooks by feature domain** (e.g., `hooks/auth/`, `hooks/product/`)
+- **Organize types by feature** (e.g., `types/auth/`, `types/product/`)
+- **Place services in feature-specific folders** (e.g., `services/auth/`, `services/product/`)
+- **Group schemas by domain** (e.g., `schemas/auth/`, `schemas/product/`)
+
+### 4. Rule - Shared vs Feature-Specific
+- **Create `shared/` folders for cross-feature utilities**
+- **Use `ui/` folder for reusable UI components**
+- **Place feature-specific files only in their respective feature folders**
+- **Common utilities go in `shared/` or `common/` subfolders**
+
+### 5. Rule - Nested Folder Structure
+- **Create nested folders for complex features** (e.g., `dashboard/analytics/components/`)
+- **Use up to 3 levels of nesting maximum**
+- **Each folder should have a clear, single responsibility**
+- **Maintain consistent naming patterns across all nested levels**
+
+### 6. Rule - File Naming Within Groups
+- **Use descriptive names that reflect the feature and purpose**
+- **Follow established naming patterns for each file type**
+- **Include feature name in filename when beneficial for clarity**
+- **Maintain consistency in naming across related files**
+
+## Examples
+
+### ✅ Good Feature-Based Structure
+
+```typescript
+// Home Page Feature Structure
+src/
+├── components/
+│   └── home/
+│       ├── Hero/
+│       │   ├── Hero.tsx
+│       │   ├── Hero.styles.css
+│       │   └── Hero.test.tsx
+│       ├── FeaturedProducts/
+│       │   ├── FeaturedProducts.tsx
+│       │   ├── ProductGrid/
+│       │   │   └── ProductGrid.tsx
+│       │   └── ProductCard/
+│       │       └── ProductCard.tsx
+│       └── Newsletter/
+│           ├── Newsletter.tsx
+│           └── NewsletterForm/
+│               └── NewsletterForm.tsx
+├── hooks/
+│   └── home/
+│       ├── useHomeData.hooks.ts
+│       ├── useFeaturedProducts.hooks.ts
+│       └── useNewsletter.hooks.ts
+├── types/
+│   └── home/
+│       ├── IHomeInterface.types.ts
+│       ├── IFeaturedProductsInterface.types.ts
+│       └── props/
+│           ├── HeroProps.props.ts
+│           └── NewsletterProps.props.ts
+├── services/
+│   └── home/
+│       ├── home.service.ts
+│       └── newsletter.service.ts
+└── schemas/
+    └── home/
+        └── newsletter.schema.ts
+```
+
+```typescript
+// Authentication Feature Structure
+src/
+├── components/
+│   └── auth/
+│       ├── LoginForm/
+│       │   ├── LoginForm.tsx
+│       │   ├── components/
+│       │   │   ├── EmailField/
+│       │   │   └── PasswordField/
+│       │   └── hooks/
+│       │       └── useLoginForm.hooks.ts
+│       ├── SignupForm/
+│       │   ├── SignupForm.tsx
+│       │   └── components/
+│       │       ├── PersonalInfo/
+│       │       └── AccountInfo/
+│       └── ForgotPassword/
+│           └── ForgotPassword.tsx
+├── hooks/
+│   └── auth/
+│       ├── useAuth.hooks.ts
+│       ├── usePermissions.hooks.ts
+│       └── usePasswordReset.hooks.ts
+├── types/
+│   └── auth/
+│       ├── IUserInterface.types.ts
+│       ├── IAuthInterface.types.ts
+│       └── props/
+│           ├── LoginFormProps.props.ts
+│           └── SignupFormProps.props.ts
+├── services/
+│   └── auth/
+│       ├── auth.service.ts
+│       ├── user.service.ts
+│       └── password.service.ts
+├── schemas/
+│   └── auth/
+│       ├── login.schema.ts
+│       ├── register.schema.ts
+│       └── password-reset.schema.ts
+└── enums/
+    └── auth/
+        ├── user-role.enum.ts
+        └── auth-status.enum.ts
+```
+
+### ❌ Bad Type-Based Structure
+
+```typescript
+// Wrong: Grouping by file type instead of feature
+src/
+├── components/
+│   ├── LoginForm.tsx              // Mixed features in same folder
+│   ├── SignupForm.tsx
+│   ├── ProductCard.tsx
+│   ├── ProductDetails.tsx
+│   ├── DashboardOverview.tsx
+│   └── Hero.tsx
+├── hooks/
+│   ├── useAuth.hooks.ts           // All hooks mixed together
+│   ├── useProduct.hooks.ts
+│   ├── useDashboard.hooks.ts
+│   └── useHome.hooks.ts
+├── types/
+│   ├── User.ts                    // All types mixed
+│   ├── Product.ts
+│   ├── Dashboard.ts
+│   └── Home.ts
+└── services/
+    ├── authService.ts             // All services mixed
+    ├── productService.ts
+    └── dashboardService.ts
+```
+
+## Folder Creation Guidelines
+
+### When to Create New Feature Folders
+| Scenario | Action | Example |
+|----------|--------|---------|
+| **New page/feature** | Create feature folder | `./blog/`, `./profile/`, `./settings/` |
+| **3+ related components** | Create component subfolder | `./product/components/` |
+| **Complex component** | Create component folder | `./auth/LoginForm/` |
+| **Feature-specific hooks** | Create hooks subfolder | `./dashboard/hooks/` |
+
+### Feature Folder Naming Conventions
+| Feature Type | Folder Name | Example Components |
+|--------------|-------------|-------------------|
+| **Pages** | `home/`, `about/`, `contact/` | Page-specific components |
+| **Functional Areas** | `auth/`, `dashboard/`, `profile/` | Related functionality |
+| **Business Domains** | `product/`, `order/`, `payment/` | Domain entities |
+| **UI Sections** | `header/`, `footer/`, `sidebar/` | Layout components |
+
+## Component Folder Structure
+
+### Simple Component Structure
+```typescript
+// For simple components
+src/components/ui/Button/
+├── Button.tsx
+├── Button.styles.css
+└── Button.test.tsx
+```
+
+### Complex Component Structure
+```typescript
+// For complex components with sub-components
+src/components/dashboard/Analytics/
+├── Analytics.tsx
+├── Analytics.styles.css
+├── Analytics.test.tsx
+├── components/
+│   ├── ChartSection/
+│   │   └── ChartSection.tsx
+│   ├── MetricsCard/
+│   │   └── MetricsCard.tsx
+│   └── FilterPanel/
+│       └── FilterPanel.tsx
+├── hooks/
+│   └── useAnalytics.hooks.ts
+└── types/
+    └── AnalyticsProps.props.ts
+```
+
+## File Organization Best Practices
+
+### Props Organization
+```typescript
+// Feature-specific props
+src/types/props/
+├── auth/
+│   ├── LoginFormProps.props.ts
+│   ├── SignupFormProps.props.ts
+│   └── AuthLayoutProps.props.ts
+├── product/
+│   ├── ProductCardProps.props.ts
+│   ├── ProductListProps.props.ts
+│   └── ProductDetailsProps.props.ts
+└── shared/
+    ├── ButtonProps.props.ts
+    ├── InputProps.props.ts
+    └── ModalProps.props.ts
+```
+
+### Service Organization
+```typescript
+// Domain-specific services
+src/services/
+├── auth/
+│   ├── auth.service.ts
+│   ├── user.service.ts
+│   └── permissions.service.ts
+├── product/
+│   ├── product.service.ts
+│   ├── inventory.service.ts
+│   └── reviews.service.ts
+└── shared/
+    ├── api.service.ts
+    ├── storage.service.ts
+    └── notification.service.ts
+```
+
+## Import Patterns for Grouped Files
+
+### ✅ Good Import Organization
+
+```typescript
+// ./src/components/dashboard/Overview.tsx
+import React from 'react';
+
+// External libraries
+import { Chart } from 'chart.js';
+
+// Types and enums - feature specific first
+import type { DashboardOverviewProps } from '@/types/props/dashboard/DashboardOverviewProps.props';
+import type { IDashboardInterface } from '@/types/dashboard/IDashboardInterface.types';
+import { DashboardStatus } from '@/enums/dashboard/dashboard-status.enum';
+
+// Components - same feature first, then shared
+import { MetricsCard } from './components/MetricsCard';
+import { ChartSection } from './components/ChartSection';
+import { Button } from '@/components/ui/Button';
+
+// Hooks - feature specific first
+import { useDashboardData } from '@/hooks/dashboard/useDashboardData.hooks';
+import { useLocalStorage } from '@/hooks/shared/useLocalStorage.hooks';
+
+// Services - feature specific
+import { dashboardService } from '@/services/dashboard/dashboard.service';
+
+const DashboardOverview: React.FC<DashboardOverviewProps> = ({ userId }) => {
+  // Component implementation
+};
+
+export { DashboardOverview };
+```
+
+## Quality Checklist
+
+### File Structure Assessment
+- [ ] Are files grouped by feature/domain rather than type?
+- [ ] Do component folders contain all related files?
+- [ ] Are shared utilities properly separated from feature-specific ones?
+- [ ] Is the folder nesting logical and not too deep (max 3 levels)?
+- [ ] Do folder names clearly indicate their purpose?
+
+### Organization Consistency
+- [ ] Are similar features organized in the same way?
+- [ ] Do all component folders follow the same structure?
+- [ ] Are naming conventions consistent across features?
+- [ ] Are imports organized with feature-specific files first?
+
+### Maintainability Check
+- [ ] Can new developers easily find feature-related files?
+- [ ] Is it clear where new components should be placed?
+- [ ] Are related files easy to locate and update together?
+- [ ] Does the structure scale well as features grow?
+
+## Folder Creation Decision Tree
+
+```
+New File Needed?
+├── Is it feature-specific?
+│   ├── Yes → Place in existing feature folder or create new feature folder
+│   └── No → Place in shared/ or ui/ folder
+├── Is it a component?
+│   ├── Complex component → Create component folder with subfolders
+│   └── Simple component → Single file in appropriate feature folder
+├── Is it reusable across features?
+│   ├── Yes → Place in shared/ subfolder
+│   └── No → Place in specific feature folder
+└── Does the feature have 3+ related files?
+    ├── Yes → Create feature subfolder
+    └── No → Keep in existing structure
+```
+
+## Reminders
+
+### 🎯 Key Grouping Principles
+1. **Feature over Type** - Group by what the code does, not what type of file it is
+2. **Locality** - Keep related files close together
+3. **Discoverability** - Structure should make files easy to find
+4. **Scalability** - Structure should work as the project grows
+5. **Consistency** - Similar features should be organized similarly
+
+### 📋 Structure Creation Checklist
+- [ ] Is this a new feature that needs its own folder?
+- [ ] Are there enough related files to justify a subfolder?
+- [ ] Does this belong in shared/ or feature-specific folder?
+- [ ] Are all related files (components, hooks, types) grouped together?
+- [ ] Does the folder name clearly indicate its purpose?
+- [ ] Is the nesting level appropriate (not too deep)?
+
+### 🚀 Organization Benefits
+- **Faster Development** - Easy to find and modify related files
+- **Better Collaboration** - Clear structure for team members
+- **Easier Refactoring** - Related files are grouped together
+- **Improved Maintainability** - Logical organization reduces confusion
+- **Scalable Architecture** - Structure grows naturally with features

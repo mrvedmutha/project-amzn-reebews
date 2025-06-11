@@ -1,0 +1,354 @@
+---
+description: How to write perfect code
+globs: 
+alwaysApply: false
+---
+# Code Quality and File Organization Rules
+
+## Cursor Rules
+
+### 1. Rule - File Size Limit (500 Lines Maximum)
+- **Every code file must not exceed 500 lines of code**
+- **When approaching 500 lines, immediately break code into smaller files**
+- **Import broken-down code using proper `@/` alias patterns**
+- **Count only actual code lines, exclude comments and empty lines**
+
+### 2. Rule - Component Breakdown Strategy
+- **Break large components into smaller, focused sub-components**
+- **Extract reusable UI elements as separate components**
+- **Move component logic to custom hooks when appropriate**
+- **Create component composition instead of monolithic components**
+
+### 3. Rule - Code Reusability Standards
+- **Write functions and components that can be reused across the application**
+- **Extract common patterns into utility functions or custom hooks**
+- **Create generic interfaces and types that can be extended**
+- **Avoid hardcoding values, use configuration objects or constants**
+
+### 4. Rule - Concise Code Principles
+- **Write clear, readable code without unnecessary complexity**
+- **Use modern JavaScript/TypeScript features for conciseness**
+- **Prefer composition over inheritance**
+- **Remove dead code and unused imports immediately**
+- **Use meaningful variable and function names that reduce need for comments**
+
+### 5. Rule - File Decomposition Strategies
+- **Extract business logic into separate service files**
+- **Move validation logic to dedicated validator files**
+- **Create separate files for constants, types, and configurations**
+- **Split complex forms into smaller form sections**
+- **Break down large API files into domain-specific modules**
+
+### 6. Rule - Import Organization for Decomposed Code
+- **Use consistent import patterns for decomposed files**
+- **Group related imports from decomposed files**
+- **Maintain clear dependency hierarchy**
+- **Avoid circular dependencies between decomposed files**
+
+## Examples
+
+### ✅ Good Component Breakdown (Under 500 Lines)
+
+```typescript
+// ./src/components/UserDashboard.tsx (Main Component - ~150 lines)
+import React from 'react';
+import { DashboardHeader } from './dashboard/DashboardHeader';
+import { UserStats } from './dashboard/UserStats';
+import { ActivityFeed } from './dashboard/ActivityFeed';
+import { QuickActions } from './dashboard/QuickActions';
+import { useUserDashboard } from '@/hooks/useUserDashboard.hooks';
+import type { UserDashboardProps } from '@/types/props/UserDashboardProps';
+
+const UserDashboard: React.FC<UserDashboardProps> = ({ userId, theme }) => {
+  const {
+    user,
+    stats,
+    activities,
+    isLoading,
+    error,
+    refreshData,
+    updateUserPreferences,
+  } = useUserDashboard(userId);
+
+  if (isLoading) return <div>Loading dashboard...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!user) return <div>User not found</div>;
+
+  return (
+    <div className={`dashboard ${theme}`}>
+      <DashboardHeader 
+        user={user} 
+        onRefresh={refreshData}
+        onUpdatePreferences={updateUserPreferences}
+      />
+      
+      <div className="dashboard-content">
+        <div className="dashboard-main">
+          <UserStats stats={stats} />
+          <ActivityFeed activities={activities} />
+        </div>
+        
+        <div className="dashboard-sidebar">
+          <QuickActions userId={userId} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export { UserDashboard };
+```
+
+```typescript
+// ./src/components/dashboard/DashboardHeader.tsx (Sub-component - ~80 lines)
+import React from 'react';
+import { RefreshButton } from '@/components/ui/RefreshButton';
+import { UserMenu } from '@/components/ui/UserMenu';
+import { NotificationBell } from '@/components/ui/NotificationBell';
+import type { DashboardHeaderProps } from '@/types/props/DashboardHeaderProps';
+
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  user,
+  onRefresh,
+  onUpdatePreferences,
+}) => {
+  return (
+    <header className="dashboard-header">
+      <div className="header-left">
+        <h1>Welcome back, {user.name}!</h1>
+        <p className="last-login">Last login: {user.lastLogin}</p>
+      </div>
+      
+      <div className="header-actions">
+        <NotificationBell userId={user.id} />
+        <RefreshButton onClick={onRefresh} />
+        <UserMenu 
+          user={user} 
+          onUpdatePreferences={onUpdatePreferences}
+        />
+      </div>
+    </header>
+  );
+};
+
+export { DashboardHeader };
+```
+
+```typescript
+// ./src/hooks/useUserDashboard.hooks.ts (Logic Hook - ~200 lines)
+import { useState, useEffect, useCallback } from 'react';
+import { userService } from '@/services/user.service';
+import { statsService } from '@/services/stats.service';
+import { activityService } from '@/services/activity.service';
+import type { IUserInterface } from '@/types/IUserInterface';
+import type { UserStats, UserActivity } from '@/types/dashboard.types';
+
+export const useUserDashboard = (userId: string) => {
+  const [user, setUser] = useState<IUserInterface | null>(null);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [activities, setActivities] = useState<UserActivity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch all dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const [userData, userStats, userActivities] = await Promise.all([
+        userService.getUserById(userId),
+        statsService.getUserStats(userId),
+        activityService.getUserActivities(userId, { limit: 10 }),
+      ]);
+
+      setUser(userData);
+      setStats(userStats);
+      setActivities(userActivities);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  // Refresh dashboard data
+  const refreshData = useCallback(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Update user preferences
+  const updateUserPreferences = useCallback(async (preferences: any) => {
+    try {
+      const updatedUser = await userService.updateUserPreferences(userId, preferences);
+      setUser(updatedUser);
+    } catch (err) {
+      setError('Failed to update preferences');
+    }
+  }, [userId]);
+
+  // Load data on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  return {
+    user,
+    stats,
+    activities,
+    isLoading,
+    error,
+    refreshData,
+    updateUserPreferences,
+  };
+};
+```
+
+### ❌ Bad Monolithic Component (Over 500 Lines)
+
+```typescript
+// ./src/components/UserDashboard.tsx (Monolithic - 800+ lines)
+import React, { useState, useEffect } from 'react';
+
+const UserDashboard: React.FC = () => {
+  // 50+ state variables
+  const [user, setUser] = useState(null);
+  const [stats, setStats] = useState(null);
+  // ... many more states
+
+  // 100+ lines of useEffect and handlers
+  useEffect(() => {
+    // Complex data fetching logic
+  }, []);
+
+  // 200+ lines of event handlers
+  const handleUserUpdate = () => {
+    // Complex logic
+  };
+
+  // 400+ lines of JSX with nested components
+  return (
+    <div>
+      {/* Huge amount of inline JSX */}
+      <header>
+        <div>
+          <h1>Welcome back, {user?.name}!</h1>
+          <div>
+            <button onClick={handleRefresh}>Refresh</button>
+            <div>
+              {/* Notification logic inline */}
+              {notifications.map(notification => (
+                <div key={notification.id}>
+                  {/* Complex notification rendering */}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main>
+        {/* 300+ more lines of complex JSX */}
+        <div>
+          {stats && (
+            <div>
+              {/* Complex stats rendering */}
+            </div>
+          )}
+        </div>
+        
+        {/* More complex sections... */}
+      </main>
+    </div>
+  );
+};
+
+export { UserDashboard }; // This file is way too long!
+```
+
+## File Decomposition Strategies
+
+### Large Component Breakdown
+| Original Size | Break Into | Example |
+|------|-------|---------|
+| **500+ line component** | Multiple sub-components | `UserProfile` → `ProfileHeader`, `ProfileStats`, `ProfileSettings` |
+| **300+ line form** | Form sections | `UserForm` → `PersonalInfo`, `ContactInfo`, `Preferences` |
+| **400+ line API service** | Domain services | `apiService` → `userService`, `orderService`, `productService` |
+
+### Logic Extraction Strategies
+| Code Type | Extract To | File Pattern |
+|------|-------|---------|
+| **Component state logic** | Custom hooks | `useComponentName.hooks.ts` |
+| **Business logic** | Service files | `domain.service.ts` |
+| **Validation rules** | Validator files | `domain.validator.ts` |
+| **Constants & configs** | Constant files | `domain.constants.ts` |
+
+## Code Quality Checklist
+
+### File Size Management
+- [ ] Check line count before committing (must be under 500)
+- [ ] Identify decomposition opportunities when approaching 400 lines
+- [ ] Break down large functions (over 50 lines)
+- [ ] Extract reusable logic to separate files
+
+### Reusability Assessment
+- [ ] Can this component be used elsewhere?
+- [ ] Can this function be made more generic?
+- [ ] Are there hardcoded values that should be configurable?
+- [ ] Is this logic duplicated elsewhere in the codebase?
+
+### Conciseness Review
+- [ ] Remove unused imports and variables
+- [ ] Simplify complex conditional statements
+- [ ] Use modern JavaScript/TypeScript features appropriately
+- [ ] Eliminate redundant code and comments
+
+### Import Organization
+- [ ] Use `@/` alias for all internal imports
+- [ ] Group related imports together
+- [ ] Remove unused imports
+- [ ] Maintain consistent import order
+
+## Refactoring Triggers
+
+### When to Break Down Files
+- **File approaching 400 lines** → Plan decomposition strategy
+- **Component has multiple responsibilities** → Extract sub-components
+- **Complex business logic mixed with UI** → Extract to custom hooks/services
+- **Repeated code patterns** → Create reusable utilities
+- **Hard to test or understand** → Simplify and decompose
+
+### Decomposition Benefits
+- **Improved maintainability** - Smaller files are easier to understand
+- **Better testability** - Isolated logic is easier to test
+- **Enhanced reusability** - Extracted components can be reused
+- **Faster development** - Clear separation of concerns
+- **Better collaboration** - Multiple developers can work on different parts
+
+## Quality Metrics
+
+### File Health Indicators
+- ✅ **Healthy**: Under 300 lines, single responsibility, well-named
+- ⚠️ **Warning**: 300-450 lines, consider decomposition opportunities
+- ❌ **Critical**: 450+ lines, immediate decomposition required
+
+### Code Reusability Score
+- ✅ **High**: Generic interfaces, configurable parameters, no hardcoded values
+- ⚠️ **Medium**: Some hardcoded values, mostly reusable
+- ❌ **Low**: Highly specific, hardcoded values, not reusable
+
+## Reminders
+
+### 🎯 Key Principles
+1. **500-line limit is non-negotiable** - Always decompose when approaching this limit
+2. **Reusability first** - Write code that can be used in multiple contexts
+3. **Composition over complexity** - Build complex features from simple, focused components
+4. **Extract early** - Don't wait until files are too large to decompose
+5. **Import smartly** - Use proper import patterns for decomposed code
+
+### 📋 Daily Code Quality Checks
+- [ ] Are any files approaching the 500-line limit?
+- [ ] Can any components be broken down further?
+- [ ] Is there duplicated logic that can be extracted?
+- [ ] Are all imports using the `@/` alias?
+- [ ] Is the code readable and maintainable?

@@ -1,0 +1,694 @@
+---
+description: how to write helpers
+globs: 
+alwaysApply: false
+---
+# Helper Functions Design and Organization Rules
+
+## File Structure
+
+```
+src/
+└── helpers/
+    ├── string.helpers.ts           // String manipulation utilities
+    ├── date.helpers.ts             // Date formatting and utilities
+    ├── validation.helpers.ts       // Form and data validation
+    ├── array.helpers.ts           // Array manipulation utilities
+    ├── number.helpers.ts          // Number formatting and calculations
+    ├── url.helpers.ts             // URL manipulation and parsing
+    ├── storage.helpers.ts         // Local/session storage utilities
+    ├── api.helpers.ts             // API request and response helpers
+    ├── form.helpers.tsx           // Form utilities with components
+    ├── toast.helpers.tsx          // Toast notification helpers with components
+    ├── modal.helpers.tsx          // Modal utilities with components
+    └── chart.helpers.tsx          // Chart utilities with components
+```
+
+## Cursor Rules
+
+### 1. Rule - Helper File Location and Naming
+- **Always place helper files in `./src/helpers` folder**
+- **File names must end with `.helpers.ts` for pure utility functions**
+- **File names must end with `.helpers.tsx` when using React components**
+- Use kebab-case for helper file names (e.g., `date-time.helpers.ts`)
+- File name should reflect the domain/category of helper functions
+
+### 2. Rule - Helper File Type Selection
+- **Use `.helpers.ts`** for pure utility functions, data manipulation, validation
+- **Use `.helpers.tsx`** when helpers include React components, JSX elements, or component utilities
+- **Import React types** when using JSX elements in `.helpers.tsx` files
+- Always use TypeScript for type safety and better developer experience
+
+### 3. Rule - Helper Function Organization
+- **Group related functions** in the same helper file by domain
+- **Use descriptive function names** that clearly indicate purpose
+- **Export individual functions** with named exports
+- **Add JSDoc comments** for complex helper functions
+- **Keep functions pure** when possible (no side effects)
+
+### 4. Rule - Helper Function Standards
+- **Use consistent parameter naming** across similar functions
+- **Handle edge cases** and provide fallback values
+- **Use proper TypeScript typing** for parameters and return values
+- **Keep functions focused** on single responsibility
+- **Use generic types** when functions can work with multiple types
+
+### 5. Rule - Helper Import and Usage
+- **Import helpers using `@/helpers/filename.helpers`** pattern
+- **Use named imports** for specific helper functions
+- **Group helper imports** together in components
+- **Avoid helper dependencies** on other helpers when possible
+
+### 6. Rule - Error Handling in Helpers
+- **Use try-catch blocks** for operations that might fail
+- **Return consistent error types** or null/undefined for failures
+- **Log errors appropriately** without breaking application flow
+- **Provide meaningful error messages** for debugging
+
+## Examples
+
+### ✅ Good Helper Structure (Pure Functions)
+
+```typescript
+// ./src/helpers/string.helpers.ts
+
+/**
+ * Capitalizes the first letter of a string
+ */
+export const capitalize = (str: string): string => {
+  if (!str || typeof str !== 'string') return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+/**
+ * Converts string to kebab-case
+ */
+export const toKebabCase = (str: string): string => {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+};
+
+/**
+ * Converts string to camelCase
+ */
+export const toCamelCase = (str: string): string => {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => 
+      index === 0 ? word.toLowerCase() : word.toUpperCase()
+    )
+    .replace(/\s+/g, '');
+};
+
+/**
+ * Truncates string to specified length with ellipsis
+ */
+export const truncate = (str: string, maxLength: number = 100): string => {
+  if (!str || typeof str !== 'string') return '';
+  if (str.length <= maxLength) return str;
+  return `${str.slice(0, maxLength).trim()}...`;
+};
+
+/**
+ * Removes HTML tags from string
+ */
+export const stripHtml = (html: string): string => {
+  if (!html || typeof html !== 'string') return '';
+  return html.replace(/<[^>]*>/g, '');
+};
+
+/**
+ * Generates random string of specified length
+ */
+export const generateRandomString = (length: number = 8): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+```
+
+### ✅ Validation Helpers
+
+```typescript
+// ./src/helpers/validation.helpers.ts
+
+/**
+ * Validates email address format
+ */
+export const isValidEmail = (email: string): boolean => {
+  if (!email || typeof email !== 'string') return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
+/**
+ * Validates password strength
+ */
+export const validatePassword = (password: string): {
+  isValid: boolean;
+  errors: string[];
+} => {
+  const errors: string[] = [];
+  
+  if (!password || typeof password !== 'string') {
+    errors.push('Password is required');
+    return { isValid: false, errors };
+  }
+
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+  
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Password must contain at least one special character');
+  }
+
+  return { isValid: errors.length === 0, errors };
+};
+
+/**
+ * Validates phone number format
+ */
+export const isValidPhoneNumber = (phone: string): boolean => {
+  if (!phone || typeof phone !== 'string') return false;
+  const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+  return phoneRegex.test(phone.trim());
+};
+
+/**
+ * Validates URL format
+ */
+export const isValidUrl = (url: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+```
+
+### ✅ Date Helpers
+
+```typescript
+// ./src/helpers/date.helpers.ts
+
+/**
+ * Formats date to readable string
+ */
+export const formatDate = (
+  date: Date | string | number, 
+  format: 'short' | 'long' | 'medium' = 'medium'
+): string => {
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return 'Invalid Date';
+
+    const options: Intl.DateTimeFormatOptions = {
+      short: { year: 'numeric', month: 'short', day: 'numeric' },
+      medium: { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' },
+      long: { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit'
+      }
+    }[format];
+
+    return dateObj.toLocaleDateString('en-US', options);
+  } catch {
+    return 'Invalid Date';
+  }
+};
+
+/**
+ * Gets time ago string (e.g., "2 hours ago")
+ */
+export const getTimeAgo = (date: Date | string | number): string => {
+  try {
+    const now = new Date();
+    const past = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+    
+    return `${Math.floor(diffInSeconds / 31536000)} years ago`;
+  } catch {
+    return 'Invalid Date';
+  }
+};
+
+/**
+ * Checks if date is today
+ */
+export const isToday = (date: Date | string | number): boolean => {
+  try {
+    const today = new Date();
+    const checkDate = new Date(date);
+    
+    return today.toDateString() === checkDate.toDateString();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Adds days to a date
+ */
+export const addDays = (date: Date | string | number, days: number): Date => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+};
+```
+
+### ✅ Array Helpers
+
+```typescript
+// ./src/helpers/array.helpers.ts
+
+/**
+ * Removes duplicate items from array
+ */
+export const removeDuplicates = <T>(array: T[]): T[] => {
+  if (!Array.isArray(array)) return [];
+  return [...new Set(array)];
+};
+
+/**
+ * Groups array items by specified key
+ */
+export const groupBy = <T, K extends keyof T>(
+  array: T[], 
+  key: K
+): Record<string, T[]> => {
+  if (!Array.isArray(array)) return {};
+  
+  return array.reduce((groups, item) => {
+    const groupKey = String(item[key]);
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+    groups[groupKey].push(item);
+    return groups;
+  }, {} as Record<string, T[]>);
+};
+
+/**
+ * Chunks array into smaller arrays of specified size
+ */
+export const chunk = <T>(array: T[], size: number): T[][] => {
+  if (!Array.isArray(array) || size <= 0) return [];
+  
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+};
+
+/**
+ * Shuffles array randomly
+ */
+export const shuffle = <T>(array: T[]): T[] => {
+  if (!Array.isArray(array)) return [];
+  
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+/**
+ * Sorts array by multiple criteria
+ */
+export const sortBy = <T>(
+  array: T[], 
+  ...keys: Array<keyof T | ((item: T) => any)>
+): T[] => {
+  if (!Array.isArray(array)) return [];
+  
+  return [...array].sort((a, b) => {
+    for (const key of keys) {
+      const aVal = typeof key === 'function' ? key(a) : a[key];
+      const bVal = typeof key === 'function' ? key(b) : b[key];
+      
+      if (aVal < bVal) return -1;
+      if (aVal > bVal) return 1;
+    }
+    return 0;
+  });
+};
+```
+
+### ✅ Component-Based Helpers
+
+```typescript
+// ./src/helpers/toast.helpers.tsx
+import { JSX } from 'react';
+import { toast } from 'react-hot-toast';
+import { Check, X, AlertTriangle, Info } from 'lucide-react';
+
+/**
+ * Success toast with icon
+ */
+export const showSuccessToast = (message: string): void => {
+  toast.success(message, {
+    icon: <Check className="text-green-500" size={20} />,
+    duration: 4000,
+    position: 'top-right',
+  });
+};
+
+/**
+ * Error toast with icon
+ */
+export const showErrorToast = (message: string): void => {
+  toast.error(message, {
+    icon: <X className="text-red-500" size={20} />,
+    duration: 6000,
+    position: 'top-right',
+  });
+};
+
+/**
+ * Warning toast with icon
+ */
+export const showWarningToast = (message: string): void => {
+  toast(message, {
+    icon: <AlertTriangle className="text-yellow-500" size={20} />,
+    duration: 5000,
+    position: 'top-right',
+  });
+};
+
+/**
+ * Info toast with icon
+ */
+export const showInfoToast = (message: string): void => {
+  toast(message, {
+    icon: <Info className="text-blue-500" size={20} />,
+    duration: 4000,
+    position: 'top-right',
+  });
+};
+
+/**
+ * Custom toast with loading state
+ */
+export const showLoadingToast = (message: string): string => {
+  return toast.loading(message, {
+    position: 'top-right',
+  });
+};
+
+/**
+ * Updates existing toast
+ */
+export const updateToast = (
+  toastId: string, 
+  message: string, 
+  type: 'success' | 'error' | 'loading'
+): void => {
+  toast[type](mdc:message, { id: toastId });
+};
+```
+
+### ✅ API Helpers
+
+```typescript
+// ./src/helpers/api.helpers.ts
+
+/**
+ * Builds query string from object
+ */
+export const buildQueryString = (params: Record<string, any>): string => {
+  const searchParams = new URLSearchParams();
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== '') {
+      if (Array.isArray(value)) {
+        value.forEach(item => searchParams.append(key, String(item)));
+      } else {
+        searchParams.append(key, String(value));
+      }
+    }
+  });
+  
+  return searchParams.toString();
+};
+
+/**
+ * Handles API response errors
+ */
+export const handleApiError = (error: any): string => {
+  if (error?.response?.data?.message) {
+    return error.response.data.message;
+  }
+  
+  if (error?.message) {
+    return error.message;
+  }
+  
+  return 'An unexpected error occurred';
+};
+
+/**
+ * Creates authorization headers
+ */
+export const createAuthHeaders = (token?: string): Record<string, string> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return headers;
+};
+
+/**
+ * Retries failed API requests
+ */
+export const retryRequest = async <T>(
+  requestFn: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  let lastError: any;
+  
+  for (let i = 0; i <= maxRetries; i++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      
+      if (i < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+      }
+    }
+  }
+  
+  throw lastError;
+};
+```
+
+### ❌ Bad Helper Structure
+
+```typescript
+// Wrong: Mixed concerns and poor organization
+// ./src/helpers/mixed.helpers.ts
+export const doStuff = (data: any) => { // Wrong: vague naming, any type
+  // Wrong: no error handling
+  return data.something.value;
+};
+
+// Wrong: side effects in helper
+export const updateGlobalState = (value: string) => {
+  window.globalState = value; // Wrong: side effect
+};
+
+// Wrong: no JSDoc, unclear purpose
+export const helper1 = (a: string, b: string) => a + b;
+
+// Wrong: inconsistent naming
+export const validateEmailAddress = (email: string) => true;
+export const check_password = (pwd: string) => true; // Wrong: snake_case
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|-----|---|-----|
+| **File Extension** | `.helpers.tsx` for JSX, `.helpers.ts` for pure functions | `.ts` for everything |
+| **Function Naming** | `formatCurrency`, `validateEmail` | `doStuff`, `helper1` |
+| **Error Handling** | Try-catch blocks, fallback values | No error handling |
+| **Type Safety** | Proper TypeScript types | `any` types everywhere |
+| **Documentation** | JSDoc comments for complex functions | No documentation |
+| **Pure Functions** | No side effects, predictable outputs | Global state mutations |
+
+## Helper Categories
+
+| Category | File Name | Contains | Example Functions |
+|-----|---|-----|-----|
+| **String Utils** | `string.helpers.ts` | Text manipulation, formatting | `capitalize`, `truncate`, `slugify` |
+| **Date Utils** | `date.helpers.ts` | Date formatting, calculations | `formatDate`, `getTimeAgo`, `addDays` |
+| **Validation** | `validation.helpers.ts` | Input validation, form validation | `isValidEmail`, `validatePassword` |
+| **Array Utils** | `array.helpers.ts` | Array manipulation, sorting | `groupBy`, `chunk`, `removeDuplicates` |
+| **API Utils** | `api.helpers.ts` | HTTP requests, error handling | `buildQueryString`, `handleApiError` |
+| **Component Utils** | `toast.helpers.tsx` | Component-based utilities | `showSuccessToast`, `createModal` |
+
+## Usage in Components
+
+### ✅ Good Helper Usage
+
+```typescript
+// ./src/components/UserProfile.tsx
+import React from 'react';
+
+// Import specific helpers needed
+import { formatDate, getTimeAgo } from '@/helpers/date.helpers';
+import { capitalize, truncate } from '@/helpers/string.helpers';
+import { isValidEmail } from '@/helpers/validation.helpers';
+import { showSuccessToast, showErrorToast } from '@/helpers/toast.helpers';
+
+interface UserProfileProps {
+  user: {
+    name: string;
+    email: string;
+    bio: string;
+    createdAt: string;
+    lastLogin: string;
+  };
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
+  const handleEmailUpdate = (newEmail: string) => {
+    if (!isValidEmail(newEmail)) {
+      showErrorToast('Please enter a valid email address');
+      return;
+    }
+    
+    // Update email logic here
+    showSuccessToast('Email updated successfully');
+  };
+
+  return (
+    <div className="user-profile">
+      <h1>{capitalize(user.name)}</h1>
+      <p className="email">{user.email}</p>
+      <p className="bio">{truncate(user.bio, 150)}</p>
+      <div className="dates">
+        <p>Member since: {formatDate(user.createdAt, 'long')}</p>
+        <p>Last seen: {getTimeAgo(user.lastLogin)}</p>
+      </div>
+    </div>
+  );
+};
+
+export { UserProfile };
+```
+
+## Implementation Checklist
+
+### Before Creating Helpers
+- [ ] Determine if helpers need JSX components (.tsx) or pure functions (.ts)
+- [ ] Plan the category and domain for grouping functions
+- [ ] Consider reusability and single responsibility principle
+- [ ] Identify error cases and edge conditions
+
+### While Creating Helpers
+- [ ] Use correct file extension (.helpers.ts or .helpers.tsx)
+- [ ] Place file in `./src/helpers/` directory
+- [ ] Import required dependencies at the top
+- [ ] Use descriptive function names
+- [ ] Add proper TypeScript typing
+- [ ] Include JSDoc comments for complex functions
+- [ ] Handle errors gracefully
+- [ ] Keep functions pure when possible
+
+### After Creating Helpers
+- [ ] Import helpers using `@/helpers/filename.helpers` pattern
+- [ ] Test helper functions with various inputs
+- [ ] Verify TypeScript compilation passes
+- [ ] Ensure functions handle edge cases properly
+- [ ] Update related components to use helpers
+
+### Helper Organization Checks
+- [ ] Helper file is in correct directory
+- [ ] File extension matches content type
+- [ ] Related functions are grouped together
+- [ ] Consistent naming patterns used
+- [ ] Proper error handling implemented
+- [ ] Functions are well-documented
+
+## References
+
+- [TypeScript Utility Types](mdc:https:/www.typescriptlang.org/docs/handbook/utility-types.html)
+- [JavaScript Array Methods](mdc:https:/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)
+- [Date API Reference](mdc:https:/developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+- [Regular Expressions Guide](mdc:https:/developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+
+## Reminders
+
+### ⚡ Key Helper Rules to Remember
+
+1. **File Extension**: Use `.helpers.tsx` for JSX, `.helpers.ts` for pure functions
+2. **Location**: All helper files go in `./src/helpers/` directory
+3. **Naming**: Use descriptive function names that indicate purpose
+4. **Error Handling**: Always handle edge cases and potential errors
+5. **Type Safety**: Use proper TypeScript types for parameters and returns
+6. **Documentation**: Add JSDoc comments for complex helper functions
+7. **Pure Functions**: Avoid side effects when possible
+8. **Single Responsibility**: Keep functions focused on one task
+9. **Consistency**: Use consistent patterns across similar helpers
+10. **Import Pattern**: Use `@/helpers/filename.helpers` for imports
+
+### 🎯 Helper Quality Indicators
+
+- Do helper files have the correct extension for their content?
+- Are functions properly typed with TypeScript?
+- Is error handling implemented for edge cases?
+- Are function names descriptive and clear?
+- Are helpers grouped logically by domain?
+
+### 📋 Helper Creation Checklist
+
+- [ ] File name follows `category-name.helpers.ts/tsx` pattern
+- [ ] File located in `./src/helpers/` directory
+- [ ] Correct file extension for content type
+- [ ] Functions have descriptive names
+- [ ] Proper TypeScript typing applied
+- [ ] Error handling implemented
+- [ ] JSDoc comments added for complex functions
+- [ ] Functions follow single responsibility principle
+- [ ] Import using `@/helpers/filename.helpers` pattern
+- [ ] Helper functions are tested and work correctly

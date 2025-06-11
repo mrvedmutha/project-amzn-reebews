@@ -1,0 +1,465 @@
+---
+description: how to write enums
+globs: 
+alwaysApply: false
+---
+# Enum Design and Organization Rules
+
+## File Structure
+
+```
+src/
+└── enums/
+    ├── user.enum.ts              // User-related enums
+    ├── blog-post.enum.ts         // Blog post-related enums
+    ├── api.enum.ts               // API-related enums
+    ├── auth.enum.ts              // Authentication-related enums
+    ├── notification.enum.ts      // Notification-related enums
+    ├── payment.enum.ts           // Payment-related enums
+    └── theme.enum.ts             // Theme and UI-related enums
+```
+
+## Cursor Rules
+
+### 1. Rule - Enum File Location and Naming
+- **Always place enums in `./src/enums` folder**
+- **File names must end with `.enum.ts`**
+- Use kebab-case for enum file names (e.g., `blog-post.enum.ts`)
+- Group related enums in the same file based on use case
+- File name should reflect the domain/use case (user, blog-post, payment, etc.)
+
+### 2. Rule - Enum Value Naming Conventions
+- **Use CAPITALISED_SNAKE_CASE for multi-word enum values**
+- **Use CAPITALS for single-word enum values**
+- Enum values should be descriptive and self-explanatory
+- Use consistent naming patterns within the same enum
+- Avoid abbreviations unless they are widely understood
+
+### 3. Rule - Enum Grouping by Use Case
+- **Group related enums in the same file** (e.g., all blog-related enums in `blog-post.enum.ts`)
+- Each file should contain enums for a specific domain or feature
+- Avoid mixing unrelated enums in the same file
+- Consider the logical relationship between enums when grouping
+
+### 4. Rule - Enum Structure and Organization
+- Use string enums for better debugging and serialization
+- Export each enum individually with named exports
+- Add JSDoc comments for complex enums
+- Order enum values logically (alphabetical, by priority, or by workflow)
+
+### 5. Rule - Enum Import and Usage
+- Import enums using `@/enums/filename.enum` pattern
+- Use descriptive enum names that indicate their purpose
+- Always use enum values instead of raw strings in code
+- Import only the specific enums needed, avoid wildcard imports
+
+## Examples
+
+### ✅ Good Enum Structure
+
+```typescript
+// ./src/enums/user.enum.ts
+
+/**
+ * User role types for authorization
+ */
+export enum UserRole {
+  ADMIN = 'admin',
+  MODERATOR = 'moderator',
+  USER = 'user',
+  GUEST = 'guest'
+}
+
+/**
+ * User account status
+ */
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+  SUSPENDED = 'suspended',
+  DELETED = 'deleted'
+}
+
+/**
+ * User profile completion levels
+ */
+export enum ProfileCompletionLevel {
+  BASIC_INFO = 'basic-info',
+  CONTACT_DETAILS = 'contact-details',
+  PREFERENCES_SET = 'preferences-set',
+  FULLY_COMPLETED = 'fully-completed'
+}
+```
+
+```typescript
+// ./src/enums/blog-post.enum.ts
+
+/**
+ * Blog post publication status
+ */
+export enum BlogPostStatus {
+  DRAFT = 'draft',
+  PENDING_REVIEW = 'pending-review',
+  PUBLISHED = 'published',
+  ARCHIVED = 'archived',
+  DELETED = 'deleted'
+}
+
+/**
+ * Blog post categories
+ */
+export enum BlogPostCategory {
+  TECHNOLOGY = 'technology',
+  BUSINESS = 'business',
+  LIFESTYLE = 'lifestyle',
+  HEALTH_FITNESS = 'health-fitness',
+  TRAVEL = 'travel',
+  FOOD_COOKING = 'food-cooking'
+}
+
+/**
+ * Blog post content types
+ */
+export enum BlogPostType {
+  ARTICLE = 'article',
+  TUTORIAL = 'tutorial',
+  NEWS = 'news',
+  REVIEW = 'review',
+  OPINION = 'opinion'
+}
+```
+
+```typescript
+// ./src/enums/payment.enum.ts
+
+/**
+ * Payment methods supported
+ */
+export enum PaymentMethod {
+  CREDIT_CARD = 'credit-card',
+  DEBIT_CARD = 'debit-card',
+  PAYPAL = 'paypal',
+  BANK_TRANSFER = 'bank-transfer',
+  CRYPTOCURRENCY = 'cryptocurrency'
+}
+
+/**
+ * Payment transaction status
+ */
+export enum PaymentStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded'
+}
+
+/**
+ * Supported currencies
+ */
+export enum Currency {
+  USD = 'USD',
+  EUR = 'EUR',
+  GBP = 'GBP',
+  JPY = 'JPY',
+  CAD = 'CAD'
+}
+```
+
+### ✅ Good Enum Usage in Components
+
+```typescript
+// ./src/components/BlogPostCard.tsx
+import React from 'react';
+
+// Import specific enums needed
+import { BlogPostStatus, BlogPostCategory, BlogPostType } from '@/enums/blog-post.enum';
+import { UserRole } from '@/enums/user.enum';
+
+// Types
+import type { BlogPostProps } from '@/types/props/BlogPostProps';
+
+const BlogPostCard: React.FC<BlogPostProps> = ({ post, currentUser }) => {
+  // Use enum values for comparisons
+  const canEdit = currentUser.role === UserRole.ADMIN || 
+                  currentUser.role === UserRole.MODERATOR;
+  
+  const isPublished = post.status === BlogPostStatus.PUBLISHED;
+  const isTechnology = post.category === BlogPostCategory.TECHNOLOGY;
+
+  const getStatusBadgeColor = (status: BlogPostStatus) => {
+    switch (status) {
+      case BlogPostStatus.PUBLISHED:
+        return 'green';
+      case BlogPostStatus.PENDING_REVIEW:
+        return 'yellow';
+      case BlogPostStatus.DRAFT:
+        return 'gray';
+      case BlogPostStatus.ARCHIVED:
+        return 'blue';
+      default:
+        return 'red';
+    }
+  };
+
+  return (
+    <div className="blog-post-card">
+      <span className={`status-badge status-${getStatusBadgeColor(post.status)}`}>
+        {post.status}
+      </span>
+      {/* Component content */}
+    </div>
+  );
+};
+
+export { BlogPostCard };
+```
+
+### ❌ Bad Enum Structure
+
+```typescript
+// Wrong: Mixed unrelated enums in one file
+// ./src/enums/mixed.enum.ts
+export enum UserRole {
+  admin = 'admin',  // Wrong: should be ADMIN
+  user = 'user'     // Wrong: should be USER
+}
+
+export enum PaymentStatus {  // Wrong: should be in payment.enum.ts
+  pending = 'pending'        // Wrong: should be PENDING
+}
+
+export enum BlogCategory {   // Wrong: should be in blog-post.enum.ts
+  tech = 'tech'             // Wrong: should be TECHNOLOGY
+}
+
+// Wrong: File doesn't end with .enum.ts
+// Wrong: camelCase instead of snake_case for multi-word values
+export enum NotificationTypes {
+  pushNotification = 'pushNotification',  // Wrong: should be PUSH_NOTIFICATION
+  emailAlert = 'emailAlert'               // Wrong: should be EMAIL_ALERT
+}
+```
+
+```typescript
+// Wrong: Using raw strings instead of enums
+const BlogPost = ({ status }: { status: string }) => {
+  // Wrong: using raw strings
+  if (status === 'published') {  // Should use BlogPostStatus.PUBLISHED
+    return <div>Published post</div>;
+  }
+  
+  // Wrong: typo-prone and not type-safe
+  if (status === 'pendng-review') {  // Typo in string
+    return <div>Under review</div>;
+  }
+};
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|-----|---|-----|
+| **File Naming** | `blog-post.enum.ts` | `blogPost.ts` or `blog.ts` |
+| **Enum Values** | `PENDING_REVIEW`, `ADMIN` | `pendingReview`, `admin` |
+| **Grouping** | Related enums in same file | Random enums mixed together |
+| **File Extension** | `.enum.ts` | `.ts` or `.enum.js` |
+| **Usage** | `UserRole.ADMIN` | `'admin'` as raw string |
+| **Import Path** | `@/enums/user.enum` | Relative paths |
+
+## Enum Naming Patterns
+
+| Pattern | Example | Use Case |
+|-----|---|-----|
+| **Single Word** | `ADMIN`, `USER`, `GUEST` | Simple, clear concepts |
+| **Multi-Word Snake_Case** | `PENDING_REVIEW`, `FULLY_COMPLETED` | Complex states or actions |
+| **Acronyms** | `API`, `URL`, `HTTP` | Well-known abbreviations |
+| **Technical Terms** | `CREDIT_CARD`, `BANK_TRANSFER` | Domain-specific terms |
+
+## File Organization by Domain
+
+| Domain | File Name | Contains |
+|-----|---|-----|
+| **User Management** | `user.enum.ts` | UserRole, UserStatus, ProfileLevel |
+| **Content Management** | `blog-post.enum.ts` | PostStatus, Category, ContentType |
+| **E-commerce** | `payment.enum.ts` | PaymentMethod, Status, Currency |
+| **Authentication** | `auth.enum.ts` | AuthProvider, TokenType, Permission |
+| **Notifications** | `notification.enum.ts` | NotificationType, Priority, Channel |
+| **API/System** | `api.enum.ts` | HttpMethod, ErrorCode, ResponseFormat |
+
+## Advanced Enum Patterns
+
+### ✅ Enum with Methods (Using Namespace)
+
+```typescript
+// ./src/enums/user.enum.ts
+
+export enum UserRole {
+  ADMIN = 'admin',
+  MODERATOR = 'moderator',
+  USER = 'user',
+  GUEST = 'guest'
+}
+
+export namespace UserRole {
+  export function getPermissionLevel(role: UserRole): number {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 100;
+      case UserRole.MODERATOR:
+        return 50;
+      case UserRole.USER:
+        return 10;
+      case UserRole.GUEST:
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  export function canModerate(role: UserRole): boolean {
+    return [UserRole.ADMIN, UserRole.MODERATOR].includes(role);
+  }
+}
+```
+
+### ✅ Complex Enum Grouping
+
+```typescript
+// ./src/enums/e-commerce.enum.ts
+
+/**
+ * Product categories for e-commerce
+ */
+export enum ProductCategory {
+  ELECTRONICS = 'electronics',
+  CLOTHING_ACCESSORIES = 'clothing-accessories',
+  HOME_GARDEN = 'home-garden',
+  BOOKS_MEDIA = 'books-media',
+  SPORTS_OUTDOORS = 'sports-outdoors',
+  HEALTH_BEAUTY = 'health-beauty'
+}
+
+/**
+ * Order processing states
+ */
+export enum OrderStatus {
+  CART = 'cart',
+  PENDING_PAYMENT = 'pending-payment',
+  PAYMENT_CONFIRMED = 'payment-confirmed',
+  PROCESSING = 'processing',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+  RETURNED = 'returned'
+}
+
+/**
+ * Shipping methods available
+ */
+export enum ShippingMethod {
+  STANDARD = 'standard',
+  EXPRESS = 'express',
+  OVERNIGHT = 'overnight',
+  PICKUP = 'pickup',
+  DIGITAL_DELIVERY = 'digital-delivery'
+}
+```
+
+## Implementation Checklist
+
+### Before Creating Enums
+- [ ] Determine the domain/use case for grouping (user, blog, payment, etc.)
+- [ ] Check if related enums already exist in a file
+- [ ] Plan enum values using proper naming conventions
+- [ ] Consider if enum will need utility methods
+
+### While Creating Enums
+- [ ] Use `.enum.ts` file extension
+- [ ] Place file in `./src/enums/` directory
+- [ ] Use kebab-case for file names
+- [ ] Use CAPITALISED_SNAKE_CASE for multi-word enum values
+- [ ] Use CAPITALS for single-word enum values
+- [ ] Group related enums in the same file
+- [ ] Add JSDoc comments for complex enums
+- [ ] Use string values for better debugging
+
+### After Creating Enums
+- [ ] Import enums using `@/enums/filename.enum` pattern
+- [ ] Replace any existing raw strings with enum values
+- [ ] Verify TypeScript compilation passes
+- [ ] Test enum usage in components
+- [ ] Update related interfaces to use enum types
+
+### File Organization Checks
+- [ ] Enum file ends with `.enum.ts`
+- [ ] File is in `./src/enums/` directory
+- [ ] Related enums are grouped together
+- [ ] File name reflects the domain/use case
+- [ ] No unrelated enums mixed in the same file
+- [ ] Consistent naming patterns used
+
+## Usage in Interfaces
+
+### ✅ Good Interface Integration
+
+```typescript
+// ./src/types/BlogPostInterface.ts
+import { BlogPostStatus, BlogPostCategory, BlogPostType } from '@/enums/blog-post.enum';
+
+export interface IBlogPostInterface {
+  id: string;
+  title: string;
+  content: string;
+  status: BlogPostStatus;  // Use enum type
+  category: BlogPostCategory;  // Use enum type
+  type: BlogPostType;  // Use enum type
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt?: Date;
+}
+```
+
+## References
+
+- [TypeScript Enums Documentation](mdc:https:/www.typescriptlang.org/docs/handbook/enums.html)
+- [String Enums Best Practices](mdc:https:/www.typescriptlang.org/docs/handbook/enums.html#string-enums)
+- [Enum vs Union Types](mdc:https:/www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)
+
+## Reminders
+
+### ⚡ Key Enum Rules to Remember
+
+1. **File Extension**: Always use `.enum.ts` for enum files
+2. **Location**: All enums go in `./src/enums/` directory
+3. **Naming**: CAPITALISED_SNAKE_CASE for multi-word, CAPITALS for single word
+4. **Grouping**: Related enums in same file by use case/domain
+5. **File Names**: Use kebab-case (e.g., `blog-post.enum.ts`)
+6. **Import Pattern**: Use `@/enums/filename.enum` for imports
+7. **String Values**: Use string enums for better debugging
+8. **Documentation**: Add JSDoc comments for complex enums
+9. **Consistency**: Follow same patterns across all enum files
+10. **Usage**: Always use enum values instead of raw strings
+
+### 🎯 Enum Quality Indicators
+
+- Do all enum files end with `.enum.ts`?
+- Are enum values using proper CAPITALISED_SNAKE_CASE?
+- Are related enums grouped in appropriate files?
+- Are enums used instead of raw strings in code?
+- Is the file organization logical by domain?
+
+### 📋 Enum Creation Checklist
+
+- [ ] File name follows `domain-name.enum.ts` pattern
+- [ ] File located in `./src/enums/` directory
+- [ ] Enum values use CAPITALISED_SNAKE_CASE or CAPITALS
+- [ ] Related enums are grouped in same file
+- [ ] String values used for enum members
+- [ ] JSDoc comments added for complex enums
+- [ ] Enums exported with named exports
+- [ ] Import using `@/enums/filename.enum` pattern
+- [ ] Used in interfaces and components correctly
+- [ ] No raw strings used where enums should be used

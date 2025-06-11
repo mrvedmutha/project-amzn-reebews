@@ -1,0 +1,364 @@
+---
+description: how to call import statement
+globs: 
+alwaysApply: false
+---
+# Import Patterns and Alias Rules
+
+## File Structure
+
+```
+src/
+├── components/
+│   ├── ui/
+│   │   ├── Button.tsx
+│   │   └── Modal.tsx
+│   └── common/
+│       ├── Navbar.tsx
+│       └── Footer.tsx
+├── types/
+│   ├── IUserInterface.ts
+│   └── props/
+│       └── NavbarProps.ts
+├── enums/
+│   ├── UserRoleEnum.ts
+│   └── ThemeEnum.ts
+├── utils/
+│   ├── helpers.ts
+│   └── constants.ts
+├── hooks/
+│   ├── useAuth.ts
+│   └── useApi.ts
+├── services/
+│   ├── api.ts
+│   └── auth.ts
+└── pages/
+    ├── Home.tsx
+    └── Profile.tsx
+```
+
+## Cursor Rules
+
+### 1. Rule - Always Use @/ Alias for Imports
+- **Never use relative imports like `./` or `../`**
+- Always use `@/` alias which points to the `src/` directory
+- Use `@/` for all internal project imports
+- Only use relative imports for files in the same directory when absolutely necessary
+
+### 2. Rule - Import Path Structure Standards
+- **Types**: `import { IUserInterface } from '@/types/IUserInterface'`
+- **Props**: `import { NavbarProps } from '@/types/props/NavbarProps'`
+- **Enums**: `import { UserRoleEnum } from '@/enums/UserRoleEnum'`
+- **Components**: `import { Button } from '@/components/ui/Button'`
+- **Utils**: `import { formatDate } from '@/utils/helpers'`
+- **Hooks**: `import { useAuth } from '@/hooks/useAuth'`
+- **Services**: `import { apiService } from '@/services/api'`
+
+### 3. Rule - Import Organization and Ordering
+- **Group imports in specific order**: External libraries first, then internal imports
+- **Sort internal imports alphabetically** within each group
+- **Separate groups with blank lines**
+- **Use named imports** whenever possible, avoid default imports unless necessary
+
+### 4. Rule - Import Grouping Standards
+- **Group 1**: External library imports (React, libraries)
+- **Group 2**: Internal type imports (@/types, @/enums)
+- **Group 3**: Internal component imports (@/components)
+- **Group 4**: Internal utility imports (@/utils, @/hooks, @/services)
+- **Group 5**: Internal page/route imports (@/pages)
+
+### 5. Rule - Import Naming Conventions
+- **Use descriptive import names** that match file/export names
+- **Avoid import aliases** unless there are naming conflicts
+- **Use PascalCase for components** and interfaces
+- **Use camelCase for utilities** and functions
+- **Use UPPER_CASE for constants** and enums when destructured
+
+### 6. Rule - Conditional and Dynamic Imports
+- **Use dynamic imports for code splitting**: `const Component = lazy(() => import('@/components/Component'))`
+- **Use conditional imports sparingly** and only when necessary
+- **Always handle dynamic import errors** with proper error boundaries
+
+## Examples
+
+### ✅ Good Import Structure
+
+```typescript
+// External library imports first
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Internal type and enum imports
+import { IUserInterface } from '@/types/IUserInterface';
+import { NavbarProps } from '@/types/props/NavbarProps';
+import { UserRoleEnum } from '@/enums/UserRoleEnum';
+import { ThemeEnum } from '@/enums/ThemeEnum';
+
+// Internal component imports
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Navbar } from '@/components/common/Navbar';
+
+// Internal utility imports
+import { useAuth } from '@/hooks/useAuth';
+import { useApi } from '@/hooks/useApi';
+import { apiService } from '@/services/api';
+import { formatDate, validateEmail } from '@/utils/helpers';
+import { API_ENDPOINTS } from '@/utils/constants';
+
+// Internal page imports
+import { Home } from '@/pages/Home';
+import { Profile } from '@/pages/Profile';
+```
+
+### ✅ Good Component Import Example
+
+```typescript
+// ./src/components/common/Navbar.tsx
+import React from 'react';
+
+// Types and enums
+import { NavbarProps } from '@/types/props/NavbarProps';
+import { IUserInterface } from '@/types/IUserInterface';
+import { UserRoleEnum } from '@/enums/UserRoleEnum';
+import { NavbarVariantEnum } from '@/enums/NavbarVariantEnum';
+
+// Components
+import { Button } from '@/components/ui/Button';
+
+// Utils
+import { useAuth } from '@/hooks/useAuth';
+
+const Navbar: React.FC<NavbarProps> = ({ 
+  title, 
+  user, 
+  variant = NavbarVariantEnum.DEFAULT 
+}) => {
+  const { logout } = useAuth();
+  const isAdmin = user.role === UserRoleEnum.ADMIN;
+
+  return (
+    <nav className={`navbar navbar--${variant}`}>
+      <h1>{title}</h1>
+      {isAdmin && <Button onClick={logout}>Admin Panel</Button>}
+    </nav>
+  );
+};
+
+export { Navbar };
+```
+
+### ✅ Good Hook Import Example
+
+```typescript
+// ./src/hooks/useAuth.ts
+import { useState, useEffect } from 'react';
+
+// Types
+import { IUserInterface } from '@/types/IUserInterface';
+import { UserRoleEnum } from '@/enums/UserRoleEnum';
+
+// Services
+import { authService } from '@/services/auth';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<IUserInterface | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const login = async (email: string, password: string) => {
+    const userData = await authService.login(email, password);
+    setUser(userData);
+  };
+
+  return { user, isLoading, login };
+};
+```
+
+### ❌ Bad Import Structure
+
+```typescript
+// Wrong: Mixed import order and using relative paths
+import { Navbar } from '../components/common/Navbar';  // Wrong: relative path
+import React from 'react';  // Wrong: should be first
+import { IUserInterface } from './types/IUserInterface';  // Wrong: relative path
+import { validateEmail } from '../utils/helpers';  // Wrong: relative path
+import { BrowserRouter } from 'react-router-dom';  // Wrong: not grouped with React
+
+// Wrong: No grouping or organization
+import { Button } from '@/components/ui/Button';
+import { useState } from 'react';  // Wrong: should be with React import
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|-----|---|-----|
+| **Alias Usage** | `import { Button } from '@/components/ui/Button'` | `import { Button } from '../components/ui/Button'` |
+| **Import Order** | External first, then internal with grouping | Mixed order without grouping |
+| **Naming** | `import { IUserInterface }` | `import { IUserInterface as User }` |
+| **Organization** | Grouped by type with blank lines | All imports together |
+| **Path Consistency** | Always use `@/` for internal imports | Mix of `@/`, `./`, and `../` |
+
+## Import Types Comparison
+
+| Import Type | Path Pattern | Example |
+|-----|---|-----|
+| **External Library** | Package name | `import React from 'react'` |
+| **Types** | `@/types/` | `import { IUserInterface } from '@/types/IUserInterface'` |
+| **Props** | `@/types/props/` | `import { NavbarProps } from '@/types/props/NavbarProps'` |
+| **Enums** | `@/enums/` | `import { UserRoleEnum } from '@/enums/UserRoleEnum'` |
+| **Components** | `@/components/` | `import { Button } from '@/components/ui/Button'` |
+| **Hooks** | `@/hooks/` | `import { useAuth } from '@/hooks/useAuth'` |
+| **Utils** | `@/utils/` | `import { formatDate } from '@/utils/helpers'` |
+| **Services** | `@/services/` | `import { apiService } from '@/services/api'` |
+
+## Advanced Import Patterns
+
+### ✅ Dynamic Imports for Code Splitting
+
+```typescript
+import { lazy, Suspense } from 'react';
+
+// Dynamic import using @/ alias
+const ProfilePage = lazy(() => import('@/pages/Profile'));
+const AdminPanel = lazy(() => import('@/components/admin/AdminPanel'));
+
+const App = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <Routes>
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/admin" element={<AdminPanel />} />
+    </Routes>
+  </Suspense>
+);
+```
+
+### ✅ Conditional Imports
+
+```typescript
+// Conditional import for development tools
+import { IUserInterface } from '@/types/IUserInterface';
+
+let DevTools: React.ComponentType | null = null;
+
+if (process.env.NODE_ENV === 'development') {
+  // Dynamic import for dev tools
+  const { default: ReactQueryDevtools } = await import('@tanstack/react-query-devtools');
+  DevTools = ReactQueryDevtools;
+}
+```
+
+### ✅ Type-Only Imports
+
+```typescript
+// Use type-only imports for better tree shaking
+import type { IUserInterface } from '@/types/IUserInterface';
+import type { NavbarProps } from '@/types/props/NavbarProps';
+
+// Regular imports for runtime usage
+import { UserRoleEnum } from '@/enums/UserRoleEnum';
+import { Button } from '@/components/ui/Button';
+```
+
+## Implementation Checklist
+
+### Before Adding Imports
+- [ ] Check if `@/` alias is configured in your project (tsconfig.json, vite.config.js, etc.)
+- [ ] Verify the file exists at the expected path
+- [ ] Determine if it's a type-only import or runtime import
+- [ ] Plan the import grouping and order
+
+### While Adding Imports
+- [ ] Use `@/` alias for all internal imports
+- [ ] Group imports by category (external, types, components, utils)
+- [ ] Sort imports alphabetically within each group
+- [ ] Add blank lines between import groups
+- [ ] Use named imports whenever possible
+- [ ] Use type-only imports for TypeScript types when appropriate
+
+### After Adding Imports
+- [ ] Verify TypeScript compilation passes
+- [ ] Check that imports resolve correctly
+- [ ] Ensure no circular dependencies
+- [ ] Run linter to check import order
+- [ ] Test that the imported functionality works correctly
+
+### Project Configuration Checks
+- [ ] `@/` alias is configured in tsconfig.json
+- [ ] Build tools recognize the alias (Vite, Webpack, etc.)
+- [ ] IDE/Editor supports the alias for autocomplete
+- [ ] Linting rules enforce import order and alias usage
+- [ ] No mixing of alias and relative imports
+
+## Configuration Examples
+
+### ✅ TypeScript Configuration (tsconfig.json)
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
+```
+
+### ✅ Vite Configuration (vite.config.ts)
+
+```typescript
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, 'src'),
+    },
+  },
+});
+```
+
+## References
+
+- [TypeScript Module Resolution](mdc:https:/www.typescriptlang.org/docs/handbook/module-resolution.html)
+- [Vite Path Aliases](mdc:https:/vitejs.dev/config/shared-options.html#resolve-alias)
+- [Import/Export Best Practices](mdc:https:/developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+
+## Reminders
+
+### ⚡ Key Import Rules to Remember
+
+1. **Always Use @/ Alias**: Never use relative imports for internal files
+2. **Group and Order**: External libs first, then internal by category
+3. **Alphabetical Sort**: Within each group, sort alphabetically
+4. **Named Imports**: Prefer named imports over default imports
+5. **Type-Only Imports**: Use `import type` for TypeScript types
+6. **Consistency**: Use the same import patterns across the codebase
+7. **No Circular Dependencies**: Avoid importing files that import each other
+8. **Path Clarity**: Import paths should clearly indicate file location
+9. **Code Splitting**: Use dynamic imports for large components/pages
+10. **Configuration**: Ensure @/ alias is properly configured in build tools
+
+### 🎯 Import Quality Indicators
+
+- Are all internal imports using @/ alias consistently?
+- Are imports grouped and ordered correctly?
+- Are there any circular dependencies?
+- Do all imports resolve without errors?
+- Is the import organization consistent across files?
+
+### 📋 Import Creation Checklist
+
+- [ ] Import uses @/ alias for internal files
+- [ ] Imports are grouped by category
+- [ ] Imports are sorted alphabetically within groups
+- [ ] Blank lines separate import groups
+- [ ] Named imports are used where possible
+- [ ] Type-only imports are used for types
+- [ ] No circular dependencies exist
+- [ ] TypeScript compilation passes
+- [ ] All imports resolve correctly
+- [ ] Import patterns are consistent with project standards

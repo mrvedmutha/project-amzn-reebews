@@ -1,0 +1,343 @@
+---
+description: How to write mongoose models
+globs: 
+alwaysApply: false
+---
+# Model Layer Patterns - Cursor Rules
+
+## File Structure
+
+```
+project/
+├── src/
+│   └── models/
+│       ├── admin/
+│       │   ├── blogs/
+│       │   │   ├── blog.models.ts        // Blog Mongoose model
+│       │   │   └── author.models.ts      // Author Mongoose model
+│       │   ├── users/
+│       │   │   ├── user.models.ts        // User Mongoose model
+│       │   │   └── profile.models.ts     // Profile Mongoose model
+│       │   └── categories/
+│       │       └── category.models.ts    // Category Mongoose model
+│       ├── auth/
+│       │   ├── session.models.ts         // Session Mongoose model
+│       │   └── token.models.ts           // Token Mongoose model
+│       └── public/
+│           ├── comment.models.ts         // Comment Mongoose model
+│           └── feedback.models.ts        // Feedback Mongoose model
+├── schemas/
+│   └── admin/
+│       ├── blogs/
+│       │   ├── blog.schema.ts            // Blog Mongoose schema
+│       │   └── author.schema.ts          // Author Mongoose schema
+│       └── users/
+│           ├── user.schema.ts            // User Mongoose schema
+│           └── profile.schema.ts         // Profile Mongoose schema
+├── types/
+│   └── admin/
+│       ├── blogs/
+│       │   ├── blog.types.ts            // Blog TypeScript types
+│       │   └── author.types.ts          // Author TypeScript types
+│       └── users/
+│           ├── user.types.ts            // User TypeScript types
+│           └── profile.types.ts         // Profile TypeScript types
+└── lib/
+    └── database/
+        └── db.ts                        // Database connection
+```
+
+## Cursor Rules
+
+### 1. Rule - Model File Location and Dependencies
+- **Always write models in `./src/models` folder**
+- File names must end with `.models.ts`
+- Before writing model, check if relevant schema exists in `./schemas` folder
+- If schema doesn't exist, create it following [schema-design-patterns.mdc](mdc:.cursor/rules/schema-design-patterns.mdc) first
+- Always import and use the corresponding schema for the model
+
+### 2. Rule - Schema Import and Validation
+- **Check `./schemas` folder for relevant schema before writing model**
+- Import the schema from the appropriate path in schemas folder
+- If schema doesn't exist, create it following schema rules first
+- Use the imported schema to create the Mongoose model
+- Ensure schema path matches the model domain structure
+
+### 3. Rule - Model Creation Pattern
+- **Always use `mongoose.models.ModelName || mongoose.model()` pattern**
+- This prevents re-compilation errors in development
+- Use PascalCase for model names (e.g., `Author`, `BlogPost`, `UserProfile`)
+- Export the model as a named export
+- Import mongoose from the main mongoose package
+
+### 4. Rule - Model Organization and Structure
+- **Organize models by domain and feature**
+- Mirror the schema folder structure in models folder
+- Use descriptive model names that match the schema
+- Group related models in the same folder
+- Maintain consistent naming conventions across models and schemas
+
+### 5. Rule - Type Safety and Documentation
+- **Ensure TypeScript compatibility for all models**
+- Use proper typing for model exports
+- Add JSDoc comments for complex models
+- Reference corresponding TypeScript types when available
+- Handle model compilation and re-export properly
+
+## Example Code
+
+### ✅ Complete Model Implementation
+
+```typescript
+// src/models/admin/blogs/author.models.ts
+import mongoose from "mongoose";
+import { AuthorSchema } from "@/schemas/admin/blogs/author.schema";
+
+export const Author =
+  mongoose.models.Author || mongoose.model("Author", AuthorSchema);
+```
+
+```typescript
+// src/models/admin/blogs/blog.models.ts
+import mongoose from "mongoose";
+import { BlogSchema } from "@/schemas/admin/blogs/blog.schema";
+
+export const Blog =
+  mongoose.models.Blog || mongoose.model("Blog", BlogSchema);
+```
+
+```typescript
+// src/models/admin/users/user.models.ts
+import mongoose from "mongoose";
+import { UserSchema } from "@/schemas/admin/users/user.schema";
+
+/**
+ * User model for admin operations
+ * Handles user authentication and profile management
+ */
+export const User =
+  mongoose.models.User || mongoose.model("User", UserSchema);
+```
+
+### ✅ Model with Complex Relationships
+
+```typescript
+// src/models/admin/blogs/blogpost.models.ts
+import mongoose from "mongoose";
+import { BlogPostSchema } from "@/schemas/admin/blogs/blogpost.schema";
+
+/**
+ * BlogPost model with author and category relationships
+ * Supports rich content, tags, and metadata
+ */
+export const BlogPost =
+  mongoose.models.BlogPost || mongoose.model("BlogPost", BlogPostSchema);
+```
+
+```typescript
+// src/models/admin/categories/category.models.ts
+import mongoose from "mongoose";
+import { CategorySchema } from "@/schemas/admin/categories/category.schema";
+
+/**
+ * Category model for content organization
+ * Supports hierarchical category structure
+ */
+export const Category =
+  mongoose.models.Category || mongoose.model("Category", CategorySchema);
+```
+
+### ✅ Model with TypeScript Integration
+
+```typescript
+// src/models/auth/session.models.ts
+import mongoose from "mongoose";
+import { SessionSchema } from "@/schemas/auth/session.schema";
+import type { SessionDocument } from "@/types/auth/session.types";
+
+/**
+ * Session model for user authentication
+ * Handles session tokens and expiration
+ */
+export const Session = 
+  mongoose.models.Session || mongoose.model<SessionDocument>("Session", SessionSchema);
+```
+
+### ❌ Bad Model Implementation
+
+```typescript
+// Wrong: Incorrect location and naming
+// models/Author.js
+const mongoose = require("mongoose"); // Wrong: CommonJS import
+
+// Wrong: Direct schema definition in model file
+const authorSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+});
+
+// Wrong: Direct model creation without checking existing models
+const Author = mongoose.model("Author", authorSchema);
+
+module.exports = Author; // Wrong: CommonJS export
+```
+
+```typescript
+// Wrong: No schema import, incorrect pattern
+// src/models/badExample.ts
+import mongoose from "mongoose";
+
+// Wrong: Schema defined directly in model file
+const badSchema = new mongoose.Schema({
+  field: String,
+});
+
+// Wrong: Not checking for existing models
+export const BadModel = mongoose.model("BadModel", badSchema);
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|--------|------------------|-----------------|
+| **File Location** | Place in `./src/models/` with `.models.ts` extension | Place in random folders or use `.js` extension |
+| **Schema Import** | Import schema from `./schemas` folder | Define schema directly in model file |
+| **Model Pattern** | Use `mongoose.models.Name \|\| mongoose.model()` | Direct `mongoose.model()` creation |
+| **Naming** | PascalCase model names: `BlogPost`, `UserProfile` | camelCase or inconsistent naming |
+| **Organization** | Mirror schema folder structure | Random organization |
+| **Type Safety** | Use TypeScript with proper types | Use JavaScript or no typing |
+| **Documentation** | Add JSDoc for complex models | No documentation |
+| **Dependencies** | Check schema exists, create if missing | Assume schema exists |
+
+## Key Differences Table
+
+| Component | Effective Model | Ineffective Model |
+|-----------|----------------|-------------------|
+| **Schema Dependency** | Import from schemas folder, create if missing | Define schema inline or skip validation |
+| **Model Creation** | Use mongoose.models pattern for reusability | Direct model creation causing conflicts |
+| **File Structure** | Organized by domain in `./src/models/` | Random placement in project |
+| **Type Integration** | TypeScript with proper type imports | No types or generic usage |
+| **Naming Convention** | PascalCase consistent with schema names | Inconsistent or unclear naming |
+| **Error Prevention** | Check existing models before creation | Risk of model re-compilation errors |
+| **Documentation** | Clear JSDoc for model purpose | No documentation or unclear purpose |
+
+## Implementation Checklist
+
+### Before Writing Model
+- [ ] Check if relevant schema exists in `./schemas` folder
+- [ ] Verify schema path matches intended model domain
+- [ ] Confirm TypeScript types exist if type safety is needed
+- [ ] Plan the model name using PascalCase convention
+- [ ] Determine the folder structure based on domain
+
+### While Writing Model
+- [ ] Create file in `./src/models/` with `.models.ts` extension
+- [ ] Import mongoose from main package
+- [ ] Import schema from corresponding path in schemas folder
+- [ ] Use `mongoose.models.ModelName || mongoose.model()` pattern
+- [ ] Export model using named export
+- [ ] Add JSDoc documentation for complex models
+- [ ] Use proper TypeScript typing if needed
+
+### After Writing Model
+- [ ] Test model creation and compilation
+- [ ] Verify model can be imported and used in services
+- [ ] Check that schema validation works correctly
+- [ ] Test model with database operations
+- [ ] Ensure no duplicate model registration errors
+- [ ] Validate TypeScript compilation if using types
+
+### Schema Dependencies
+- [ ] If schema doesn't exist, create following schema rules first
+- [ ] Import schema from correct path matching domain structure
+- [ ] Verify schema validation rules work with model
+- [ ] Ensure schema and model names are consistent
+- [ ] Test schema fields and validation in model context
+
+## References
+
+- [Mongoose Models Documentation](mdc:https:/mongoosejs.com/docs/models.html)
+- [Mongoose Schema Documentation](mdc:https:/mongoosejs.com/docs/guide.html)
+- [TypeScript with Mongoose](mdc:https:/mongoosejs.com/docs/typescript.html)
+- [MongoDB Best Practices](mdc:https:/docs.mongodb.com/manual/administration/production-notes)
+- [Node.js Module Patterns](mdc:https:/nodejs.org/api/modules.html)
+
+## Reminders
+
+### ⚡ Critical Model Development Rules
+
+1. **Location**: Always place models in `./src/models/` with `.models.ts` extension
+2. **Schema Import**: Import schema from `./schemas` folder, create if missing
+3. **Model Pattern**: Use `mongoose.models.ModelName || mongoose.model()` pattern
+4. **Naming**: Use PascalCase for model names matching schema names
+5. **Organization**: Mirror schema folder structure in models folder
+6. **Type Safety**: Use TypeScript and proper typing when available
+7. **Documentation**: Add JSDoc for complex models
+8. **Dependencies**: Check schema exists before creating model
+
+### 🎯 Quality Indicators
+
+- Does the model file exist in `./src/models/` with `.models.ts` extension?
+- Is the schema properly imported from the schemas folder?
+- Does the model use the `mongoose.models.Name || mongoose.model()` pattern?
+- Is the model name in PascalCase and consistent with schema?
+- Are TypeScript types properly used if available?
+- Is the folder structure organized by domain?
+
+### 📋 Model File Template Structure
+
+```typescript
+// Import dependencies
+import mongoose from "mongoose";
+import { SchemaName } from "@/schemas/path/schema.schema";
+import type { TypeName } from "@/types/path/type.types"; // Optional
+
+/**
+ * Model description and purpose
+ * Additional documentation if needed
+ */
+export const ModelName =
+  mongoose.models.ModelName || mongoose.model("ModelName", SchemaName);
+
+// With TypeScript typing (optional)
+export const TypedModel =
+  mongoose.models.TypedModel || mongoose.model<TypeDocument>("TypedModel", TypedSchema);
+```
+
+### 🔧 Common Model Patterns
+
+#### Basic Model
+```typescript
+// src/models/admin/entity.models.ts
+import mongoose from "mongoose";
+import { EntitySchema } from "@/schemas/admin/entity.schema";
+
+export const Entity =
+  mongoose.models.Entity || mongoose.model("Entity", EntitySchema);
+```
+
+#### Model with TypeScript
+```typescript
+// src/models/admin/typedentity.models.ts
+import mongoose from "mongoose";
+import { TypedEntitySchema } from "@/schemas/admin/typedentity.schema";
+import type { TypedEntityDocument } from "@/types/admin/typedentity.types";
+
+export const TypedEntity =
+  mongoose.models.TypedEntity || mongoose.model<TypedEntityDocument>("TypedEntity", TypedEntitySchema);
+```
+
+#### Model with Documentation
+```typescript
+// src/models/admin/complexentity.models.ts
+import mongoose from "mongoose";
+import { ComplexEntitySchema } from "@/schemas/admin/complexentity.schema";
+
+/**
+ * ComplexEntity model for advanced operations
+ * Handles relationships, validation, and business logic
+ * Used in admin panel and public API
+ */
+export const ComplexEntity =
+  mongoose.models.ComplexEntity || mongoose.model("ComplexEntity", ComplexEntitySchema);
+```

@@ -1,0 +1,237 @@
+---
+description: how to write cursor rules
+globs: 
+alwaysApply: false
+---
+# Writing Cursor Rules - .mdc Extension Guidelines
+
+## File Structure
+
+```
+.cursor/
+└── rules/
+    ├── api-design-patterns.mdc       // API design and structure rules
+    ├── component-architecture.mdc    // React/component rules
+    ├── database-schema-design.mdc    // Database design rules  
+    ├── error-handling-patterns.mdc   // Error handling best practices
+    ├── testing-strategies.mdc        // Testing approach rules
+    ├── security-guidelines.mdc       // Security implementation rules
+    ├── performance-optimization.mdc  // Performance rules
+    ├── code-style-conventions.mdc    // Code formatting and style
+    ├── git-workflow-rules.mdc        // Git and version control
+    └── writing-cursor-rules.mdc      // Meta rules for writing rules
+```
+
+## Cursor Rules
+
+### 1. Rule - File Extension and Naming
+- **Always use `.mdc` extension for cursor rules files**
+- Use kebab-case for all rule file names
+- Names must be descriptive and domain-specific
+- Group related rules in a single file (max 500 lines)
+- Include versioning if rules evolve significantly
+
+### 2. Rule - .mdc Structure Consistency
+- Always start with a file structure diagram using ASCII art
+- Follow the exact format: Rule number, descriptive title, detailed explanation
+- Include practical examples for each major rule
+- End with implementation checklist and reminders
+- Use proper markdown syntax compatible with .mdc format
+
+### 3. Rule - Content Quality Standards for .mdc
+- Write rules that are actionable and measurable
+- Include both positive (do) and negative (don't) examples
+- Provide code snippets that can be copy-pasted
+- Reference official documentation when applicable
+- Ensure .mdc compatibility with cursor rules engine
+
+### 4. Rule - Good vs Bad Examples in .mdc
+- Always include comparison tables for complex concepts
+- Show before/after code transformations
+- Explain the reasoning behind each recommendation
+- Use real-world scenarios in examples
+- Format properly for .mdc rendering
+
+### 5. Rule - Implementation Focus for .mdc Rules
+- Rules should be immediately applicable
+- Include step-by-step implementation guides
+- Provide configuration examples where relevant
+- Link to external tools and resources using proper .mdc syntax
+
+## Example Code
+
+### ✅ Good .mdc Cursor Rules Structure
+
+```markdown
+# API Route Design Rules
+
+## File Structure
+```
+app/
+└── api/
+    └── v1/
+        ├── users/
+        │   ├── route.ts              // GET,POST /api/v1/users
+        │   └── [id]/
+        │       └── route.ts          // GET,PUT,DELETE /api/v1/users/[id]
+        └── auth/
+            ├── login/
+            │   └── route.ts          // POST /api/v1/auth/login
+            └── register/
+                └── route.ts          // POST /api/v1/auth/register
+```
+
+## Cursor Rules
+
+### 1. Rule - RESTful Naming Conventions
+- Use plural nouns for resources: `/users`, not `/user`
+- Use HTTP verbs correctly: GET for retrieval, POST for creation
+- Nest resources logically: `/users/123/posts`
+
+### 2. Rule - Error Response Format
+- Always return consistent error structure
+- Include error codes, messages, and timestamps
+- Provide helpful debugging information
+
+## Examples
+
+### ✅ Good
+```typescript
+// GET /api/v1/users/123
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const user = await getUserById(id);
+    return Response.json({ data: user, success: true });
+  } catch (error) {
+    return Response.json({ 
+      error: { code: 'USER_NOT_FOUND', message: 'User not found' },
+      success: false 
+    }, { status: 404 });
+  }
+}
+```
+
+### ❌ Bad
+```typescript
+// GET /api/v1/user/123  // Wrong: should be plural
+export async function GET(req: Request) {
+  const user = getUser(); // No error handling
+  return user; // Inconsistent response format
+}
+```
+```
+
+### ❌ Bad .mdc Cursor Rules Structure
+
+```markdown
+# Random Rules File
+
+Some rules without structure:
+- Do this
+- Don't do that
+- Maybe consider this
+
+No examples, no structure, no implementation guidance.
+```
+
+## Good vs Bad Practices
+
+| Aspect | ✅ Good Practice | ❌ Bad Practice |
+|--------|------------------|-----------------|
+| **File Extension** | Use `.mdc` for all cursor rules | Use `.md` or other extensions |
+| **Rule Clarity** | "Use specific HTTP status codes (200, 201, 404, 500)" | "Handle errors properly" |
+| **Examples** | Include complete, runnable code snippets | Show partial or broken examples |
+| **Organization** | Group related rules under clear headings | Mix different domains in one file |
+| **Actionability** | "Set timeout to 30 seconds for API calls" | "Make API calls efficient" |
+| **Specificity** | "Use kebab-case for file names: `user-profile.mdc`" | "Use consistent naming" |
+| **.mdc Syntax** | Proper markdown with .mdc compatibility | Generic markdown without cursor context |
+
+## Key Differences Table
+
+| Component | Effective .mdc Rules | Ineffective .mdc Rules |
+|-----------|---------------------|------------------------|
+| **File Extension** | Always `.mdc` for cursor rules | `.md` or other extensions |
+| **Title** | Specific, action-oriented | Vague, theoretical |
+| **Content** | Step-by-step instructions | High-level concepts only |
+| **Examples** | Real code with context | Pseudo-code or incomplete snippets |
+| **Structure** | Consistent formatting, numbered rules | Random organization |
+| **Scope** | Focused on specific domain | Too broad or generic |
+| **Cursor Integration** | Optimized for cursor rules engine | Generic documentation |
+
+## Implementation Checklist
+
+### Before Writing .mdc Rules
+- [ ] Identify the specific domain/problem area
+- [ ] Research existing best practices and standards
+- [ ] Gather real-world examples and anti-patterns
+- [ ] Define the target audience (junior/senior developers)
+- [ ] Ensure understanding of .mdc format requirements
+
+### While Writing .mdc Rules
+- [ ] Create clear file structure diagram
+- [ ] Use `.mdc` extension for the file
+- [ ] Number rules sequentially with descriptive titles
+- [ ] Include at least 2 code examples per major rule
+- [ ] Add good vs bad comparison for each concept
+- [ ] Write implementation steps that are actionable
+- [ ] Ensure .mdc compatibility and proper formatting
+
+### After Writing .mdc Rules
+- [ ] Review for consistency with existing cursor rules
+- [ ] Test examples in actual codebase
+- [ ] Verify .mdc file works with cursor rules engine
+- [ ] Get feedback from team members
+- [ ] Update based on real usage patterns
+
+### .mdc File Quality Checks
+- [ ] File name is in kebab-case and descriptive
+- [ ] File uses `.mdc` extension
+- [ ] All code examples are syntactically correct
+- [ ] References include working links
+- [ ] Implementation checklist is comprehensive
+- [ ] Reminders section captures key points
+- [ ] .mdc format is properly structured for cursor
+
+## References
+
+- https://docs.cursor.com/context/rules
+- https://textcortex.com/post/technical-writing-best-practices
+- https://www.markdownguide.org/basic-syntax/
+
+## Reminders
+
+### ⚡ Key .mdc Rules to Remember
+
+1. **Use .mdc Extension**: Always save cursor rules with `.mdc` extension
+2. **Be Specific**: "Use TypeScript interfaces" is better than "Use types"
+3. **Show Examples**: Every rule needs a practical code example
+4. **Structure Matters**: Follow the exact format consistently
+5. **Stay Focused**: One domain per file, don't mix concerns
+6. **Make it Actionable**: Rules should be implementable immediately
+7. **Update Regularly**: Review and revise based on team feedback
+8. **Test Examples**: Ensure all code snippets actually work
+9. **Link Resources**: Always provide references to official docs
+10. **.mdc Compatibility**: Ensure format works with cursor rules engine
+
+### 🎯 .mdc Quality Indicators
+
+- Is the file saved with `.mdc` extension?
+- Can a new team member follow the rules without asking questions?
+- Are the examples copy-pasteable and working?
+- Do the rules prevent common mistakes in your domain?
+- Is the file structure diagram accurate and helpful?
+- Does the .mdc format render properly in cursor?
+
+### 📋 .mdc File Creation Checklist
+
+- [ ] File name follows `kebab-case.mdc` format
+- [ ] File structure diagram is present and accurate
+- [ ] 5+ numbered rules with descriptive titles
+- [ ] Each rule has practical examples
+- [ ] Good vs Bad comparison tables included
+- [ ] Implementation checklist is comprehensive
+- [ ] References section includes relevant links
+- [ ] Reminders section summarizes key points
+- [ ] All code examples are tested and working
+- [ ] .mdc format is optimized for cursor rules engine
