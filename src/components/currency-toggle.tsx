@@ -12,14 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
-
-type Currency = "INR" | "USD";
+import { Currency } from "@/enums/checkout.enum";
 
 export const CurrencyContext = React.createContext<{
   currency: Currency;
   setCurrency: (currency: Currency) => void;
 }>({
-  currency: "USD",
+  currency: Currency.USD,
   setCurrency: () => {},
 });
 
@@ -28,17 +27,17 @@ export function useCurrency() {
 }
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>(Currency.USD);
   const { country, loading } = useGeoLocation();
 
   useEffect(() => {
     // First try to use the geolocation API
     if (!loading && country) {
       if (country === "India") {
-        setCurrency("INR");
+        setCurrency(Currency.INR);
         return;
       } else {
-        setCurrency("USD");
+        setCurrency(Currency.USD);
         return;
       }
     }
@@ -46,7 +45,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     // Fallback to timezone detection if geolocation fails
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const isIndian = timezone.includes("Kolkata") || timezone.includes("India");
-    setCurrency(isIndian ? "INR" : "USD");
+    setCurrency(isIndian ? Currency.INR : Currency.USD);
   }, [loading, country]);
 
   return (
@@ -72,11 +71,11 @@ export function CurrencyToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setCurrency("USD")}>
+        <DropdownMenuItem onClick={() => setCurrency(Currency.USD)}>
           <DollarSign className="mr-2 h-4 w-4" />
           <span>USD</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setCurrency("INR")}>
+        <DropdownMenuItem onClick={() => setCurrency(Currency.INR)}>
           <IndianRupee className="mr-2 h-4 w-4" />
           <span>INR</span>
         </DropdownMenuItem>
