@@ -209,9 +209,12 @@ export function Pricing() {
                     {formatPrice(plan)}
                   </span>
                   {plan.price[billingCycle][currency] > 0 && (
-                    <span className="text-sm">
-                      /{billingCycle === "monthly" ? "month" : "year"}
-                    </span>
+                    <span className="text-sm">/month</span>
+                  )}
+                  {plan.price[billingCycle][currency] > 0 && billingCycle === "yearly" && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      billed yearly
+                    </div>
                   )}
                 </div>
                 <ul className="space-y-2">

@@ -4,8 +4,28 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function Hero() {
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component is mounted before accessing theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Determine which image to use based on theme
+  const getHeroImage = () => {
+    if (!mounted) return "/uploads/images/hero-image-light.png"; // Default fallback
+    
+    const currentTheme = resolvedTheme || theme;
+    return currentTheme === "dark" 
+      ? "/uploads/images/hero-image-dark.png" 
+      : "/uploads/images/hero-image-light.png";
+  };
+
   return (
     <div className="w-full py-12 md:py-20 px-4 md:px-6">
       <div className="container mx-auto max-w-6xl">
@@ -13,17 +33,19 @@ export function Hero() {
           <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl font-bold">
-                Transform Feedback.
+                Get Positive Reviews
               </h1>
-              <h1 className="text-4xl md:text-5xl font-bold">Build Trust.</h1>
               <h1 className="text-4xl md:text-5xl font-bold">
-                <span className="text-yellow-500">Reebew.</span>
+                <span className="text-yellow-500">Guaranteed.</span>
+              </h1>
+              <h1 className="text-4xl md:text-5xl font-bold">
+                With Reebew.
               </h1>
             </div>
             <p className="text-lg max-w-md mx-auto md:mx-0">
-              Empower your Amazon business with Reebews - the smart way to
-              collect authentic reviews, increase visibility, and build a loyal
-              customer base.
+              Boost your marketplace presence across Amazon, Flipkart, Etsy, and more. 
+              Reebews helps you collect authentic reviews, increase visibility, and build 
+              customer trust on any platform.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               <Button asChild size="lg">
@@ -35,17 +57,21 @@ export function Hero() {
             </div>
           </div>
           <div className="w-full md:w-1/2 relative h-72 md:h-96 mt-8 md:mt-0">
-            <Image
-              src="/uploads/image.jpg"
-              alt="Reebews Platform"
-              fill
-              className="object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                document.getElementById("image-fallback")!.style.display =
-                  "block";
-              }}
-            />
+            {mounted ? (
+              <Image
+                src={getHeroImage()}
+                alt="Reebews Platform"
+                fill
+                className="object-contain"
+                priority
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  document.getElementById("image-fallback")!.style.display = "block";
+                }}
+              />
+            ) : (
+              <Skeleton className="w-full h-full rounded-lg" />
+            )}
             <div
               id="image-fallback"
               style={{ display: "none" }}
