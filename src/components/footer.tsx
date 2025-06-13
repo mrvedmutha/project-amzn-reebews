@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 import {
   Facebook,
   Twitter,
@@ -13,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { theme } = useTheme();
 
   const footerLinks = [
     {
@@ -57,13 +60,16 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-1 sm:col-span-2">
               <Link href="/" className="flex items-center mb-4">
-                <span className="text-xl font-bold text-yellow-500">
-                  Reebews
-                </span>
+                <Image
+                  src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
+                  alt="Reebews Logo"
+                  width={240}
+                  height={48}
+                  priority
+                />
               </Link>
               <p className="text-sm text-muted-foreground mb-4 max-w-xs">
-                Helping Amazon sellers increase visibility and build trust
-                through authentic customer reviews.
+                Empowering businesses to build trust and credibility through our smart funnel system, guaranteeing positive customer reviews and sustainable growth.
               </p>
               <div className="flex items-center gap-4">
                 {socialLinks.map((link) => (
