@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,13 +19,20 @@ const navItems = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { theme } = useTheme();
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 mx-auto">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-yellow-500">Reebews</span>
+            <Image
+              src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
+              alt="Reebews Logo"
+              width={120}
+              height={24}
+              priority
+            />
           </Link>
           <nav className="hidden md:flex gap-6">
             {navItems.map((item) => (
@@ -55,9 +64,13 @@ export function Navbar() {
             <SheetContent side="right" className="flex flex-col w-full p-0">
               <div className="flex justify-between items-center p-4 border-b">
                 <Link href="/" className="flex items-center space-x-2">
-                  <span className="text-xl font-bold text-yellow-500">
-                    Reebews
-                  </span>
+                  <Image
+                    src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
+                    alt="Reebews Logo"
+                    width={120}
+                    height={24}
+                    priority
+                  />
                 </Link>
                 <Button
                   variant="ghost"
