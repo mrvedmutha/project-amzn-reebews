@@ -19,20 +19,31 @@ const navItems = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/uploads/logo/reebews-logo-dark.svg" 
+    : "/uploads/logo/reebews-logo-light.svg";
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 mx-auto">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
-            <Image
-              src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
-              alt="Reebews Logo"
-              width={120}
-              height={24}
-              priority
-            />
+            {mounted && (
+              <Image
+                src={logoSrc}
+                alt="Reebews Logo"
+                width={120}
+                height={24}
+                priority
+              />
+            )}
           </Link>
           <nav className="hidden md:flex gap-6">
             {navItems.map((item) => (
@@ -64,13 +75,15 @@ export function Navbar() {
             <SheetContent side="right" className="flex flex-col w-full p-0">
               <div className="flex justify-between items-center p-4 border-b">
                 <Link href="/" className="flex items-center space-x-2">
-                  <Image
-                    src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
-                    alt="Reebews Logo"
-                    width={120}
-                    height={24}
-                    priority
-                  />
+                  {mounted && (
+                    <Image
+                      src={logoSrc}
+                      alt="Reebews Logo"
+                      width={120}
+                      height={24}
+                      priority
+                    />
+                  )}
                 </Link>
                 <Button
                   variant="ghost"

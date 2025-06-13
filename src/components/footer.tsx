@@ -12,10 +12,20 @@ import {
   Phone,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import React from "react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/uploads/logo/reebews-logo-dark.svg" 
+    : "/uploads/logo/reebews-logo-light.svg";
 
   const footerLinks = [
     {
@@ -60,13 +70,15 @@ export function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-1 sm:col-span-2">
               <Link href="/" className="flex items-center mb-4">
-                <Image
-                  src={theme === "dark" ? "/uploads/logo/reebews-logo-dark.svg" : "/uploads/logo/reebews-logo-light.svg"}
-                  alt="Reebews Logo"
-                  width={240}
-                  height={48}
-                  priority
-                />
+                {mounted && (
+                  <Image
+                    src={logoSrc}
+                    alt="Reebews Logo"
+                    width={240}
+                    height={48}
+                    priority
+                  />
+                )}
               </Link>
               <p className="text-sm text-muted-foreground mb-4 max-w-xs">
                 Empowering businesses to build trust and credibility through our smart funnel system, guaranteeing positive customer reviews and sustainable growth.
