@@ -1,4 +1,14 @@
-import { PaymentMethod, Plan, Currency, BillingCycle, CouponType, Country } from "@/enums/checkout.enum";
+import {
+  PaymentMethod,
+  Plan,
+  Currency,
+  BillingCycle,
+  CouponType,
+  Country,
+  IndianState,
+  USState,
+  CanadianProvince,
+} from "@/enums/checkout.enum";
 
 export interface CheckoutFormValues {
   firstName: string;
@@ -7,6 +17,7 @@ export interface CheckoutFormValues {
   companyName?: string;
   address: string;
   city: string;
+  state?: string;
   postalCode: string;
   country: string;
   gstNumber?: string;
@@ -37,4 +48,14 @@ export interface CouponDetails {
 }
 
 // Re-export enums for convenience
-export { PaymentMethod, Plan, Currency, BillingCycle, CouponType, Country }; 
+export {
+  PaymentMethod,
+  Plan,
+  Currency,
+  BillingCycle,
+  CouponType,
+  Country,
+  IndianState,
+  USState,
+  CanadianProvince,
+};

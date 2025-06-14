@@ -1,20 +1,41 @@
 import { z } from "zod";
-import { PaymentMethod, Plan, Currency, BillingCycle, CouponType, Country } from "@/enums/checkout.enum";
+import {
+  PaymentMethod,
+  Plan,
+  Currency,
+  BillingCycle,
+  CouponType,
+  Country,
+  IndianState,
+  USState,
+  CanadianProvince,
+} from "@/enums/checkout.enum";
 
 /**
  * Checkout form validation schema
  */
 export const CheckoutFormZod = z.object({
-  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
-  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
+  firstName: z
+    .string()
+    .min(2, { message: "First name must be at least 2 characters" }),
+  lastName: z
+    .string()
+    .min(2, { message: "Last name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   companyName: z.string().optional(),
-  address: z.string().min(5, { message: "Address must be at least 5 characters" }),
+  address: z
+    .string()
+    .min(5, { message: "Address must be at least 5 characters" }),
   city: z.string().min(2, { message: "City must be at least 2 characters" }),
-  postalCode: z.string().min(3, { message: "Postal code must be at least 3 characters" }),
+  state: z.string().optional(),
+  postalCode: z
+    .string()
+    .min(3, { message: "Postal code must be at least 3 characters" }),
   country: z.nativeEnum(Country, { message: "Please select a valid country" }),
   gstNumber: z.string().optional(),
-  paymentMethod: z.nativeEnum(PaymentMethod, { message: "Please select a valid payment method" }),
+  paymentMethod: z.nativeEnum(PaymentMethod, {
+    message: "Please select a valid payment method",
+  }),
   cardName: z.string().optional(),
   cardNumber: z.string().optional(),
   expiryMonth: z.string().optional(),
@@ -46,7 +67,9 @@ export const PlanDetailsZod = z.object({
  */
 export const CouponDetailsZod = z.object({
   code: z.string().min(1, { message: "Coupon code is required" }),
-  discountValue: z.number().min(0, { message: "Discount value must be positive" }),
+  discountValue: z
+    .number()
+    .min(0, { message: "Discount value must be positive" }),
   type: z.nativeEnum(CouponType),
   description: z.string(),
 });
@@ -86,4 +109,4 @@ export type PlanDetailsType = z.infer<typeof PlanDetailsZod>;
 export type CouponDetailsType = z.infer<typeof CouponDetailsZod>;
 export type CouponApplicationType = z.infer<typeof CouponApplicationZod>;
 export type PlanSelectionType = z.infer<typeof PlanSelectionZod>;
-export type PaymentProcessingType = z.infer<typeof PaymentProcessingZod>; 
+export type PaymentProcessingType = z.infer<typeof PaymentProcessingZod>;

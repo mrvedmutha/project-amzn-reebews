@@ -5,16 +5,28 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BillingForm } from "@/components/checkout/billing-form";
-import { PaymentForm } from "@/components/checkout/payment-form";
+import {
+  PaymentForm,
+  PaymentFormRef,
+} from "@/components/checkout/payment-form";
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { useCheckout } from "@/hooks/checkout/use-checkout.hook";
 import { Plan } from "@/enums/checkout.enum";
 
 export function CheckoutContent() {
+  const paymentFormRef = React.useRef<PaymentFormRef>(null);
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   const {
     form,
     isSubmitting,
@@ -41,6 +53,27 @@ export function CheckoutContent() {
     removeCoupon,
   } = useCheckout();
 
+  const handleCompleteOrder = async (data: any) => {
+    try {
+      setIsProcessing(true);
+
+      if (plan === "free") {
+        // Handle free plan signup
+        await onSubmit(data);
+      } else {
+        // Handle paid plan - initiate payment
+        const paymentMethod = form.getValues("paymentMethod");
+        if (paymentFormRef.current && paymentMethod) {
+          await paymentFormRef.current.initiatePayment(paymentMethod);
+        }
+      }
+    } catch (error) {
+      console.error("Order processing failed:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="flex-1">
@@ -66,7 +99,10 @@ export function CheckoutContent() {
                 </div>
 
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form
+                    onSubmit={form.handleSubmit(handleCompleteOrder)}
+                    className="space-y-6"
+                  >
                     {/* Billing Information */}
                     <BillingForm
                       form={form}
@@ -77,9 +113,11 @@ export function CheckoutContent() {
 
                     {/* Payment Information */}
                     <PaymentForm
+                      ref={paymentFormRef}
                       form={form}
                       isIndianUser={isIndianUser}
                       plan={plan}
+                      amount={isIndianUser ? finalPrice.INR : finalPrice.USD}
                     />
 
                     {/* Terms and Conditions */}
@@ -172,10 +210,10 @@ export function CheckoutContent() {
                     <Button
                       type="submit"
                       className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isProcessing}
                     >
-                      {isSubmitting
-                        ? "Processing..."
+                      {isSubmitting || isProcessing
+                        ? "Please wait..."
                         : plan === "free"
                         ? "Get Started Free"
                         : "Complete Order"}
@@ -205,4 +243,4 @@ export function CheckoutContent() {
       </div>
     </div>
   );
-} 
+}
