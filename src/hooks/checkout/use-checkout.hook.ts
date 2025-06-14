@@ -105,7 +105,8 @@ export function useCheckout() {
         form.setValue("paymentMethod", "card");
       }
     } else {
-      form.setValue("paymentMethod", "card");
+      // For non-Indian users, default to PayPal
+      form.setValue("paymentMethod", "paypal");
     }
   }, [selectedCountry, form]);
 

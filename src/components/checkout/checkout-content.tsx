@@ -61,10 +61,18 @@ export function CheckoutContent() {
         // Handle free plan signup
         await onSubmit(data);
       } else {
-        // Handle paid plan - initiate payment
         const paymentMethod = form.getValues("paymentMethod");
-        if (paymentFormRef.current && paymentMethod) {
-          await paymentFormRef.current.initiatePayment(paymentMethod);
+
+        if (paymentMethod === "paypal") {
+          // For PayPal, the payment is handled by PayPal buttons
+          // This button should not be clicked for PayPal payments
+          console.log("PayPal payment should be handled by PayPal buttons");
+          return;
+        } else {
+          // Handle other payment methods (Razorpay for Indian users)
+          if (paymentFormRef.current && paymentMethod) {
+            await paymentFormRef.current.initiatePayment(paymentMethod);
+          }
         }
       }
     } catch (error) {
@@ -207,17 +215,31 @@ export function CheckoutContent() {
                       </div>
                     )}
 
-                    <Button
-                      type="submit"
-                      className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
-                      disabled={isSubmitting || isProcessing}
-                    >
-                      {isSubmitting || isProcessing
-                        ? "Please wait..."
-                        : plan === "free"
-                        ? "Get Started Free"
-                        : "Complete Order"}
-                    </Button>
+                    {/* Only show Complete Order button for non-PayPal payments */}
+                    {(plan === "free" ||
+                      form.watch("paymentMethod") !== "paypal") && (
+                      <Button
+                        type="submit"
+                        className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                        disabled={isSubmitting || isProcessing}
+                      >
+                        {isSubmitting || isProcessing
+                          ? "Please wait..."
+                          : plan === "free"
+                          ? "Get Started Free"
+                          : "Complete Order"}
+                      </Button>
+                    )}
+
+                    {/* Show PayPal message when PayPal is selected */}
+                    {plan !== "free" &&
+                      form.watch("paymentMethod") === "paypal" && (
+                        <div className="text-center py-4">
+                          <p className="text-sm text-muted-foreground">
+                            Complete your payment using the PayPal button above
+                          </p>
+                        </div>
+                      )}
                   </form>
                 </Form>
               </div>
