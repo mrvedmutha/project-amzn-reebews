@@ -60,20 +60,35 @@ export function CheckoutContent() {
       if (plan === "free") {
         // Handle free plan signup
         await onSubmit(data);
-      } else {
+      } else if (isIndianUser) {
+        // Handle Razorpay for Indian users
         const paymentMethod = form.getValues("paymentMethod");
-
-        if (paymentMethod === "paypal") {
-          // For PayPal, the payment is handled by PayPal buttons
-          // This button should not be clicked for PayPal payments
-          console.log("PayPal payment should be handled by PayPal buttons");
-          return;
-        } else {
-          // Handle other payment methods (Razorpay for Indian users)
-          if (paymentFormRef.current && paymentMethod) {
-            await paymentFormRef.current.initiatePayment(paymentMethod);
-          }
+        if (paymentFormRef.current && paymentMethod) {
+          await paymentFormRef.current.initiatePayment(paymentMethod);
         }
+      } else {
+        // Handle PayPal for non-Indian users - direct redirect
+        const response = await fetch("/api/paypal/create-order-redirect", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: finalPrice.USD,
+            currency: "USD",
+            description: `Reebews ${plan} Plan`,
+            reference_id: `order_${Date.now()}`,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create PayPal order");
+        }
+
+        const { redirectUrl } = await response.json();
+
+        // Redirect to PayPal
+        window.location.href = redirectUrl;
       }
     } catch (error) {
       console.error("Order processing failed:", error);
@@ -215,31 +230,20 @@ export function CheckoutContent() {
                       </div>
                     )}
 
-                    {/* Only show Complete Order button for non-PayPal payments */}
-                    {(plan === "free" ||
-                      form.watch("paymentMethod") !== "paypal") && (
-                      <Button
-                        type="submit"
-                        className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
-                        disabled={isSubmitting || isProcessing}
-                      >
-                        {isSubmitting || isProcessing
-                          ? "Please wait..."
-                          : plan === "free"
-                          ? "Get Started Free"
-                          : "Complete Order"}
-                      </Button>
-                    )}
-
-                    {/* Show PayPal message when PayPal is selected */}
-                    {plan !== "free" &&
-                      form.watch("paymentMethod") === "paypal" && (
-                        <div className="text-center py-4">
-                          <p className="text-sm text-muted-foreground">
-                            Complete your payment using the PayPal button above
-                          </p>
-                        </div>
-                      )}
+                    {/* Complete Order button for all payment types */}
+                    <Button
+                      type="submit"
+                      className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+                      disabled={isSubmitting || isProcessing}
+                    >
+                      {isSubmitting || isProcessing
+                        ? "Please wait..."
+                        : plan === "free"
+                        ? "Get Started Free"
+                        : isIndianUser
+                        ? "Complete Order"
+                        : "Pay with PayPal"}
+                    </Button>
                   </form>
                 </Form>
               </div>

@@ -104,10 +104,8 @@ export function useCheckout() {
       if (!form.getValues("paymentMethod")) {
         form.setValue("paymentMethod", "card");
       }
-    } else {
-      // For non-Indian users, default to PayPal
-      form.setValue("paymentMethod", "paypal");
     }
+    // For non-Indian users, payment method is handled automatically (PayPal redirect)
   }, [selectedCountry, form]);
 
   // Get plan details

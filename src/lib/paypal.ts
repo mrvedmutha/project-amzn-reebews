@@ -56,6 +56,68 @@ const getPayPalAccessToken = async (): Promise<string> => {
   }
 };
 
+// Create PayPal order and return redirect URL for direct payment
+export const createPayPalOrderAndGetRedirectUrl = async (
+  options: PayPalOrderOptions
+): Promise<string> => {
+  const accessToken = await getPayPalAccessToken();
+  const baseURL =
+    process.env.NODE_ENV === "production"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
+
+  try {
+    const orderData = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          reference_id: options.reference_id || `order_${Date.now()}`,
+          description: options.description || "Reebews Subscription",
+          amount: {
+            currency_code: options.currency,
+            value: options.amount.toFixed(2),
+          },
+        },
+      ],
+      application_context: {
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/thank-you`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
+        brand_name: "Reebews",
+        landing_page: "NO_PREFERENCE",
+        user_action: "PAY_NOW",
+      },
+    };
+
+    const response = await fetch(`${baseURL}/v2/checkout/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("PayPal order creation failed:", errorData);
+      throw new Error(`Failed to create PayPal order: ${response.statusText}`);
+    }
+
+    const order = await response.json();
+
+    // Find the approve link for redirect
+    const approveLink = order.links.find((link: any) => link.rel === "approve");
+    if (!approveLink) {
+      throw new Error("PayPal approve link not found");
+    }
+
+    return approveLink.href;
+  } catch (error: any) {
+    console.error("Error creating PayPal order:", error);
+    throw new Error("Failed to create PayPal order");
+  }
+};
+
 // Create PayPal order
 export const createPayPalOrder = async (
   options: PayPalOrderOptions
@@ -117,7 +179,7 @@ export const capturePayPalPayment = async (orderId: string) => {
   const baseURL =
     process.env.NODE_ENV === "production"
       ? "https://api-m.paypal.com"
-      : "https://api-m.sandbox.paypal.com";
+      : "https://sandbox.paypal.com";
 
   try {
     const response = await fetch(
@@ -199,4 +261,3 @@ export const verifyPayPalWebhook = async (
     return false;
   }
 };
- 

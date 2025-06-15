@@ -16,7 +16,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { CheckoutFormValues } from "@/types/checkout.types";
 import { initializeRazorpayPayment } from "@/lib/razorpay-client";
-import { initializePayPalPayment, loadPayPalSDK } from "@/lib/paypal-client";
 
 interface PaymentFormProps {
   form: UseFormReturn<CheckoutFormValues>;
@@ -31,72 +30,6 @@ export interface PaymentFormRef {
 
 export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
   ({ form, isIndianUser, plan, amount }, ref) => {
-    // Removed unused variables
-    const [paypalLoaded, setPaypalLoaded] = React.useState(false);
-    const paypalButtonRef = React.useRef<HTMLDivElement>(null);
-
-    // Removed unused date generation code
-
-    // Load PayPal SDK for non-Indian users
-    React.useEffect(() => {
-      if (!isIndianUser && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID) {
-        loadPayPalSDK(process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID)
-          .then(() => {
-            setPaypalLoaded(true);
-          })
-          .catch((error: Error) => {
-            console.error("Failed to load PayPal SDK:", error);
-          });
-      }
-    }, [isIndianUser]);
-
-    // Initialize PayPal buttons when loaded and payment method is PayPal
-    const paymentMethod = form.watch("paymentMethod");
-    React.useEffect(() => {
-      if (
-        !isIndianUser &&
-        paypalLoaded &&
-        paymentMethod === "paypal" &&
-        paypalButtonRef.current
-      ) {
-        // Clear existing buttons
-        paypalButtonRef.current.innerHTML = "";
-
-        // Create PayPal order first
-        fetch("/api/paypal/create-order", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            amount: amount,
-            currency: "USD",
-            description: `Reebews ${plan} Plan`,
-            reference_id: `order_${Date.now()}`,
-          }),
-        })
-          .then((response) => response.json())
-          .then((order) => {
-            if (order.id) {
-              const paypalButtons = initializePayPalPayment({
-                orderId: order.id,
-                userEmail: form.getValues("email") || "",
-                userName: `${form.getValues("firstName") || ""} ${
-                  form.getValues("lastName") || ""
-                }`.trim(),
-                amount: amount,
-                currency: "USD",
-              });
-
-              paypalButtons.render(paypalButtonRef.current);
-            }
-          })
-          .catch((error) => {
-            console.error("Failed to create PayPal order:", error);
-          });
-      }
-    }, [paypalLoaded, paymentMethod, amount, plan, form, isIndianUser]);
-
     const handleRazorpayPayment = async (paymentMethod: string) => {
       try {
         // Payment loading handled by parent component
@@ -145,21 +78,10 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
       }
     };
 
-    const handlePayPalPayment = async () => {
-      // PayPal payment is handled by the PayPal buttons component
-      // This function is called when PayPal is selected but the actual payment
-      // is handled by the PayPal buttons in the useEffect above
-      console.log("PayPal payment selected");
-    };
-
     // Expose the payment handler through ref
     React.useImperativeHandle(ref, () => ({
       initiatePayment: async (paymentMethod: string) => {
-        if (paymentMethod === "paypal") {
-          await handlePayPalPayment();
-        } else {
-          await handleRazorpayPayment(paymentMethod);
-        }
+        await handleRazorpayPayment(paymentMethod);
       },
     }));
 
@@ -300,76 +222,22 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
               )}
             />
           ) : (
-            <>
-              <FormField
-                control={form.control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value || "paypal"}
-                        className="flex flex-col space-y-3"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0 p-3 border rounded-md hover:bg-accent">
-                          <FormControl>
-                            <RadioGroupItem value="paypal" />
-                          </FormControl>
-                          <div className="flex items-center justify-between w-full">
-                            <FormLabel className="font-normal cursor-pointer">
-                              PayPal
-                            </FormLabel>
-                            <Image
-                              src="/uploads/icons/payment-gateways/paypal-icon.svg"
-                              alt="PayPal"
-                              width={50}
-                              height={50}
-                            />
-                          </div>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* PayPal Buttons Container */}
-              {form.watch("paymentMethod") === "paypal" && (
-                <div className="mt-4">
-                  <div
-                    ref={paypalButtonRef}
-                    className="paypal-buttons-container"
-                  />
-                  {!paypalLoaded && (
-                    <div className="text-center py-4">
-                      <p className="text-sm text-muted-foreground">
-                        Loading PayPal...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-2">
-                  Secure payment processing with PayPal. All major credit cards
-                  accepted.
-                </p>
-                <div className="flex items-center gap-3">
-                  <p className="text-xs text-muted-foreground">Powered by</p>
-                  <Image
-                    src="/uploads/icons/payment-gateways/paypal-icon-light.svg"
-                    alt="PayPal"
-                    width={80}
-                    height={24}
-                    className="dark:invert"
-                  />
-                </div>
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                You will be redirected to PayPal to complete your payment
+                securely. All major credit cards are accepted through PayPal.
+              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-xs text-muted-foreground">Powered by</p>
+                <Image
+                  src="/uploads/icons/payment-gateways/paypal-icon-light.svg"
+                  alt="PayPal"
+                  width={80}
+                  height={24}
+                  className="dark:invert"
+                />
               </div>
-            </>
+            </div>
           )}
         </div>
       </>
