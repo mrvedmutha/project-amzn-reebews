@@ -9,65 +9,65 @@ alwaysApply: false
 
 ```
 project/
-├── schemas/
-│   ├── admin/
-│   │   ├── blogs/
-│   │   │   ├── blog.schema.ts           // Blog Mongoose schema
-│   │   │   ├── author.schema.ts         // Author Mongoose schema
-│   │   │   ├── category.schema.ts       // Category Mongoose schema
-│   │   │   └── tag.schema.ts           // Tag Mongoose schema
-│   │   ├── users/
-│   │   │   ├── user.schema.ts          // User Mongoose schema
-│   │   │   └── profile.schema.ts       // Profile Mongoose schema
-│   │   └── categories/
-│   │       └── category.schema.ts      // Category Mongoose schema
-│   ├── auth/
-│   │   ├── session.schema.ts           // Session Mongoose schema
-│   │   └── token.schema.ts             // Token Mongoose schema
-│   └── public/
-│       ├── comment.schema.ts           // Comment Mongoose schema
-│       └── feedback.schema.ts          // Feedback Mongoose schema
-├── enums/
-│   ├── admin/
-│   │   ├── blogs/
-│   │   │   ├── blog-status.enum.ts     // Blog status enum values
-│   │   │   └── content-type.enum.ts    // Content type enum values
-│   │   └── users/
-│   │       ├── user-role.enum.ts       // User role enum values
-│   │       └── user-status.enum.ts     // User status enum values
-│   ├── auth/
-│   │   └── session-status.enum.ts      // Session status enum values
-│   └── shared/
-│       ├── status.enum.ts              // General status enum values
-│       └── priority.enum.ts            // Priority level enum values
-├── types/
-│   └── admin/
-│       ├── blogs/
-│       │   ├── blog.types.ts           // Blog TypeScript interfaces
-│       │   ├── author.types.ts         // Author TypeScript interfaces
-│       │   ├── category.types.ts       // Category TypeScript interfaces
-│       │   └── tag.types.ts            // Tag TypeScript interfaces
-│       └── users/
-│           ├── user.types.ts           // User TypeScript interfaces
-│           └── profile.types.ts        // Profile TypeScript interfaces
 ├── src/
-│   └── models/
-│       └── admin/
-│           ├── blogs/
-│           │   ├── blog.models.ts      // Blog Mongoose model
-│           │   └── author.models.ts    // Author Mongoose model
-│           └── users/
-│               └── user.models.ts      // User Mongoose model
-└── lib/
-    └── database/
-        └── db.ts                       // Database connection
+│   ├── schemas/
+│   │   ├── admin/
+│   │   │   ├── blogs/
+│   │   │   │   ├── blog.schema.ts           // Blog Mongoose schema
+│   │   │   │   ├── author.schema.ts         // Author Mongoose schema
+│   │   │   │   ├── category.schema.ts       // Category Mongoose schema
+│   │   │   │   └── tag.schema.ts           // Tag Mongoose schema
+│   │   │   ├── users/
+│   │   │   │   ├── user.schema.ts          // User Mongoose schema
+│   │   │   │   └── profile.schema.ts       // Profile Mongoose schema
+│   │   │   └── categories/
+│   │   │       └── category.schema.ts      // Category Mongoose schema
+│   │   ├── auth/
+│   │   │   ├── session.schema.ts           // Session Mongoose schema
+│   │   │   └── token.schema.ts             // Token Mongoose schema
+│   │   └── public/
+│   │       ├── comment.schema.ts           // Comment Mongoose schema
+│   │       └── feedback.schema.ts          // Feedback Mongoose schema
+│   ├── enums/
+│   │   ├── admin/
+│   │   │   ├── blogs/
+│   │   │   │   ├── blog-status.enum.ts     // Blog status enum values
+│   │   │   │   └── content-type.enum.ts    // Content type enum values
+│   │   │   └── users/
+│   │   │       ├── user-role.enum.ts       // User role enum values
+│   │   │       └── user-status.enum.ts     // User status enum values
+│   │   ├── auth/
+│   │   │   └── session-status.enum.ts      // Session status enum values
+│   │   └── shared/
+│   │       ├── status.enum.ts              // General status enum values
+│   │       └── priority.enum.ts            // Priority level enum values
+│   ├── types/
+│   │   └── admin/
+│   │       ├── blogs/
+│   │       │   ├── blog.types.ts           // Blog TypeScript interfaces
+│   │       │   ├── author.types.ts         // Author TypeScript interfaces
+│   │       │   ├── category.types.ts       // Category TypeScript interfaces
+│   │       │   └── tag.types.ts            // Tag TypeScript interfaces
+│   │       └── users/
+│   │           ├── user.types.ts           // User TypeScript interfaces
+│   │           └── profile.types.ts        // Profile TypeScript interfaces
+│   ├── models/
+│   │   └── admin/
+│   │       ├── blogs/
+│   │       │   ├── blog.models.ts      // Blog Mongoose model
+│   │       │   └── author.models.ts    // Author Mongoose model
+│   │       └── users/
+│   │           └── user.models.ts      // User Mongoose model
+│   └── lib/
+│       └── database/
+│           └── db.ts                       // Database connection
 ```
 
 ## Cursor Rules
 
 ### 1. Rule - Type Interface and Enum Dependencies
-- **Always check `./types` folder for relevant type interfaces before writing schema**
-- **Always check `./enums` folder for relevant enum values before writing schema**
+- **Always check `./src/types` folder for relevant type interfaces before writing schema**
+- **Always check `./src/enums` folder for relevant enum values before writing schema**
 - If type interface doesn't exist, create it following [typescript-interface-patterns.mdc](mdc:.cursor/rules/typescript-interface-patterns.mdc) rules first
 - If enum doesn't exist, create it following enum rules first
 - Import and use both type interfaces and enums in schema definition
@@ -107,7 +107,7 @@ project/
 ### ✅ Complete Schema Implementation
 
 ```typescript
-// schemas/admin/blogs/blog.schema.ts
+// src/schemas/admin/blogs/blog.schema.ts
 import { Schema, Types } from "mongoose";
 import { CategorySchema } from "@/schemas/admin/blogs/category.schema";
 import { TagSchema } from "@/schemas/admin/blogs/tag.schema";
@@ -147,7 +147,7 @@ export const BlogSchema = new Schema<Blog>(
 ### ✅ Schema with Advanced Validation
 
 ```typescript
-// schemas/admin/users/user.schema.ts
+// src/schemas/admin/users/user.schema.ts
 import { Schema, Types } from "mongoose";
 import { User } from "@/types/admin/users/user.types";
 import { UserRole } from "@/enums/admin/users/user-role.enum";
@@ -213,7 +213,7 @@ export const UserSchema = new Schema<User>(
 ### ✅ Schema with Embedded Documents
 
 ```typescript
-// schemas/admin/blogs/author.schema.ts
+// src/schemas/admin/blogs/author.schema.ts
 import { Schema } from "mongoose";
 import { Author } from "@/types/admin/blogs/author.types";
 
@@ -237,7 +237,7 @@ export const AuthorSchema = new Schema<Author>(
 ### ✅ Schema with Complex Relationships
 
 ```typescript
-// schemas/admin/blogs/category.schema.ts
+// src/schemas/admin/blogs/category.schema.ts
 import { Schema, Types } from "mongoose";
 import { Category } from "@/types/admin/blogs/category.types";
 
@@ -261,7 +261,7 @@ export const CategorySchema = new Schema<Category>(
 
 ```typescript
 // Wrong: No type checking, poor structure
-// schemas/badExample.js
+// src/schemas/badExample.js
 const mongoose = require("mongoose"); // Wrong: CommonJS import
 
 // Wrong: No type interface import or usage
@@ -276,7 +276,7 @@ module.exports = BadSchema; // Wrong: CommonJS export
 
 ```typescript
 // Wrong: Incorrect naming and structure
-// schemas/admin/bad-schema.ts
+// src/schemas/admin/bad-schema.ts
 import { Schema } from "mongoose";
 
 // Wrong: camelCase export name, no type interface, no enum imports
@@ -292,9 +292,9 @@ export const badSchema = new Schema({
 ## Good vs Bad Practices
 
 | Aspect | ✅ Good Practice | ❌ Bad Practice |
-|--------|------------------|-----------------|
-| **Type Interface** | Import from `./types` folder and use in Schema<Type> | No type interface or generic typing |
-| **Enum Usage** | Import from `./enums` folder and use `Object.values(Enum)` | Hardcoded string arrays or no enums |
+|-----|---|-----|
+| **Type Interface** | Import from `./src/types` folder and use in Schema<Type> | No type interface or generic typing |
+| **Enum Usage** | Import from `./src/enums` folder and use `Object.values(Enum)` | Hardcoded string arrays or no enums |
 | **Export Naming** | PascalCase: `BlogSchema`, `UserSchema` | camelCase or inconsistent naming |
 | **Field Validation** | Required fields, constraints, validation rules | Basic types without validation |
 | **References** | `Types.ObjectId` with proper `ref` property | String IDs or improper references |
@@ -306,7 +306,7 @@ export const badSchema = new Schema({
 ## Key Differences Table
 
 | Component | Effective Schema | Ineffective Schema |
-|-----------|------------------|-------------------|
+|-----|---|----|
 | **Type Integration** | Import type interface, use Schema<Type> | No type safety or interface usage |
 | **Enum Integration** | Import enums, use Object.values() for validation | Hardcoded arrays or no enum usage |
 | **Validation** | Comprehensive field validation and constraints | Basic types without validation rules |
@@ -319,8 +319,8 @@ export const badSchema = new Schema({
 ## Implementation Checklist
 
 ### Before Writing Schema
-- [ ] Check if relevant type interface exists in `./types` folder
-- [ ] Check if relevant enums exist in `./enums` folder
+- [ ] Check if relevant type interface exists in `./src/types` folder
+- [ ] Check if relevant enums exist in `./src/enums` folder
 - [ ] Verify type and enum paths match intended schema domain
 - [ ] Plan schema structure and relationships
 - [ ] Identify required vs optional fields
@@ -368,8 +368,8 @@ export const badSchema = new Schema({
 
 ### ⚡ Critical Schema Development Rules
 
-1. **Type Dependencies**: Check `./types` folder first, create type interface if missing
-2. **Enum Dependencies**: Check `./enums` folder first, create enums if missing
+1. **Type Dependencies**: Check `./src/types` folder first, create type interface if missing
+2. **Enum Dependencies**: Check `./src/enums` folder first, create enums if missing
 3. **Export Naming**: Use PascalCase for schema exports (BlogSchema, UserSchema)
 4. **Type Safety**: Use `Schema<Type>` generic with imported type interface
 5. **Enum Validation**: Use `Object.values(EnumName)` for field enum validation
@@ -381,8 +381,8 @@ export const badSchema = new Schema({
 
 ### 🎯 Quality Indicators
 
-- Does the schema import and use a type interface from `./types` folder?
-- Does the schema import and use relevant enums from `./enums` folder?
+- Does the schema import and use a type interface from `./src/types` folder?
+- Does the schema import and use relevant enums from `./src/enums` folder?
 - Is the schema exported using PascalCase naming convention?
 - Are enum fields using `Object.values(EnumName)` for validation?
 - Are all required fields properly marked and validated?
@@ -423,7 +423,7 @@ export const EntitySchema = new Schema<TypeName>(
 
 #### Basic Schema with Validation and Enums
 ```typescript
-// schemas/admin/entity.schema.ts
+// src/schemas/admin/entity.schema.ts
 import { Schema } from "mongoose";
 import { Entity } from "@/types/admin/entity.types";
 import { EntityStatus } from "@/enums/shared/status.enum";
@@ -445,7 +445,7 @@ export const EntitySchema = new Schema<Entity>(
 
 #### Schema with References
 ```typescript
-// schemas/admin/post.schema.ts
+// src/schemas/admin/post.schema.ts
 import { Schema, Types } from "mongoose";
 import { Post } from "@/types/admin/post.types";
 
@@ -461,7 +461,7 @@ export const PostSchema = new Schema<Post>(
 
 #### Schema with Embedded Documents
 ```typescript
-// schemas/admin/complexentity.schema.ts
+// src/schemas/admin/complexentity.schema.ts
 import { Schema } from "mongoose";
 import { SubEntitySchema } from "@/schemas/admin/subentity.schema";
 import { ComplexEntity } from "@/types/admin/complexentity.types";
