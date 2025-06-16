@@ -53,7 +53,7 @@ project/
 ## Cursor Rules
 
 ### 1. Rule - Enum Dependencies and Validation
-- **Always check `./enums` folder for relevant enum types before writing Zod schema**
+- **Always check `./src/enums` folder for relevant enum types before writing Zod schema**
 - If enum doesn't exist, create it following enum rules first
 - Import and use enum values in Zod validation with `z.nativeEnum(EnumName)`
 - Ensure enum path matches the Zod schema domain structure
