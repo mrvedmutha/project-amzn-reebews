@@ -24,13 +24,15 @@ interface CreateOrderOptions {
   amount: number;
   currency: string;
   cartId: string;
+  description?: string;
+  reference_id?: string;
 }
 
 export async function createPayPalOrderAndGetRedirectUrl(
   options: CreateOrderOptions
 ): Promise<string | null> {
   try {
-    const { amount, currency, cartId } = options;
+    const { amount, currency, cartId, description, reference_id } = options;
     const accessToken = await getPayPalAccessToken();
     const baseURL =
       process.env.NODE_ENV === "production"
@@ -42,6 +44,8 @@ export async function createPayPalOrderAndGetRedirectUrl(
       intent: "CAPTURE",
       purchase_units: [
         {
+          reference_id: reference_id || `order_${Date.now()}`,
+          description: description || "Reebews Subscription",
           amount: {
             currency_code: currency,
             value: amount.toString(),
