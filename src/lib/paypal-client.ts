@@ -1,83 +1,80 @@
-export interface PayPalPaymentOptions {
-  orderId: string;
-  userEmail: string;
-  userName: string;
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { createPayPalOrderAndGetRedirectUrl } from "./paypal";
+import React from "react";
+
+interface PayPalPaymentOptions {
   amount: number;
   currency: string;
+  cartId: string;
+  onSuccess?: () => void;
+  onError?: (error: any) => void;
 }
 
-export const initializePayPalPayment = (options: PayPalPaymentOptions) => {
-  if (typeof window === "undefined") {
-    throw new Error("PayPal can only be initialized in browser environment");
-  }
+export const PayPalPaymentButton: React.FC<PayPalPaymentOptions> = ({
+  amount,
+  currency,
+  cartId,
+  onSuccess,
+  onError,
+}) => {
+  const handlePayment = async () => {
+    try {
+      const redirectUrl = await createPayPalOrderAndGetRedirectUrl({
+        amount,
+        currency,
+        cartId,
+      });
 
-  if (!options.orderId) {
-    throw new Error("Order ID is required to initialize PayPal payment");
-  }
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        throw new Error("Failed to get PayPal redirect URL");
+      }
+    } catch (error) {
+      console.error("Error initiating PayPal payment:", error);
+      onError?.(error);
+    }
+  };
 
-  // Check if PayPal SDK is loaded
-  if (!(window as any).paypal) {
-    throw new Error(
-      "PayPal SDK is not loaded. Please ensure the PayPal script is included."
-    );
-  }
-
-  const paypal = (window as any).paypal;
-
-  return paypal.Buttons({
-    // Set up the transaction
-    createOrder: function (data: any, actions: any) {
-      // Return the order ID created on the server
-      return Promise.resolve(options.orderId);
+  return React.createElement(
+    PayPalScriptProvider,
+    {
+      options: {
+        clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
+        currency: currency,
+        intent: "capture",
+      },
     },
-
-    // Finalize the transaction
-    onApprove: function (data: any, actions: any) {
-      return fetch("/api/paypal/capture-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderID: data.orderID,
-        }),
-      })
-        .then((response) => response.json())
-        .then((orderData) => {
-          // Handle successful payment
-          console.log("PayPal payment successful:", orderData);
-
-          // Redirect to thank you page
-          window.location.href = "/checkout/thank-you";
-        })
-        .catch((error) => {
-          console.error("PayPal payment capture failed:", error);
-          // Handle error appropriately
-          alert("Payment processing failed. Please try again.");
-        });
-    },
-
-    // Handle payment errors
-    onError: function (err: any) {
-      console.error("PayPal payment error:", err);
-      alert("Payment failed. Please try again.");
-    },
-
-    // Handle payment cancellation
-    onCancel: function (data: any) {
-      console.log("PayPal payment cancelled:", data);
-      // Optionally handle cancellation
-    },
-
-    // Styling options
-    style: {
-      color: "blue",
-      shape: "rect",
-      label: "paypal",
-      layout: "vertical",
-      height: 45,
-    },
-  });
+    React.createElement(PayPalButtons, {
+      style: { layout: "vertical" },
+      createOrder: async () => {
+        try {
+          const redirectUrl = await createPayPalOrderAndGetRedirectUrl({
+            amount,
+            currency,
+            cartId,
+          });
+          if (!redirectUrl) {
+            throw new Error("Failed to get PayPal redirect URL");
+          }
+          window.location.href = redirectUrl;
+          return "redirecting";
+        } catch (error) {
+          console.error("Error creating PayPal order:", error);
+          onError?.(error);
+          throw error;
+        }
+      },
+      onApprove: async () => {
+        // This won't be called in our redirect flow
+        return;
+      },
+      onError: (err) => {
+        console.error("PayPal error:", err);
+        onError?.(err);
+      },
+    })
+  );
 };
 
 // Initialize PayPal SDK
@@ -103,4 +100,3 @@ export const loadPayPalSDK = (clientId: string): Promise<void> => {
     document.head.appendChild(script);
   });
 };
- 

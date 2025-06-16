@@ -4,12 +4,12 @@ import { createPayPalOrderAndGetRedirectUrl } from "@/lib/paypal";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount, currency, description, reference_id } = body;
+    const { amount, currency, description, reference_id, cartId } = body;
 
     // Validate required fields
-    if (!amount || !currency) {
+    if (!amount || !currency || !cartId) {
       return NextResponse.json(
-        { error: "Amount and currency are required" },
+        { error: "Amount, currency, and cartId are required" },
         { status: 400 }
       );
     }
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       currency,
       description: description || "Reebews Subscription",
       reference_id: reference_id || `order_${Date.now()}`,
+      cartId,
     });
 
     return NextResponse.json({

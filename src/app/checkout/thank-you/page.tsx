@@ -1,10 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ThankYouPage() {
+  const searchParams = useSearchParams();
+  const signupToken = searchParams.get("token");
+
+  useEffect(() => {
+    // If we have a signup token, redirect to subdomain
+    if (signupToken) {
+      const subdomainUrl = process.env.NEXT_PUBLIC_SUBDOMAIN_URL;
+      window.location.href = `${subdomainUrl}/signup?token=${signupToken}`;
+    }
+  }, [signupToken]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full mx-auto p-8 bg-card rounded-lg border shadow-lg text-center">
@@ -17,8 +30,9 @@ export default function ThankYouPage() {
         </h1>
 
         <p className="text-muted-foreground mb-6">
-          We have received your order and are processing it now. You will
-          receive an email confirmation shortly.
+          {signupToken
+            ? "You will be redirected to complete your signup process..."
+            : "We have received your order and are processing it now. You will receive an email confirmation shortly."}
         </p>
 
         <div className="space-y-4 mb-8">
@@ -28,7 +42,9 @@ export default function ThankYouPage() {
               <li className="flex items-start gap-2">
                 <span className="text-green-500 font-bold">1.</span>
                 <span>
-                  Check your email for your account activation instructions
+                  {signupToken
+                    ? "Complete your account setup"
+                    : "Check your email for your account activation instructions"}
                 </span>
               </li>
               <li className="flex items-start gap-2">

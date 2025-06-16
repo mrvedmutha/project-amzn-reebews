@@ -60,35 +60,69 @@ export function CheckoutContent() {
       if (plan === "free") {
         // Handle free plan signup
         await onSubmit(data);
-      } else if (isIndianUser) {
-        // Handle Razorpay for Indian users
-        const paymentMethod = form.getValues("paymentMethod");
-        if (paymentFormRef.current && paymentMethod) {
-          await paymentFormRef.current.initiatePayment(paymentMethod);
-        }
       } else {
-        // Handle PayPal for non-Indian users - direct redirect
-        const response = await fetch("/api/paypal/create-order-redirect", {
+        // Format user details according to cart schema
+        const userDetails = {
+          name: `${data.firstName} ${data.lastName}`.trim(),
+          email: data.email,
+          address: data.address,
+          company: data.companyName,
+          gstNumber: data.gstNumber,
+        };
+
+        // Create cart record first
+        const response = await fetch("/api/cart/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            amount: finalPrice.USD,
-            currency: "USD",
-            description: `Reebews ${plan} Plan`,
-            reference_id: `order_${Date.now()}`,
+            plan,
+            currency,
+            amount: isIndianUser ? finalPrice.INR : finalPrice.USD,
+            userDetails,
+            paymentGateway: isIndianUser ? "razorpay" : "paypal",
+            billingCycle,
           }),
         });
 
         if (!response.ok) {
-          throw new Error("Failed to create PayPal order");
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to create cart");
         }
 
-        const { redirectUrl } = await response.json();
+        const { cartId } = await response.json();
+        localStorage.setItem("currentCartId", cartId);
 
-        // Redirect to PayPal
-        window.location.href = redirectUrl;
+        if (isIndianUser) {
+          // Handle Razorpay for Indian users
+          const paymentMethod = data.paymentMethod;
+          if (paymentFormRef.current && paymentMethod) {
+            await paymentFormRef.current.initiatePayment(paymentMethod, cartId);
+          }
+        } else {
+          // Handle PayPal for non-Indian users
+          const response = await fetch("/api/paypal/create-order-redirect", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              cartId,
+              amount: finalPrice.USD,
+              currency: "USD",
+              description: `Reebews ${plan} Plan`,
+              reference_id: `order_${Date.now()}`,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to create PayPal order");
+          }
+
+          const { redirectUrl } = await response.json();
+          window.location.href = redirectUrl;
+        }
       }
     } catch (error) {
       console.error("Order processing failed:", error);
@@ -239,10 +273,10 @@ export function CheckoutContent() {
                       {isSubmitting || isProcessing
                         ? "Please wait..."
                         : plan === "free"
-                        ? "Get Started Free"
-                        : isIndianUser
-                        ? "Complete Order"
-                        : "Pay with PayPal"}
+                          ? "Get Started Free"
+                          : isIndianUser
+                            ? "Complete Order"
+                            : "Pay with PayPal"}
                     </Button>
                   </form>
                 </Form>

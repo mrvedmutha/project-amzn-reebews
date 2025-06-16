@@ -1,9 +1,12 @@
+import crypto from "crypto";
+
 export interface RazorpayPaymentOptions {
   orderId: string;
   paymentMethod: "card" | "upi" | "netbanking" | "wallet";
   userEmail: string;
   userName: string;
   userPhone: string;
+  cartId: string;
 }
 
 export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
@@ -15,6 +18,10 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
     throw new Error("Order ID is required to initialize payment");
   }
 
+  if (!options.cartId) {
+    throw new Error("Cart ID is required to initialize payment");
+  }
+
   const rzpOptions = {
     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     amount: 0, // Will be set from order
@@ -22,7 +29,7 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
     name: "Reebews",
     description: "Payment for Reebews Subscription",
     order_id: options.orderId,
-    handler: function (response: any) {
+    handler: async function (response: any) {
       if (
         !response ||
         !response.razorpay_payment_id ||
@@ -32,10 +39,36 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
         console.error("Invalid payment response:", response);
         return;
       }
-      // Handle successful payment
-      console.log("Payment successful:", response);
-      // Redirect to thank you page
-      window.location.href = "/checkout/thank-you";
+
+      try {
+        // Call our payment success endpoint
+        const result = await fetch("/api/payment/success", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            cartId: options.cartId,
+          }),
+        });
+
+        if (!result.ok) {
+          const error = await result.json();
+          console.error("Failed to process payment:", error);
+          return;
+        }
+
+        const data = await result.json();
+        console.log("Payment processed successfully:", data);
+
+        // Redirect to thank you page
+        window.location.href = "/checkout/thank-you";
+      } catch (error) {
+        console.error("Error processing payment:", error);
+      }
     },
     prefill: {
       name: options.userName,
@@ -44,6 +77,7 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
     },
     notes: {
       payment_method: options.paymentMethod,
+      cartId: options.cartId,
     },
     theme: {
       color: "#FFB000",
@@ -90,12 +124,6 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
     },
   };
 
-  try {
-    // Initialize Razorpay
-    const rzp = new (window as any).Razorpay(rzpOptions);
-    rzp.open();
-  } catch (error) {
-    console.error("Error initializing Razorpay:", error);
-    throw new Error("Failed to initialize payment. Please try again.");
-  }
+  const razorpay = new (window as any).Razorpay(rzpOptions);
+  razorpay.open();
 };

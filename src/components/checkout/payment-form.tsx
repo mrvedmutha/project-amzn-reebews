@@ -25,12 +25,15 @@ interface PaymentFormProps {
 }
 
 export interface PaymentFormRef {
-  initiatePayment: (paymentMethod: string) => Promise<void>;
+  initiatePayment: (paymentMethod: string, cartId: string) => Promise<void>;
 }
 
 export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
   ({ form, isIndianUser, plan, amount }, ref) => {
-    const handleRazorpayPayment = async (paymentMethod: string) => {
+    const handleRazorpayPayment = async (
+      paymentMethod: string,
+      cartId: string
+    ) => {
       try {
         // Payment loading handled by parent component
 
@@ -46,6 +49,7 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
             receipt: `receipt_${Date.now()}`,
             notes: {
               plan: plan,
+              cartId: cartId,
             },
           }),
         });
@@ -69,6 +73,7 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
             form.getValues("lastName") || ""
           }`.trim(),
           userPhone: "", // Phone number is not part of the form schema
+          cartId: cartId,
         });
       } catch (error) {
         console.error("Payment initialization failed:", error);
@@ -80,8 +85,8 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
 
     // Expose the payment handler through ref
     React.useImperativeHandle(ref, () => ({
-      initiatePayment: async (paymentMethod: string) => {
-        await handleRazorpayPayment(paymentMethod);
+      initiatePayment: async (paymentMethod: string, cartId: string) => {
+        await handleRazorpayPayment(paymentMethod, cartId);
       },
     }));
 

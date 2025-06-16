@@ -1,10 +1,13 @@
 // Crypto import removed as it's not used in this file
 
+import { getPayPalAccessToken } from "./paypal-api";
+
 export interface PayPalOrderOptions {
   amount: number;
   currency: string;
   description?: string;
   reference_id?: string;
+  cartId?: string;
 }
 
 export interface PayPalOrderResponse {
@@ -17,74 +20,38 @@ export interface PayPalOrderResponse {
   }>;
 }
 
-// Get PayPal access token
-const getPayPalAccessToken = async (): Promise<string> => {
-  const clientId = process.env.PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-  const baseURL =
-    process.env.NODE_ENV === "production"
-      ? "https://api-m.paypal.com"
-      : "https://api-m.sandbox.paypal.com";
+interface CreateOrderOptions {
+  amount: number;
+  currency: string;
+  cartId: string;
+}
 
-  if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials are not configured");
-  }
-
-  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-
+export async function createPayPalOrderAndGetRedirectUrl(
+  options: CreateOrderOptions
+): Promise<string | null> {
   try {
-    const response = await fetch(`${baseURL}/v1/oauth2/token`, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "grant_type=client_credentials",
-    });
+    const { amount, currency, cartId } = options;
+    const accessToken = await getPayPalAccessToken();
+    const baseURL =
+      process.env.NODE_ENV === "production"
+        ? "https://api-m.paypal.com"
+        : "https://api-m.sandbox.paypal.com";
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to get PayPal access token: ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    return data.access_token;
-  } catch (error: any) {
-    console.error("Error getting PayPal access token:", error);
-    throw new Error("Failed to authenticate with PayPal");
-  }
-};
-
-// Create PayPal order and return redirect URL for direct payment
-export const createPayPalOrderAndGetRedirectUrl = async (
-  options: PayPalOrderOptions
-): Promise<string> => {
-  const accessToken = await getPayPalAccessToken();
-  const baseURL =
-    process.env.NODE_ENV === "production"
-      ? "https://api-m.paypal.com"
-      : "https://api-m.sandbox.paypal.com";
-
-  try {
+    // Create PayPal order
     const orderData = {
       intent: "CAPTURE",
       purchase_units: [
         {
-          reference_id: options.reference_id || `order_${Date.now()}`,
-          description: options.description || "Reebews Subscription",
           amount: {
-            currency_code: options.currency,
-            value: options.amount.toFixed(2),
+            currency_code: currency,
+            value: amount.toString(),
           },
+          custom_id: cartId,
         },
       ],
       application_context: {
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/thank-you`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
-        brand_name: "Reebews",
-        landing_page: "NO_PREFERENCE",
-        user_action: "PAY_NOW",
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/paypal-capture?cartId=${cartId}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?error=payment_cancelled`,
       },
     };
 
@@ -105,18 +72,21 @@ export const createPayPalOrderAndGetRedirectUrl = async (
 
     const order = await response.json();
 
-    // Find the approve link for redirect
-    const approveLink = order.links.find((link: any) => link.rel === "approve");
+    // Find the approve link in the order response
+    const approveLink = order.links.find(
+      (link: { rel: string; href: string }) => link.rel === "approve"
+    );
+
     if (!approveLink) {
-      throw new Error("PayPal approve link not found");
+      throw new Error("No approve link found in PayPal order response");
     }
 
     return approveLink.href;
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating PayPal order:", error);
-    throw new Error("Failed to create PayPal order");
+    return null;
   }
-};
+}
 
 // Create PayPal order
 export const createPayPalOrder = async (
@@ -139,6 +109,7 @@ export const createPayPalOrder = async (
             currency_code: options.currency,
             value: options.amount.toFixed(2),
           },
+          custom_id: options.cartId,
         },
       ],
       application_context: {
@@ -173,15 +144,14 @@ export const createPayPalOrder = async (
   }
 };
 
-// Capture PayPal payment
-export const capturePayPalPayment = async (orderId: string) => {
-  const accessToken = await getPayPalAccessToken();
-  const baseURL =
-    process.env.NODE_ENV === "production"
-      ? "https://api-m.paypal.com"
-      : "https://sandbox.paypal.com";
-
+export async function capturePayPalPayment(orderId: string) {
   try {
+    const accessToken = await getPayPalAccessToken();
+    const baseURL =
+      process.env.NODE_ENV === "production"
+        ? "https://api-m.paypal.com"
+        : "https://api-m.sandbox.paypal.com";
+
     const response = await fetch(
       `${baseURL}/v2/checkout/orders/${orderId}/capture`,
       {
@@ -203,11 +173,11 @@ export const capturePayPalPayment = async (orderId: string) => {
 
     const captureData = await response.json();
     return captureData;
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error capturing PayPal payment:", error);
-    throw new Error("Failed to capture PayPal payment");
+    throw error;
   }
-};
+}
 
 // Verify PayPal webhook signature
 export const verifyPayPalWebhook = async (

@@ -6,12 +6,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { amount, currency, receipt, notes } = body;
 
-    if (!amount || !currency || !receipt) {
+    if (!amount || !currency || !receipt || !notes?.cartId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
+
+    console.log("Creating Razorpay order with notes:", notes);
 
     const order = await createRazorpayOrder({
       amount,
@@ -19,6 +21,8 @@ export async function POST(request: NextRequest) {
       receipt,
       notes,
     });
+
+    console.log("Razorpay order created:", order);
 
     return NextResponse.json(order);
   } catch (error: any) {
