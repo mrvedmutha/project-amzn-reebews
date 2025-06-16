@@ -5,9 +5,10 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-declare global {
-  var mongoose: MongooseCache | undefined;
-}
+// Use a module-level variable instead of global
+const globalWithMongoose = global as typeof globalThis & {
+  mongoose: MongooseCache;
+};
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -17,11 +18,12 @@ if (!MONGODB_URI) {
   );
 }
 
-const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
-
-if (!global.mongoose) {
-  global.mongoose = cached;
+// Initialize the cache
+if (!globalWithMongoose.mongoose) {
+  globalWithMongoose.mongoose = { conn: null, promise: null };
 }
+
+const cached = globalWithMongoose.mongoose;
 
 export async function dbConnect() {
   if (cached.conn) {
