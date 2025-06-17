@@ -1,14 +1,10 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ThankYouContent() {
-  const searchParams = useSearchParams();
-  const signupToken = searchParams.get("signupToken");
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full mx-auto p-8 bg-card rounded-lg border shadow-lg text-center">
@@ -21,9 +17,8 @@ export function ThankYouContent() {
         </h1>
 
         <p className="text-muted-foreground mb-6">
-          {signupToken
-            ? "You will be redirected to complete your signup process..."
-            : "We have received your order and are processing it now. You will receive an email confirmation shortly."}
+          We have received your order and are processing it now. You will
+          receive an email with instructions to complete your signup process.
         </p>
 
         <div className="space-y-4 mb-8">
@@ -32,11 +27,7 @@ export function ThankYouContent() {
             <ul className="text-sm text-muted-foreground text-left space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-green-500 font-bold">1.</span>
-                <span>
-                  {signupToken
-                    ? "Complete your account setup"
-                    : "Check your email for your account activation instructions"}
-                </span>
+                <span>Check your email for signup instructions</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-500 font-bold">2.</span>
