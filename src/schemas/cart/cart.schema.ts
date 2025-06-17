@@ -29,9 +29,33 @@ export const CartSchema = new Schema<Cart>(
         index: true,
       },
       address: {
-        type: String,
-        required: true,
-        trim: true,
+        street: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        city: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        state: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        country: {
+          type: String,
+          required: true,
+          trim: true,
+          default: "India",
+        },
+        pincode: {
+          type: String,
+          required: true,
+          trim: true,
+          match: [/^\d{6}$/, "Please enter a valid 6-digit pincode"],
+        },
       },
       company: {
         type: String,

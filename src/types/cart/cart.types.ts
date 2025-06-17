@@ -1,10 +1,18 @@
 import { Types } from "mongoose";
 import { UserPlan } from "@/enums/users/user-plan.enum";
 
+export interface CartUserAddress {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+}
+
 export interface CartUserDetails {
   name: string;
   email: string;
-  address: string;
+  address: CartUserAddress;
   company?: string;
   gstNumber?: string;
 }

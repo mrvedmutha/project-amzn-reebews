@@ -12,6 +12,21 @@ import {
 } from "@/enums/checkout.enum";
 
 /**
+ * Address validation schema
+ */
+export const AddressZod = z.object({
+  street: z
+    .string()
+    .min(5, { message: "Street address must be at least 5 characters" }),
+  city: z.string().min(2, { message: "City must be at least 2 characters" }),
+  state: z.string().min(2, { message: "State must be at least 2 characters" }),
+  country: z.nativeEnum(Country, { message: "Please select a valid country" }),
+  pincode: z
+    .string()
+    .regex(/^\d{6}$/, { message: "Please enter a valid 6-digit pincode" }),
+});
+
+/**
  * Checkout form validation schema
  */
 export const CheckoutFormZod = z.object({
@@ -23,15 +38,7 @@ export const CheckoutFormZod = z.object({
     .min(2, { message: "Last name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   companyName: z.string().optional(),
-  address: z
-    .string()
-    .min(5, { message: "Address must be at least 5 characters" }),
-  city: z.string().min(2, { message: "City must be at least 2 characters" }),
-  state: z.string().optional(),
-  postalCode: z
-    .string()
-    .min(3, { message: "Postal code must be at least 3 characters" }),
-  country: z.nativeEnum(Country, { message: "Please select a valid country" }),
+  address: AddressZod,
   gstNumber: z.string().optional(),
   paymentMethod: z.nativeEnum(PaymentMethod, {
     message: "Please select a valid payment method",
@@ -104,6 +111,7 @@ export const PaymentProcessingZod = z.object({
 });
 
 // Type inference exports
+export type AddressType = z.infer<typeof AddressZod>;
 export type CheckoutFormType = z.infer<typeof CheckoutFormZod>;
 export type PlanDetailsType = z.infer<typeof PlanDetailsZod>;
 export type CouponDetailsType = z.infer<typeof CouponDetailsZod>;
