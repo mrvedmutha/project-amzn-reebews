@@ -117,7 +117,7 @@ export const createPayPalOrder = async (
         },
       ],
       application_context: {
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/thank-you`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/paypal/success?cartId=${options.cartId}`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
         brand_name: "Reebews",
         landing_page: "NO_PREFERENCE",

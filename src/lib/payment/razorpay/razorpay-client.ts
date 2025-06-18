@@ -42,7 +42,7 @@ export const initializeRazorpayPayment = (options: RazorpayPaymentOptions) => {
 
       try {
         // Call our payment success endpoint
-        const result = await fetch("/api/payment/success", {
+        const result = await fetch("/api/payment/razorpay/success", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

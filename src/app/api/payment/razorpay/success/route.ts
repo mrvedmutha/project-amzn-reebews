@@ -43,50 +43,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update cart status
-    const cart = await CartModel.findByIdAndUpdate(
-      cartId,
-      {
-        status: "completed",
-        paymentId: razorpay_payment_id,
-      },
-      { new: true }
-    );
-
-    if (!cart) {
+    // Fetch cart to get currency
+    const cartDoc = await CartModel.findById(cartId);
+    if (!cartDoc) {
       console.error("Cart not found:", cartId);
       return NextResponse.json({ error: "Cart not found" }, { status: 404 });
     }
 
-    console.log("Cart updated successfully:", cart);
-
-    // Call payment success webhook
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/payment-success`,
+    // Call unified cart update route
+    const updateRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/cart/update`,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cartId,
           paymentId: razorpay_payment_id,
+          currency: cartDoc.planDetails.currency,
           status: "completed",
         }),
       }
     );
-
-    if (!response.ok) {
-      console.error(
-        "Failed to call payment success webhook:",
-        await response.text()
-      );
+    const updateData = await updateRes.json();
+    if (!updateRes.ok) {
+      return NextResponse.json(updateData, { status: updateRes.status });
     }
 
     return NextResponse.json({
       success: true,
       message: "Payment processed successfully",
-      cart,
+      cart: updateData.cart,
     });
   } catch (error: any) {
     console.error("Error processing payment success:", error);

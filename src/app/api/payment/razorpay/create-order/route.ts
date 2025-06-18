@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createRazorpayOrder } from "@/lib/razorpay";
+import { createRazorpayOrder } from "@/lib/payment/razorpay/razorpay";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Creating Razorpay order with notes:", notes);
+    console.log("Creating Razorpay order with notes:", notes); //TODO: Remove
 
     const order = await createRazorpayOrder({
       amount,
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       notes,
     });
 
-    console.log("Razorpay order created:", order);
+    console.log("Razorpay order created:", order); //TODO: Remove
 
     return NextResponse.json(order);
   } catch (error: any) {

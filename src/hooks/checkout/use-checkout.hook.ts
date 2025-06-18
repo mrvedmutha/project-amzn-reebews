@@ -52,11 +52,13 @@ export function useCheckout() {
       lastName: "",
       email: "",
       companyName: "",
-      address: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "",
+      address: {
+        street: "",
+        city: "",
+        state: "",
+        country: "",
+        pincode: "",
+      },
       gstNumber: "",
       paymentMethod: "card",
       cardName: "",
@@ -84,7 +86,7 @@ export function useCheckout() {
   React.useEffect(() => {
     if (!geoLoading && geoCountry && !selectedCountry) {
       setSelectedCountry(geoCountry);
-      form.setValue("country", geoCountry);
+      form.setValue("address.country", geoCountry);
       setCurrency(geoCountry === "India" ? Currency.INR : Currency.USD);
     }
   }, [geoLoading, geoCountry, selectedCountry, setCurrency, form]);
@@ -324,8 +326,8 @@ export function useCheckout() {
         plan === "basic"
           ? { USD: 29.0, INR: 499.0 }
           : plan === "pro"
-          ? { USD: 49.0, INR: 999.0 }
-          : { USD: 29.0, INR: 499.0 };
+            ? { USD: 49.0, INR: 999.0 }
+            : { USD: 29.0, INR: 499.0 };
 
       const yearlyFullPrice = {
         USD: monthlyPrice.USD * 12,
@@ -387,6 +389,42 @@ export function useCheckout() {
   const originalPrice = getOriginalPrice();
   const isIndianUser = selectedCountry === "India";
 
+  // Add a handleCheckout function for cart creation
+  const handleCheckout = async (userDetails: any) => {
+    try {
+      setIsSubmitting(true);
+      const isIndianUser = selectedCountry === "India";
+      const currency = isIndianUser ? "INR" : "USD";
+      const amount = isIndianUser ? finalPrice.INR : finalPrice.USD;
+      const response = await fetch("/api/cart/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan,
+          currency,
+          amount,
+          userDetails,
+          paymentGateway: isIndianUser ? "razorpay" : "paypal",
+          billingCycle,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create cart");
+      }
+      const { cartId } = await response.json();
+      // You can redirect or handle cartId as needed
+      return cartId;
+    } catch (error) {
+      console.error("Checkout error:", error);
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     // Form
     form,
@@ -420,5 +458,8 @@ export function useCheckout() {
     couponDetails,
     applyCoupon,
     removeCoupon,
+
+    // Cart
+    handleCheckout,
   };
 }

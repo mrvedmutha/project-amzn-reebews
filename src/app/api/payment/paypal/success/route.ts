@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { capturePayPalPayment } from "@/lib/paypal";
+import { capturePayPalPayment } from "@/lib/payment/paypal/paypal";
 import { dbConnect } from "@/lib/database/db";
 import { CartModel } from "@/models/cart/cart.model";
 import { generateSignupToken } from "@/lib/auth/token";
@@ -44,45 +44,25 @@ export async function GET(req: NextRequest) {
       cartId: cart._id.toString(),
     });
 
-    // Update cart status and add token
-    const updatedCart = await CartModel.findByIdAndUpdate(
-      cartId,
+    // Call unified cart update route
+    const updateRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/update`,
       {
-        status: "completed",
-        paymentId: captureData.id,
-        paymentGateway: "paypal",
-        signupToken,
-        tokenExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-      },
-      { new: true }
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cartId,
+          paymentId: captureData.id,
+          currency: cart.planDetails.currency,
+          status: "completed",
+          signupToken,
+        }),
+      }
     );
-
-    if (!updatedCart) {
-      console.error("Cart not found:", cartId);
+    if (!updateRes.ok) {
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?error=cart_not_found`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?error=cart_update_failed`
       );
-    }
-
-    // Call payment success webhook
-    try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/payment/success`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            cartId,
-            paymentGateway: "paypal",
-            paymentId: captureData.id,
-            status: "completed",
-          }),
-        }
-      );
-    } catch (error) {
-      console.error("Error calling payment success webhook:", error);
     }
 
     // Redirect to thank you page

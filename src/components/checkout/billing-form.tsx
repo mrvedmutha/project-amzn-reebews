@@ -76,7 +76,7 @@ export function BillingForm({
   React.useEffect(() => {
     if (selectedCountry) {
       setSelectedState("");
-      form.setValue("state", "");
+      form.setValue("address.state", "");
     }
   }, [selectedCountry, form]);
 
@@ -143,10 +143,10 @@ export function BillingForm({
 
       <FormField
         control={form.control}
-        name="address"
+        name="address.street"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Address</FormLabel>
+            <FormLabel>Street Address</FormLabel>
             <FormControl>
               <Input placeholder="123 Main St" {...field} />
             </FormControl>
@@ -158,7 +158,7 @@ export function BillingForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="city"
+          name="address.city"
           render={({ field }) => (
             <FormItem>
               <FormLabel>City</FormLabel>
@@ -171,7 +171,7 @@ export function BillingForm({
         />
         <FormField
           control={form.control}
-          name="postalCode"
+          name="address.pincode"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Postal Code</FormLabel>
@@ -188,7 +188,7 @@ export function BillingForm({
         {showStateField && (
           <FormField
             control={form.control}
-            name="state"
+            name="address.state"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>
@@ -271,7 +271,7 @@ export function BillingForm({
 
         <FormField
           control={form.control}
-          name="country"
+          name="address.country"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Country</FormLabel>

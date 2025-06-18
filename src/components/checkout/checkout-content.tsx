@@ -65,7 +65,13 @@ export function CheckoutContent() {
         const userDetails = {
           name: `${data.firstName} ${data.lastName}`.trim(),
           email: data.email,
-          address: data.address,
+          address: {
+            street: data.address.street,
+            city: data.address.city,
+            state: data.address.state,
+            country: data.address.country,
+            pincode: data.address.pincode,
+          },
           company: data.companyName,
           gstNumber: data.gstNumber,
         };
@@ -78,7 +84,7 @@ export function CheckoutContent() {
           },
           body: JSON.stringify({
             plan,
-            currency,
+            currency: isIndianUser ? "INR" : "USD",
             amount: isIndianUser ? finalPrice.INR : finalPrice.USD,
             userDetails,
             paymentGateway: isIndianUser ? "razorpay" : "paypal",
@@ -102,7 +108,7 @@ export function CheckoutContent() {
           }
         } else {
           // Handle PayPal for non-Indian users
-          const response = await fetch("/api/paypal/create-order-redirect", {
+          const response = await fetch("/api/payment/paypal/create-order", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

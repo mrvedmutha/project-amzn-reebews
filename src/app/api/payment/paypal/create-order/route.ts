@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPayPalOrder } from "@/lib/paypal";
+import { createPayPalOrder } from "@/lib/payment/paypal/paypal";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount, currency, description, reference_id } = body;
+    const { amount, currency, description, reference_id, cartId } = body;
 
     // Validate required fields
     if (!amount || !currency) {
@@ -28,9 +28,18 @@ export async function POST(request: NextRequest) {
       currency,
       description: description || "Reebews Subscription",
       reference_id: reference_id || `order_${Date.now()}`,
+      cartId,
     });
 
-    return NextResponse.json(order);
+    // Find the approve link in the order response
+    const approveLink = order.links.find(
+      (link: { rel: string; href: string }) => link.rel === "approve"
+    );
+
+    return NextResponse.json({
+      ...order,
+      redirectUrl: approveLink ? approveLink.href : null,
+    });
   } catch (error: any) {
     console.error("PayPal order creation failed:", error);
 

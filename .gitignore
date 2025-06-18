@@ -51,3 +51,6 @@ Thumbs.db
 .AppleDouble
 .LSOverride
 Icon
+
+# .vscode
+.vscode/*

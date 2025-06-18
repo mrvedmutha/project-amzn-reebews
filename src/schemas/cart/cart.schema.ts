@@ -92,6 +92,10 @@ export const CartSchema = new Schema<Cart>(
       required: true,
       enum: ["razorpay", "paypal"],
     },
+    paymentId: {
+      type: String,
+      trim: true,
+    },
     couponCode: {
       type: String,
       trim: true,
@@ -105,6 +109,17 @@ export const CartSchema = new Schema<Cart>(
       type: Number,
       required: true,
       min: 0,
+    },
+    currency: {
+      type: String,
+      required: true,
+      enum: ["USD", "INR"],
+    },
+    purchaseDate: {
+      type: Date,
+    },
+    expiryDate: {
+      type: Date,
     },
     status: {
       type: String,

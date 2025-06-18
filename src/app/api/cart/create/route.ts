@@ -48,6 +48,7 @@ export async function POST(req: Request) {
       paymentGateway,
       finalAmount: amount,
       status: "pending",
+      currency,
     });
 
     return NextResponse.json({ cartId: cart._id });

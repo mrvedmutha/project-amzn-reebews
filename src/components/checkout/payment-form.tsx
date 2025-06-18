@@ -15,7 +15,7 @@ import {
 // Removed unused imports
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { CheckoutFormValues } from "@/types/checkout.types";
-import { initializeRazorpayPayment } from "@/lib/razorpay-client";
+import { initializeRazorpayPayment } from "@/lib/payment/razorpay/razorpay-client";
 
 interface PaymentFormProps {
   form: UseFormReturn<CheckoutFormValues>;
@@ -38,7 +38,7 @@ export const PaymentForm = React.forwardRef<PaymentFormRef, PaymentFormProps>(
         // Payment loading handled by parent component
 
         // Create Razorpay order via API
-        const response = await fetch("/api/razorpay/create-order", {
+        const response = await fetch("/api/payment/razorpay/create-order", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

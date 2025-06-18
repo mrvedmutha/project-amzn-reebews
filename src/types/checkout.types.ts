@@ -15,11 +15,13 @@ export interface CheckoutFormValues {
   lastName: string;
   email: string;
   companyName?: string;
-  address: string;
-  city: string;
-  state?: string;
-  postalCode: string;
-  country: string;
+  address: {
+    street: string;
+    city: string;
+    state?: string;
+    country: string;
+    pincode: string;
+  };
   gstNumber?: string;
   paymentMethod: string;
   cardName?: string;

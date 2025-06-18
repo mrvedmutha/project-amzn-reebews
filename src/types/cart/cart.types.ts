@@ -29,9 +29,13 @@ export interface Cart {
   userDetails: CartUserDetails;
   planDetails: CartPlanDetails;
   paymentGateway: "razorpay" | "paypal";
+  paymentId?: string;
   couponCode?: string;
   discountAmount?: number;
   finalAmount: number;
+  currency: "USD" | "INR";
+  purchaseDate?: Date;
+  expiryDate?: Date;
   status: "pending" | "completed" | "cancelled";
   signupToken?: string;
   tokenExpiresAt?: Date;
