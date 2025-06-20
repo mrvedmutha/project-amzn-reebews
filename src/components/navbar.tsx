@@ -26,9 +26,10 @@ export function Navbar() {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "dark" 
-    ? "/uploads/logo/reebews-logo-dark.svg" 
-    : "/uploads/logo/reebews-logo-light.svg";
+  const logoSrc =
+    mounted && resolvedTheme === "dark"
+      ? "/uploads/logo/reebews-logo-dark.svg"
+      : "/uploads/logo/reebews-logo-light.svg";
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
@@ -62,7 +63,7 @@ export function Navbar() {
             <CurrencyToggle />
             <ThemeToggle />
             <Button asChild size="sm">
-              <Link href="/login">Login</Link>
+              <Link href="admin.reebews.com/login">Login</Link>
             </Button>
           </div>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
