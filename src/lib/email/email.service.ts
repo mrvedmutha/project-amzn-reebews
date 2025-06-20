@@ -10,7 +10,7 @@ if (!resendApiKey) {
 const resend = new Resend(resendApiKey);
 
 // Default sender email if none configured
-const DEFAULT_FROM = "ReeBews <onboarding@resend.dev>";
+const DEFAULT_FROM = "contact@reebews.com";
 
 // ReeBews logo URL for email embedding (more reliable than base64 in emails)
 const getLogoUrl = () => {
