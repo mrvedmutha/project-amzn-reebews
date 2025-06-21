@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cartId,
-          paymentId: razorpay_payment_id,
-          currency: cartDoc.subscription.currency,
+          transactionId: razorpay_payment_id,
           status: "completed",
+          paymentMethod: "razorpay",
         }),
       }
     );

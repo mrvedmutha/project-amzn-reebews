@@ -52,10 +52,9 @@ export async function GET(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cartId,
-          paymentId: captureData.id,
-          currency: cart.subscription.currency,
+          transactionId: captureData.id,
           status: "completed",
-          signupToken,
+          paymentMethod: "paypal",
         }),
       }
     );

@@ -8,6 +8,13 @@ export async function PATCH(req: NextRequest) {
   try {
     const { cartId, transactionId, status, paymentMethod } = await req.json();
 
+    console.log(`📝 Cart update request received:`, {
+      cartId,
+      transactionId,
+      status,
+      paymentMethod,
+    });
+
     // Validate required fields
     if (!cartId || !status) {
       return Response.json(
@@ -30,8 +37,19 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    console.log(`🔍 Email conditions check:`, {
+      status,
+      expectedStatus: PaymentStatus.COMPLETED,
+      statusMatch: status === PaymentStatus.COMPLETED,
+      signupToken: updatedCart.signupToken,
+      hasSignupToken: !!updatedCart.signupToken,
+    });
+
     // Send welcome email if payment is completed and no signup token exists
     if (status === PaymentStatus.COMPLETED && !updatedCart.signupToken) {
+      console.log(
+        `🎯 Conditions met! Sending welcome email for cart ${cartId}...`
+      );
       try {
         const signupToken = uuidv4();
 
@@ -74,6 +92,10 @@ export async function PATCH(req: NextRequest) {
           { status: 200 }
         );
       }
+    } else {
+      console.log(
+        `⏭️ Skipping email: status=${status}, PaymentStatus.COMPLETED=${PaymentStatus.COMPLETED}, signupToken=${updatedCart.signupToken}`
+      );
     }
 
     return Response.json(
