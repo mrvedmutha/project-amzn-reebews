@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CartModel } from "@/models/cart/cart.model";
-import { dbConnect } from "@/lib/database/db";
-import { ICart } from "@/types/cart/cart.types";
+import { cartPublicService } from "@/services/cart/cart-public.services";
 import { validateApiKey } from "@/lib/auth/api-auth";
 
 /**
@@ -31,12 +29,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    await dbConnect();
-
-    // Find cart by signup token (regardless of status)
-    const cart = (await CartModel.findOne({
-      signupToken,
-    }).lean()) as ICart | null;
+    // Use the new method that gets any cart (not just completed ones)
+    const cart = await cartPublicService.getCartBySignupTokenForSignup(signupToken);
 
     if (!cart) {
       return NextResponse.json(

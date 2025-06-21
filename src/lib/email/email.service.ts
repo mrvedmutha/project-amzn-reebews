@@ -1,6 +1,5 @@
 import { Resend } from "resend";
 import type { CreateEmailOptions } from "resend";
-import crypto from "crypto";
 
 // Initialize Resend with error handling
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -30,13 +29,6 @@ const getLogoUrl = () => {
 };
 
 export class EmailService {
-  /**
-   * Generate a secure signup token
-   */
-  static generateSignupToken(): string {
-    return crypto.randomBytes(32).toString("hex");
-  }
-
   /**
    * Send signup email with token
    */

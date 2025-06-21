@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { cartPublicService } from "@/services/cart/cart-public.services";
 import { EmailService } from "@/lib/email/email.service";
 import { PaymentStatus } from "@/enums/checkout.enum";
-import { v4 as uuidv4 } from "uuid";
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -26,7 +25,7 @@ export async function PATCH(req: NextRequest) {
     // Get cart before update to check previous status
     const cartBeforeUpdate = await cartPublicService.getCartById(cartId);
 
-    // Update cart payment using service
+    // Update cart payment using service (this will generate signupToken if payment completes)
     const updatedCart = await cartPublicService.updateCartPayment(cartId, {
       transactionId,
       status: status as PaymentStatus,
@@ -50,21 +49,20 @@ export async function PATCH(req: NextRequest) {
       statusMatch: isNowCompleted,
       wasAlreadyCompleted,
       shouldSendEmail: isNowCompleted && !wasAlreadyCompleted,
+      signupToken: updatedCart.signupToken,
     });
 
     // Send welcome email only if payment just became completed (not if it was already completed)
-    if (isNowCompleted && !wasAlreadyCompleted) {
+    if (isNowCompleted && !wasAlreadyCompleted && updatedCart.signupToken) {
       console.log(
         `🎯 Payment just completed! Sending welcome email for cart ${cartId}...`
       );
       try {
-        const signupToken = uuidv4();
-
-        // Send welcome email with signup link
+        // Use the signupToken that was generated and saved to database
         await EmailService.sendSignupEmail(
           updatedCart.user.email,
           updatedCart.user.name,
-          signupToken,
+          updatedCart.signupToken, // Use the saved signupToken
           {
             plan: updatedCart.subscription.planName,
             amount: updatedCart.payment.totalAmount,
@@ -74,7 +72,7 @@ export async function PATCH(req: NextRequest) {
         );
 
         console.log(
-          `✅ Welcome email sent successfully to ${updatedCart.user.email}`
+          `✅ Welcome email sent successfully to ${updatedCart.user.email} with signupToken: ${updatedCart.signupToken}`
         );
 
         return Response.json(
@@ -100,8 +98,16 @@ export async function PATCH(req: NextRequest) {
         );
       }
     } else {
+      const skipReason = !isNowCompleted 
+        ? "payment not completed" 
+        : wasAlreadyCompleted 
+        ? "payment was already completed"
+        : !updatedCart.signupToken
+        ? "no signupToken generated"
+        : "unknown";
+      
       console.log(
-        `⏭️ Skipping email: isNowCompleted=${isNowCompleted}, wasAlreadyCompleted=${wasAlreadyCompleted}, reason=${!isNowCompleted ? "payment not completed" : "payment was already completed"}`
+        `⏭️ Skipping email: isNowCompleted=${isNowCompleted}, wasAlreadyCompleted=${wasAlreadyCompleted}, hasSignupToken=${!!updatedCart.signupToken}, reason=${skipReason}`
       );
     }
 

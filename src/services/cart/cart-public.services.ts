@@ -1,6 +1,7 @@
 import { CartModel } from "@/models/cart/cart.model";
 import { ICart } from "@/types/cart/cart.types";
-import { getPlanIdByName, isFreeplan } from "@/helpers/plan";
+import { getPlanIdByName } from "@/helpers/plan";
+import { generateSignupToken } from "@/lib/auth/token";
 
 /**
  * Calculate subscription end date based on billing cycle
@@ -53,6 +54,28 @@ export const cartPublicService = {
   },
 
   /**
+   * Get cart details by signup token for signup flow
+   * Returns any cart (completed or not) for signup process
+   */
+  async getCartBySignupTokenForSignup(
+    signupToken: string
+  ): Promise<ICart | null> {
+    await dbConnect();
+
+    try {
+      const cart = (await CartModel.findOne({
+        signupToken,
+        // No payment status filter - get any cart
+      }).lean()) as ICart | null;
+
+      return cart;
+    } catch (error) {
+      console.error("Error getting cart by signup token for signup:", error);
+      throw new Error("Failed to retrieve cart details");
+    }
+  },
+
+  /**
    * Get cart details by ID
    */
   async getCartById(cartId: string): Promise<ICart | null> {
@@ -70,6 +93,7 @@ export const cartPublicService = {
 
   /**
    * Create a new cart with embedded subscription
+   * NO signupToken generated at creation - only when payment succeeds
    */
   async createCart(cartData: {
     plan: Plan;
@@ -94,20 +118,18 @@ export const cartPublicService = {
   }): Promise<{
     cartId: string;
     paymentId: string;
-    signupToken: string;
+    signupToken?: string; // Optional - only for free plans
   }> {
     await dbConnect();
 
     try {
-      // Generate IDs and tokens
+      // Generate IDs - NO signupToken for paid plans
       const paymentId = uuidv4();
-      const signupToken = uuidv4();
-      const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       // Determine if this is a free plan
       const isFree = cartData.plan === Plan.FREE || cartData.amount === 0;
 
-      // Create cart with embedded subscription
+      // Create cart with embedded subscription first
       const cart = await CartModel.create({
         userId: cartData.userId,
         user: {
@@ -136,16 +158,36 @@ export const cartPublicService = {
           currency: cartData.currency,
           status: isFree ? PaymentStatus.COMPLETED : PaymentStatus.PENDING,
         },
-        signupToken,
-        tokenExpiry,
         isSignupCompleted: false,
       });
 
-      return {
+      // For free plans, generate and save signupToken after cart creation
+      let signupToken: string | undefined;
+      if (isFree) {
+        signupToken = generateSignupToken({
+          email: cartData.userDetails.email,
+          plan: cartData.plan as any, // Plan and UserPlan have same values
+          cartId: cart._id.toString(),
+        });
+
+        // Update cart with signupToken
+        await CartModel.findByIdAndUpdate(cart._id, {
+          signupToken,
+          tokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        });
+      }
+
+      const result: any = {
         cartId: cart._id.toString(),
         paymentId,
-        signupToken,
       };
+
+      // Only include signupToken for free plans
+      if (signupToken) {
+        result.signupToken = signupToken;
+      }
+
+      return result;
     } catch (error) {
       console.error("Error creating cart:", error);
       throw new Error("Failed to create cart");
@@ -154,6 +196,7 @@ export const cartPublicService = {
 
   /**
    * Update cart payment status and subscription dates
+   * Generates signupToken when payment is completed
    */
   async updateCartPayment(
     cartId: string,
@@ -179,7 +222,7 @@ export const cartPublicService = {
         updateFields["payment.paymentMethod"] = paymentUpdate.paymentMethod;
       }
 
-      // If payment is completed, update subscription dates
+      // If payment is completed, update subscription dates AND generate signupToken
       if (paymentUpdate.status === PaymentStatus.COMPLETED) {
         const cart = await CartModel.findById(cartId);
         if (cart) {
@@ -196,6 +239,18 @@ export const cartPublicService = {
               cart.subscription.billingCycle
             );
             updateFields["subscription.endDate"] = endDate;
+          }
+
+          // Generate signupToken when payment is completed (if not already exists)
+          if (!cart.signupToken) {
+            updateFields["signupToken"] = generateSignupToken({
+              email: cart.user.email,
+              plan: cart.subscription.planName as any, // Plan and UserPlan have same values
+              cartId: cart._id.toString(),
+            });
+            updateFields["tokenExpiry"] = new Date(
+              Date.now() + 24 * 60 * 60 * 1000
+            ); // 24 hours
           }
         }
       }

@@ -53,7 +53,8 @@ export async function POST(req: Request) {
     });
 
     // For free plans, send welcome email immediately since they don't go through payment flow
-    if (plan === Plan.FREE || amount === 0) {
+    // Free plans will have signupToken generated during creation
+    if ((plan === Plan.FREE || amount === 0) && result.signupToken) {
       try {
         // Get the created cart with embedded subscription details
         const cartWithSubscription = await cartPublicService.getCartById(
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
           await EmailService.sendSignupEmail(
             cartWithSubscription.user.email,
             cartWithSubscription.user.name,
-            result.signupToken,
+            result.signupToken, // Use signupToken from creation result
             {
               plan: cartWithSubscription.subscription.planName || plan, // Fallback to request plan
               amount: cartWithSubscription.payment.totalAmount,
