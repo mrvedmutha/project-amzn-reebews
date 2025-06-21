@@ -23,6 +23,9 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    // Get cart before update to check previous status
+    const cartBeforeUpdate = await cartPublicService.getCartById(cartId);
+
     // Update cart payment using service
     const updatedCart = await cartPublicService.updateCartPayment(cartId, {
       transactionId,
@@ -37,18 +40,22 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const wasAlreadyCompleted =
+      cartBeforeUpdate?.payment.status === PaymentStatus.COMPLETED;
+    const isNowCompleted = status === PaymentStatus.COMPLETED;
+
     console.log(`🔍 Email conditions check:`, {
       status,
       expectedStatus: PaymentStatus.COMPLETED,
-      statusMatch: status === PaymentStatus.COMPLETED,
-      signupToken: updatedCart.signupToken,
-      hasSignupToken: !!updatedCart.signupToken,
+      statusMatch: isNowCompleted,
+      wasAlreadyCompleted,
+      shouldSendEmail: isNowCompleted && !wasAlreadyCompleted,
     });
 
-    // Send welcome email if payment is completed and no signup token exists
-    if (status === PaymentStatus.COMPLETED && !updatedCart.signupToken) {
+    // Send welcome email only if payment just became completed (not if it was already completed)
+    if (isNowCompleted && !wasAlreadyCompleted) {
       console.log(
-        `🎯 Conditions met! Sending welcome email for cart ${cartId}...`
+        `🎯 Payment just completed! Sending welcome email for cart ${cartId}...`
       );
       try {
         const signupToken = uuidv4();
@@ -94,7 +101,7 @@ export async function PATCH(req: NextRequest) {
       }
     } else {
       console.log(
-        `⏭️ Skipping email: status=${status}, PaymentStatus.COMPLETED=${PaymentStatus.COMPLETED}, signupToken=${updatedCart.signupToken}`
+        `⏭️ Skipping email: isNowCompleted=${isNowCompleted}, wasAlreadyCompleted=${wasAlreadyCompleted}, reason=${!isNowCompleted ? "payment not completed" : "payment was already completed"}`
       );
     }
 

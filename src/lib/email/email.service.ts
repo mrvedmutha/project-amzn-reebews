@@ -16,8 +16,8 @@ console.log(
 
 const resend = new Resend(resendApiKey);
 
-// Default sender email if none configured (using Resend's verified domain)
-const DEFAULT_FROM = "contact@resend.reebews.com";
+// Default sender email if none configured (using your verified domain)
+const DEFAULT_FROM = "Reebews <noreply@resend.reebews.com>";
 
 // Check if custom from email is configured
 const fromEmail = process.env.REEBEWS_EMAIL_FROM || DEFAULT_FROM;
