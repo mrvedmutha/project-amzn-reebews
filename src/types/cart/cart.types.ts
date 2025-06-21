@@ -83,11 +83,16 @@ export interface ICart {
 }
 
 /**
- * Legacy interfaces for backward compatibility
+ * Legacy type aliases for backward compatibility
+ * @deprecated Use ICartUserAddress instead
+ */
+export type CartUserAddress = ICartUserAddress;
+
+/**
+ * Legacy type alias for backward compatibility
  * @deprecated Use ICartUser instead
  */
-export interface CartUserAddress extends ICartUserAddress {}
-export interface CartUserDetails extends ICartUser {}
+export type CartUserDetails = ICartUser;
 export interface CartPlanDetails {
   plan: string;
   amount: number;
