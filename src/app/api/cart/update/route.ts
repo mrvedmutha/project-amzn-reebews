@@ -30,57 +30,49 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // Generate signup token if payment is successful and not already set
+    // Send welcome email if payment is completed and no signup token exists
     if (status === PaymentStatus.COMPLETED && !updatedCart.signupToken) {
-      const signupToken = uuidv4();
-      const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+      try {
+        const signupToken = uuidv4();
 
-      // Update cart with signup token
-      const cartWithToken = await cartPublicService.updateCartPayment(cartId, {
-        status: PaymentStatus.COMPLETED,
-        transactionId,
-        paymentMethod,
-      });
+        // Send welcome email with signup link
+        await EmailService.sendSignupEmail(
+          updatedCart.user.email,
+          updatedCart.user.name,
+          signupToken,
+          {
+            plan: updatedCart.subscription.planName,
+            amount: updatedCart.payment.totalAmount,
+            currency: updatedCart.payment.currency,
+            billingCycle: updatedCart.subscription.billingCycle,
+          }
+        );
 
-      if (cartWithToken) {
-        // Get subscription details from embedded subscription
-        const subscription = cartWithToken.subscription;
+        console.log(
+          `✅ Welcome email sent successfully to ${updatedCart.user.email}`
+        );
 
-        try {
-          // Send welcome email with signup link
-          await EmailService.sendSignupEmail(
-            cartWithToken.user.email,
-            cartWithToken.user.name,
-            signupToken,
-            {
-              plan: subscription.planName,
-              amount: cartWithToken.payment.totalAmount,
-              currency: cartWithToken.payment.currency,
-              billingCycle: subscription.billingCycle,
-            }
-          );
-
-          return Response.json(
-            {
-              success: true,
-              message: "Cart updated and welcome email sent",
-              data: cartWithToken,
-            },
-            { status: 200 }
-          );
-        } catch (error: any) {
-          console.error("Error sending welcome email:", error);
-          // We still return success since payment was successful
-          // but log the error for monitoring
-          return Response.json(
-            {
-              success: true,
-              message: "Cart updated but welcome email could not be sent",
-              data: cartWithToken,
-            },
-            { status: 200 }
-          );
-        }
+        return Response.json(
+          {
+            success: true,
+            message: "Cart updated and welcome email sent",
+            data: updatedCart,
+          },
+          { status: 200 }
+        );
+      } catch (error: any) {
+        console.error("❌ Error sending welcome email:", error);
+        // We still return success since payment was successful
+        // but log the error for monitoring
+        return Response.json(
+          {
+            success: true,
+            message: "Cart updated but welcome email could not be sent",
+            data: updatedCart,
+            emailError: error.message,
+          },
+          { status: 200 }
+        );
       }
     }
 

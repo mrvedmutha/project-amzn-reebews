@@ -5,16 +5,27 @@ import crypto from "crypto";
 // Initialize Resend with error handling
 const resendApiKey = process.env.RESEND_API_KEY;
 if (!resendApiKey) {
+  console.error("❌ RESEND_API_KEY is not configured in environment variables");
   throw new Error("RESEND_API_KEY is not configured in environment variables");
 }
+
+console.log(
+  "✅ Resend API Key configured:",
+  resendApiKey.substring(0, 10) + "..."
+);
+
 const resend = new Resend(resendApiKey);
 
 // Default sender email if none configured
-const DEFAULT_FROM = "contact@resend.reebews.com";
+const DEFAULT_FROM = "noreply@resend.reebews.com";
+
+// Check if custom from email is configured
+const fromEmail = process.env.REEBEWS_EMAIL_FROM || DEFAULT_FROM;
+console.log("📧 Email sender configured as:", fromEmail);
 
 // ReeBews logo URL for email embedding (more reliable than base64 in emails)
 const getLogoUrl = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://reebews.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://reebews.com";
   return `${baseUrl}/uploads/logo/reebews-logo.png`;
 };
 
@@ -41,6 +52,9 @@ export class EmailService {
     }
   ) {
     try {
+      console.log(`📧 Attempting to send signup email to: ${email}`);
+      console.log(`📧 Plan details:`, planDetails);
+
       const signupUrl = `https://admin.reebews.com/signup/${signupToken}`;
 
       const htmlContent = `
@@ -251,7 +265,7 @@ This email was sent to ${email}
       `.trim();
 
       const emailOptions: CreateEmailOptions = {
-        from: process.env.REEBEWS_EMAIL_FROM || DEFAULT_FROM,
+        from: fromEmail,
         to: [email],
         subject: "Welcome to ReeBews - Complete Your Account Setup",
         html: htmlContent,

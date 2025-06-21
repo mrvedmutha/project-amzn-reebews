@@ -61,6 +61,10 @@ export async function POST(req: Request) {
         );
 
         if (cartWithSubscription) {
+          console.log(
+            `📧 Sending free plan welcome email to: ${cartWithSubscription.user.email}`
+          );
+
           // Send welcome email with signup link using embedded subscription data
           await EmailService.sendSignupEmail(
             cartWithSubscription.user.email,
@@ -72,6 +76,10 @@ export async function POST(req: Request) {
               currency: cartWithSubscription.payment.currency,
               billingCycle: billingCycle || BillingCycle.MONTHLY, // Use billingCycle from request
             }
+          );
+
+          console.log(
+            `✅ Free plan welcome email sent successfully to: ${cartWithSubscription.user.email}`
           );
 
           return NextResponse.json({
