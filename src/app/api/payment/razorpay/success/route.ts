@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           cartId,
           paymentId: razorpay_payment_id,
-          currency: cartDoc.planDetails.currency,
+          currency: cartDoc.subscription.currency,
           status: "completed",
         }),
       }

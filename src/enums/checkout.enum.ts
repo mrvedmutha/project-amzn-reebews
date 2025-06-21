@@ -17,6 +17,26 @@ export enum Plan {
   FREE = "free",
   BASIC = "basic",
   PRO = "pro",
+  ENTERPRISE = "enterprise",
+}
+
+/**
+ * Payment gateway providers
+ */
+export enum PaymentGateway {
+  RAZORPAY = "razorpay",
+  PAYPAL = "paypal",
+}
+
+/**
+ * Payment transaction status
+ */
+export enum PaymentStatus {
+  PENDING = "pending",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
+  FAILED = "failed",
+  REFUNDED = "refunded",
 }
 
 /**

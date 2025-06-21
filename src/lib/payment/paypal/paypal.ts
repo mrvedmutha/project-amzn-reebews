@@ -55,7 +55,7 @@ export async function createPayPalOrderAndGetRedirectUrl(
       ],
       application_context: {
         return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/paypal-capture?cartId=${cartId}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?error=payment_cancelled`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?cartid=${cartId}&error=payment_cancelled`,
       },
     };
 
@@ -118,7 +118,7 @@ export const createPayPalOrder = async (
       ],
       application_context: {
         return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/paypal/success?cartId=${options.cartId}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?cartid=${options.cartId}&error=payment_cancelled`,
         brand_name: "Reebews",
         landing_page: "NO_PREFERENCE",
         user_action: "PAY_NOW",

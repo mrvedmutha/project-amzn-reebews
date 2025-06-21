@@ -11,6 +11,7 @@ import {
   BillingCycle,
   CouponType,
   PaymentMethod,
+  PaymentStatus,
 } from "@/enums/checkout.enum";
 import { CheckoutFormZod } from "@/schemas/zod/checkout/checkout.zod";
 import type {
@@ -18,6 +19,7 @@ import type {
   PlanDetails,
   CouponDetails,
 } from "@/types/checkout.types";
+import { ICart } from "@/types/cart/cart.types";
 
 export function useCheckout() {
   const searchParams = useSearchParams();
@@ -32,6 +34,11 @@ export function useCheckout() {
     BillingCycle.MONTHLY
   );
 
+  // Cart resumption state
+  const [existingCart, setExistingCart] = React.useState<ICart | null>(null);
+  const [isCartLoading, setIsCartLoading] = React.useState(false);
+  const [cartLoadError, setCartLoadError] = React.useState<string | null>(null);
+
   // Coupon state
   const [couponCode, setCouponCode] = React.useState("");
   const [couponDiscount, setCouponDiscount] = React.useState(0);
@@ -43,7 +50,10 @@ export function useCheckout() {
   const [couponDetails, setCouponDetails] =
     React.useState<CouponDetails | null>(null);
 
-  const plan = searchParams.get("plan") || "basic";
+  const plan =
+    searchParams.get("plan") || existingCart?.subscription.planName || "basic";
+  const cartId = searchParams.get("cartid");
+  const paymentError = searchParams.get("error");
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(CheckoutFormZod) as any,
@@ -70,26 +80,93 @@ export function useCheckout() {
     },
   });
 
-  // Set billing cycle from URL parameter
+  // Load existing cart if cartId is provided
   React.useEffect(() => {
-    const billingParam = searchParams.get("billing");
-    if (
-      plan !== Plan.FREE &&
-      (billingParam === BillingCycle.YEARLY ||
-        billingParam === BillingCycle.MONTHLY)
-    ) {
-      setBillingCycle(billingParam as BillingCycle);
-    }
-  }, [searchParams, plan]);
+    const loadExistingCart = async () => {
+      if (!cartId) return;
 
-  // Set country from geolocation
+      setIsCartLoading(true);
+      setCartLoadError(null);
+
+      try {
+        const response = await fetch(`/api/cart/load?cartId=${cartId}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            setCartLoadError("Cart not found. Please start a new checkout.");
+          } else {
+            setCartLoadError("Failed to load cart. Please try again.");
+          }
+          return;
+        }
+
+        const { cart } = await response.json();
+
+        // Only allow resumption for pending/failed payments
+        if (cart.payment.status === PaymentStatus.COMPLETED) {
+          setCartLoadError("This order has already been completed.");
+          return;
+        }
+
+        setExistingCart(cart);
+
+        // Pre-populate form with existing cart data
+        const nameParts = cart.user.name.split(" ");
+        form.setValue("firstName", nameParts[0] || "");
+        form.setValue("lastName", nameParts.slice(1).join(" ") || "");
+        form.setValue("email", cart.user.email);
+        form.setValue("companyName", cart.user.business?.company || "");
+        form.setValue("gstNumber", cart.user.business?.gstin || "");
+        form.setValue("address.street", cart.user.address.street);
+        form.setValue("address.city", cart.user.address.city);
+        form.setValue("address.state", cart.user.address.state);
+        form.setValue("address.country", cart.user.address.country);
+        form.setValue("address.pincode", cart.user.address.pincode);
+
+        // Set billing cycle and country from cart
+        setBillingCycle(cart.subscription.billingCycle);
+        setSelectedCountry(cart.user.address.country);
+        setCurrency(cart.subscription.currency);
+      } catch (error) {
+        console.error("Error loading cart:", error);
+        setCartLoadError("Failed to load cart. Please try again.");
+      } finally {
+        setIsCartLoading(false);
+      }
+    };
+
+    loadExistingCart();
+  }, [cartId, form]);
+
+  // Set billing cycle from URL parameter (only for new checkouts)
   React.useEffect(() => {
-    if (!geoLoading && geoCountry && !selectedCountry) {
+    if (!existingCart) {
+      const billingParam = searchParams.get("billing");
+      if (
+        plan !== Plan.FREE &&
+        (billingParam === BillingCycle.YEARLY ||
+          billingParam === BillingCycle.MONTHLY)
+      ) {
+        setBillingCycle(billingParam as BillingCycle);
+      }
+    }
+  }, [searchParams, plan, existingCart]);
+
+  // Set country from geolocation (only for new checkouts)
+  React.useEffect(() => {
+    if (!geoLoading && geoCountry && !selectedCountry && !existingCart) {
       setSelectedCountry(geoCountry);
       form.setValue("address.country", geoCountry);
       setCurrency(geoCountry === "India" ? Currency.INR : Currency.USD);
     }
-  }, [geoLoading, geoCountry, selectedCountry, setCurrency, form]);
+  }, [
+    geoLoading,
+    geoCountry,
+    selectedCountry,
+    setCurrency,
+    form,
+    existingCart,
+  ]);
 
   // Update currency when country changes
   React.useEffect(() => {
@@ -359,21 +436,30 @@ export function useCheckout() {
   const formatPrice = (price: number) => price.toFixed(2);
 
   // Submit handler
-  const onSubmit = (data: CheckoutFormValues) => {
-    setIsSubmitting(true);
+  const onSubmit = async (data: CheckoutFormValues) => {
+    try {
+      setIsSubmitting(true);
 
-    if (plan === "free") {
-      setTimeout(() => {
-        router.push(`/checkout/thank-you?plan=${plan}`);
-        setIsSubmitting(false);
-      }, 1000);
-      return;
-    }
+      if (plan === "free") {
+        // For free plans, we might still want to create a cart record
+        const result = await handleCheckout(data);
+        router.push(`/checkout/thank-you?plan=${plan}&cartId=${result.cartId}`);
+        return;
+      }
 
-    setTimeout(() => {
-      router.push(`/checkout/thank-you?plan=${plan}&billing=${billingCycle}`);
+      // Create cart and handle payment flow
+      const result = await handleCheckout(data);
+
+      // Redirect to payment processing or thank you page
+      router.push(
+        `/checkout/thank-you?plan=${plan}&billing=${billingCycle}&cartId=${result.cartId}&paymentId=${result.paymentId}`
+      );
+    } catch (error) {
+      console.error("Checkout submission error:", error);
+      // Handle error state here - you might want to show a toast or error message
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   // Remove coupon
@@ -390,12 +476,28 @@ export function useCheckout() {
   const isIndianUser = selectedCountry === "India";
 
   // Add a handleCheckout function for cart creation
-  const handleCheckout = async (userDetails: any) => {
+  const handleCheckout = async (formData: CheckoutFormValues) => {
     try {
       setIsSubmitting(true);
       const isIndianUser = selectedCountry === "India";
       const currency = isIndianUser ? "INR" : "USD";
       const amount = isIndianUser ? finalPrice.INR : finalPrice.USD;
+
+      // Map form data to new cart structure
+      const userDetails = {
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        email: formData.email,
+        address: {
+          street: formData.address.street,
+          city: formData.address.city,
+          state: formData.address.state || "",
+          country: formData.address.country,
+          pincode: formData.address.pincode,
+        },
+        company: formData.companyName,
+        gstNumber: formData.gstNumber,
+      };
+
       const response = await fetch("/api/cart/create", {
         method: "POST",
         headers: {
@@ -414,9 +516,13 @@ export function useCheckout() {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create cart");
       }
-      const { cartId } = await response.json();
-      // You can redirect or handle cartId as needed
-      return cartId;
+      const { cartId, paymentId, signupToken } = await response.json();
+
+      return {
+        cartId,
+        paymentId,
+        signupToken,
+      };
     } catch (error) {
       console.error("Checkout error:", error);
       throw error;
@@ -461,5 +567,11 @@ export function useCheckout() {
 
     // Cart
     handleCheckout,
+
+    // Cart resumption
+    existingCart,
+    isCartLoading,
+    cartLoadError,
+    paymentError,
   };
 }

@@ -16,7 +16,7 @@ export async function GET() {
     // Send reminder emails
     for (const cart of abandonedCarts) {
       await resend.emails.send({
-        from: "ReeBews <noreply@reebews.com>",
+        from: "ReeBews <noreply@resend.reebews.com>",
         to: cart.userDetails.email,
         subject: "Complete Your ReeBews Purchase",
         html: `

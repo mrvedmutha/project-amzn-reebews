@@ -51,6 +51,10 @@ export function CheckoutContent() {
     couponDetails,
     applyCoupon,
     removeCoupon,
+    existingCart,
+    isCartLoading,
+    cartLoadError,
+    paymentError,
   } = useCheckout();
 
   const handleCompleteOrder = async (data: any) => {
@@ -61,43 +65,51 @@ export function CheckoutContent() {
         // Handle free plan signup
         await onSubmit(data);
       } else {
-        // Format user details according to cart schema
-        const userDetails = {
-          name: `${data.firstName} ${data.lastName}`.trim(),
-          email: data.email,
-          address: {
-            street: data.address.street,
-            city: data.address.city,
-            state: data.address.state,
-            country: data.address.country,
-            pincode: data.address.pincode,
-          },
-          company: data.companyName,
-          gstNumber: data.gstNumber,
-        };
+        let cartId: string;
 
-        // Create cart record first
-        const response = await fetch("/api/cart/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            plan,
-            currency: isIndianUser ? "INR" : "USD",
-            amount: isIndianUser ? finalPrice.INR : finalPrice.USD,
-            userDetails,
-            paymentGateway: isIndianUser ? "razorpay" : "paypal",
-            billingCycle,
-          }),
-        });
+        if (existingCart) {
+          // Use existing cart for payment retry
+          cartId = existingCart._id.toString();
+        } else {
+          // Create new cart record
+          const userDetails = {
+            name: `${data.firstName} ${data.lastName}`.trim(),
+            email: data.email,
+            address: {
+              street: data.address.street,
+              city: data.address.city,
+              state: data.address.state,
+              country: data.address.country,
+              pincode: data.address.pincode,
+            },
+            company: data.companyName,
+            gstNumber: data.gstNumber,
+          };
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to create cart");
+          const response = await fetch("/api/cart/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              plan,
+              currency: isIndianUser ? "INR" : "USD",
+              amount: isIndianUser ? finalPrice.INR : finalPrice.USD,
+              userDetails,
+              paymentGateway: isIndianUser ? "razorpay" : "paypal",
+              billingCycle,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to create cart");
+          }
+
+          const result = await response.json();
+          cartId = result.cartId;
         }
 
-        const { cartId } = await response.json();
         localStorage.setItem("currentCartId", cartId);
 
         if (isIndianUser) {
@@ -152,7 +164,17 @@ export function CheckoutContent() {
             <div className="lg:col-span-2">
               <div className="bg-card rounded-lg border p-6 mb-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Checkout</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold">
+                      {existingCart ? "Complete Your Order" : "Checkout"}
+                    </h2>
+                    {existingCart && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Your details have been pre-filled. Complete your payment
+                        to proceed.
+                      </p>
+                    )}
+                  </div>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href="/" className="flex items-center gap-1">
                       <ArrowLeft className="h-4 w-4" />
@@ -160,6 +182,41 @@ export function CheckoutContent() {
                     </Link>
                   </Button>
                 </div>
+
+                {/* Cart Loading State */}
+                {isCartLoading && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-blue-700">
+                      Loading your cart details...
+                    </p>
+                  </div>
+                )}
+
+                {/* Cart Load Error */}
+                {cartLoadError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700">{cartLoadError}</p>
+                    <Link
+                      href="/checkout"
+                      className="text-red-700 underline font-medium"
+                    >
+                      Start new checkout
+                    </Link>
+                  </div>
+                )}
+
+                {/* Payment Error */}
+                {paymentError && !cartLoadError && (
+                  <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-700">
+                      {paymentError === "payment_cancelled"
+                        ? "Payment was cancelled. Your details are saved - you can complete your order below."
+                        : paymentError === "payment_failed"
+                          ? "Payment failed. Please try again with a different payment method."
+                          : "There was an issue with your payment. Please try again."}
+                    </p>
+                  </div>
+                )}
 
                 <Form {...form}>
                   <form

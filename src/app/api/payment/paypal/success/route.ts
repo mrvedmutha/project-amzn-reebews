@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
 
     // Generate signup token
     const signupToken = generateSignupToken({
-      email: cart.userDetails.email,
-      plan: cart.planDetails.plan,
+      email: cart.user.email,
+      plan: cart.subscription.planName,
       cartId: cart._id.toString(),
     });
 
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         body: JSON.stringify({
           cartId,
           paymentId: captureData.id,
-          currency: cart.planDetails.currency,
+          currency: cart.subscription.currency,
           status: "completed",
           signupToken,
         }),
