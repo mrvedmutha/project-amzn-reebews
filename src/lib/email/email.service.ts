@@ -156,6 +156,15 @@ export class EmailService {
                 color: #ffb000;
                 font-weight: 600;
               }
+              .warning {
+                background: #fff3cd;
+                color: #856404;
+                border-left: 4px solid #ffb000;
+                padding: 16px;
+                border-radius: 6px;
+                margin: 24px 0 0 0;
+                font-size: 16px;
+              }
             </style>
           </head>
           <body>
@@ -189,7 +198,10 @@ export class EmailService {
                   </a>
                 </div>
                 
-                <p><strong>Important:</strong> This link will expire in 24 hours for security reasons.</p>
+                <div class="warning">
+                  <strong>⚠️ Important:</strong> You must complete your signup within <b>24 hours</b> or your signup link will expire.<br>
+                  If your link has expired, please contact <a href="mailto:contact@reebews.com">contact@reebews.com</a> for assistance.
+                </div>
                 
                 <div class="features">
                   <h3>What's Next?</h3>
@@ -239,7 +251,8 @@ Your Plan Details:
 To complete your account setup and start using ReeBews, visit:
 ${signupUrl}
 
-Important: This link will expire in 24 hours for security reasons.
+IMPORTANT: You must complete your signup within 24 hours or your signup link will expire.
+If your link has expired, please contact contact@reebews.com for assistance.
 
 What's Next?
 ✨ Set up your personalized dashboard

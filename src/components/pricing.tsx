@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCurrency } from "./currency-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 interface PricingPlan {
   title: string;
@@ -35,6 +36,8 @@ export function Pricing() {
   const [billingCycle, setBillingCycle] = React.useState<"monthly" | "yearly">(
     "monthly"
   );
+  const [loadingPlan, setLoadingPlan] = React.useState<string | null>(null);
+  const router = useRouter();
 
   const pricingPlans: PricingPlan[] = [
     {
@@ -211,11 +214,12 @@ export function Pricing() {
                   {plan.price[billingCycle][currency] > 0 && (
                     <span className="text-sm">/month</span>
                   )}
-                  {plan.price[billingCycle][currency] > 0 && billingCycle === "yearly" && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      billed yearly
-                    </div>
-                  )}
+                  {plan.price[billingCycle][currency] > 0 &&
+                    billingCycle === "yearly" && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        billed yearly
+                      </div>
+                    )}
                 </div>
                 <ul className="space-y-2">
                   {plan.features.map((feature, i) => (
@@ -232,11 +236,19 @@ export function Pricing() {
               </CardContent>
               <CardFooter>
                 <Button
-                  asChild
                   className="w-full"
                   variant={plan.isMostPopular ? "default" : "outline"}
+                  disabled={loadingPlan === plan.title}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    setLoadingPlan(plan.title);
+                    // Small delay to show loading state
+                    setTimeout(() => {
+                      router.push(plan.ctaLink);
+                    }, 600);
+                  }}
                 >
-                  <Link href={plan.ctaLink}>{plan.ctaText}</Link>
+                  {loadingPlan === plan.title ? "Please wait..." : plan.ctaText}
                 </Button>
               </CardFooter>
             </Card>
