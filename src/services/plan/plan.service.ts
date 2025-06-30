@@ -19,9 +19,7 @@ export const planService = {
     // Validate input using Zod schema
     const parsed = PlanCreateZod.safeParse(data);
     if (!parsed.success) {
-      throw new Error(
-        parsed.error.errors.map((e: any) => e.message).join(", ")
-      );
+      throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
     }
 
     // Check if plan with same planId or name already exists
@@ -52,7 +50,7 @@ export const planService = {
   ): Promise<IPlan[]> {
     await dbConnect();
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
 
     // Apply filters
     if (filters.isActive !== undefined) {
@@ -98,25 +96,23 @@ export const planService = {
    */
   async getById(id: string): Promise<IPlan | null> {
     await dbConnect();
-    let plan = await PlanModel.findById(id).lean();
-    if (plan && (plan as any).pricing && (plan as any).pricing.monthly) {
-      const discount = (plan as any).yearlyDiscountPercent || 0;
-      (plan as any).pricing.yearly = {
+    const plan = await PlanModel.findById(id).lean();
+    if (
+      plan &&
+      (plan as unknown as IPlan).pricing &&
+      (plan as unknown as IPlan).pricing.monthly
+    ) {
+      const typedPlan = plan as unknown as IPlan;
+      const discount = typedPlan.yearlyDiscountPercent || 0;
+      typedPlan.pricing.yearly = {
         USD: parseFloat(
-          (
-            (plan as any).pricing.monthly.USD *
-            12 *
-            (1 - discount / 100)
-          ).toFixed(2)
+          (typedPlan.pricing.monthly.USD * 12 * (1 - discount / 100)).toFixed(2)
         ),
         INR: parseFloat(
-          (
-            (plan as any).pricing.monthly.INR *
-            12 *
-            (1 - discount / 100)
-          ).toFixed(2)
+          (typedPlan.pricing.monthly.INR * 12 * (1 - discount / 100)).toFixed(2)
         ),
       };
+      return typedPlan;
     }
     return plan ? (plan as unknown as IPlan) : null;
   },
@@ -126,25 +122,23 @@ export const planService = {
    */
   async getByPlanId(planId: number): Promise<IPlan | null> {
     await dbConnect();
-    let plan = await PlanModel.findOne({ planId }).lean();
-    if (plan && (plan as any).pricing && (plan as any).pricing.monthly) {
-      const discount = (plan as any).yearlyDiscountPercent || 0;
-      (plan as any).pricing.yearly = {
+    const plan = await PlanModel.findOne({ planId }).lean();
+    if (
+      plan &&
+      (plan as unknown as IPlan).pricing &&
+      (plan as unknown as IPlan).pricing.monthly
+    ) {
+      const typedPlan = plan as unknown as IPlan;
+      const discount = typedPlan.yearlyDiscountPercent || 0;
+      typedPlan.pricing.yearly = {
         USD: parseFloat(
-          (
-            (plan as any).pricing.monthly.USD *
-            12 *
-            (1 - discount / 100)
-          ).toFixed(2)
+          (typedPlan.pricing.monthly.USD * 12 * (1 - discount / 100)).toFixed(2)
         ),
         INR: parseFloat(
-          (
-            (plan as any).pricing.monthly.INR *
-            12 *
-            (1 - discount / 100)
-          ).toFixed(2)
+          (typedPlan.pricing.monthly.INR * 12 * (1 - discount / 100)).toFixed(2)
         ),
       };
+      return typedPlan;
     }
     return plan ? (plan as unknown as IPlan) : null;
   },
@@ -198,9 +192,7 @@ export const planService = {
     // Use partial validation for updates
     const parsed = PlanUpdateZod.safeParse(data);
     if (!parsed.success) {
-      throw new Error(
-        parsed.error.errors.map((e: any) => e.message).join(", ")
-      );
+      throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
     }
 
     // Check if updating name conflicts with existing plan
@@ -232,9 +224,7 @@ export const planService = {
 
     const parsed = PlanUpdateZod.safeParse(data);
     if (!parsed.success) {
-      throw new Error(
-        parsed.error.errors.map((e: any) => e.message).join(", ")
-      );
+      throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
     }
 
     const updated = await PlanModel.findOneAndUpdate({ planId }, parsed.data, {
@@ -283,7 +273,7 @@ export const planService = {
   async getCount(filters: { isActive?: boolean } = {}): Promise<number> {
     await dbConnect();
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (filters.isActive !== undefined) {
       query.isActive = filters.isActive;
     }
