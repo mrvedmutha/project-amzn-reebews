@@ -132,16 +132,9 @@ export const cartPublicService = {
               ? planFromDb.pricing.monthly[cartData.currency]
               : planFromDb.pricing.yearly[cartData.currency];
 
-          // Only use dynamic pricing if it matches the provided amount (within 1% tolerance)
-          const priceDifference = Math.abs(dynamicPrice - cartData.amount);
-          const tolerance = cartData.amount * 0.01; // 1% tolerance
-
-          if (priceDifference <= tolerance) {
-            validatedAmount = dynamicPrice;
-            planValidationMessage = `Plan validated from database. Using dynamic pricing: ${validatedAmount}`;
-          } else {
-            planValidationMessage = `Plan found in database but using provided amount due to price mismatch. DB: ${dynamicPrice}, Provided: ${cartData.amount}`;
-          }
+          // Always use dynamic price from DB, ignore provided amount
+          validatedAmount = dynamicPrice;
+          planValidationMessage = `Plan validated from database. Using dynamic pricing: ${validatedAmount}`;
         } else {
           planValidationMessage = `Plan '${cartData.plan}' not found in database, using provided amount`;
         }
