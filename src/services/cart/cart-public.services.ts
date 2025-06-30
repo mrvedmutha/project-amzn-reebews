@@ -1,27 +1,9 @@
 import { CartModel } from "@/models/cart/cart.model";
-import { ICart } from "@/types/cart/cart.types";
+import { PlanModel } from "@/models/plan/plan.model";
+import type { ICart } from "@/types/cart/cart.types";
 import { getPlanIdByName } from "@/helpers/plan";
 import { generateSignupToken } from "@/lib/auth/token";
-
-/**
- * Calculate subscription end date based on billing cycle
- */
-const calculateSubscriptionEndDate = (
-  startDate: Date,
-  billingCycle: BillingCycle
-): Date => {
-  const endDate = new Date(startDate);
-
-  if (billingCycle === BillingCycle.YEARLY) {
-    // Add exactly 365 days for yearly plans
-    endDate.setDate(endDate.getDate() + 365);
-  } else {
-    // Add exactly 30 days for monthly plans
-    endDate.setDate(endDate.getDate() + 30);
-  }
-
-  return endDate;
-};
+import { calculateSubscriptionEndDate } from "@/lib/utils/subscription-dates";
 import {
   PaymentStatus,
   PaymentGateway,
@@ -93,7 +75,7 @@ export const cartPublicService = {
 
   /**
    * Create a new cart with embedded subscription
-   * NO signupToken generated at creation - only when payment succeeds
+   * Enhanced with Plan model validation and dynamic pricing
    */
   async createCart(cartData: {
     plan: Plan;
@@ -126,8 +108,47 @@ export const cartPublicService = {
       // Generate IDs - NO signupToken for paid plans
       const paymentId = uuidv4();
 
+      // Enhanced: Validate plan exists in database and get dynamic pricing
+      let validatedAmount = cartData.amount;
+      let planValidationMessage = "";
+
+      try {
+        const planFromDb = (await PlanModel.findOne({
+          name: cartData.plan,
+          isActive: true,
+        }).lean()) as any; // Type as any for now since we're accessing nested properties
+
+        if (planFromDb) {
+          // Use dynamic pricing from database if available
+          const dynamicPrice =
+            cartData.billingCycle === BillingCycle.MONTHLY
+              ? planFromDb.pricing.monthly[cartData.currency]
+              : planFromDb.pricing.yearly[cartData.currency];
+
+          // Only use dynamic pricing if it matches the provided amount (within 1% tolerance)
+          const priceDifference = Math.abs(dynamicPrice - cartData.amount);
+          const tolerance = cartData.amount * 0.01; // 1% tolerance
+
+          if (priceDifference <= tolerance) {
+            validatedAmount = dynamicPrice;
+            planValidationMessage = `Plan validated from database. Using dynamic pricing: ${validatedAmount}`;
+          } else {
+            planValidationMessage = `Plan found in database but using provided amount due to price mismatch. DB: ${dynamicPrice}, Provided: ${cartData.amount}`;
+          }
+        } else {
+          planValidationMessage = `Plan '${cartData.plan}' not found in database, using provided amount`;
+        }
+      } catch (error) {
+        console.warn("Plan validation failed, using provided amount:", error);
+        planValidationMessage = "Plan validation failed, using provided amount";
+      }
+
+      console.log(
+        `📋 Cart creation with plan validation: ${planValidationMessage}`
+      );
+
       // Determine if this is a free plan
-      const isFree = cartData.plan === Plan.FREE || cartData.amount === 0;
+      const isFree = cartData.plan === Plan.FREE || validatedAmount === 0;
 
       // Create cart with embedded subscription first
       const cart = await CartModel.create({
@@ -145,7 +166,7 @@ export const cartPublicService = {
           planId: getPlanIdByName(cartData.plan),
           planName: cartData.plan,
           billingCycle: cartData.billingCycle,
-          amount: cartData.amount,
+          amount: validatedAmount, // Use validated amount
           currency: cartData.currency,
           isActive: true,
           startDate: isFree ? new Date() : undefined, // Set immediately for free plans
@@ -154,7 +175,7 @@ export const cartPublicService = {
         payment: {
           id: paymentId,
           method: cartData.paymentGateway,
-          totalAmount: cartData.amount,
+          totalAmount: validatedAmount, // Use validated amount
           currency: cartData.currency,
           status: isFree ? PaymentStatus.COMPLETED : PaymentStatus.PENDING,
         },

@@ -17,6 +17,9 @@ import { useCurrency } from "./currency-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { usePlans } from "@/hooks/plans/use-plans.hook";
+import { transformToPricingPlan } from "@/utils/plan-helpers";
+import { PricingSkeleton } from "@/components/skeletons/pricing-skeleton";
 
 interface PricingPlan {
   title: string;
@@ -38,82 +41,18 @@ export function Pricing() {
   );
   const [loadingPlan, setLoadingPlan] = React.useState<string | null>(null);
   const router = useRouter();
+  const { plans, isLoading, error } = usePlans();
 
-  const pricingPlans: PricingPlan[] = [
-    {
-      title: "Free",
-      description: "Get started with the basics",
-      price: {
-        monthly: { USD: 0, INR: 0 },
-        yearly: { USD: 0, INR: 0 },
-      },
-      features: [
-        { name: "3 Products", included: true },
-        { name: "1 Campaign", included: true },
-        { name: "1 Promotion", included: true },
-        { name: "1 Marketplace", included: true },
-        { name: "10 Reviews per month", included: true },
-        { name: "Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$8" : "₹125"
-          } per product`,
-          included: true,
-        },
-      ],
-      ctaText: "Get Started",
-      ctaLink: `/checkout?plan=free`,
-    },
-    {
-      title: "Basic",
-      description: "Perfect for small sellers",
-      price: {
-        monthly: { USD: 29, INR: 499 },
-        yearly: { USD: 25, INR: 425 },
-      },
-      features: [
-        { name: "5 Products", included: true },
-        { name: "5 Campaigns", included: true },
-        { name: "5 Promotions", included: true },
-        { name: "5 Marketplaces", included: true },
-        { name: "Unlimited Reviews", included: true },
-        { name: "No Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$5" : "₹70"
-          } per product`,
-          included: true,
-        },
-      ],
-      isMostPopular: true,
-      ctaText: "Choose Basic",
-      ctaLink: `/checkout?plan=basic&billing=${billingCycle}`,
-    },
-    {
-      title: "Pro",
-      description: "For growing businesses",
-      price: {
-        monthly: { USD: 49, INR: 999 },
-        yearly: { USD: 35, INR: 699 },
-      },
-      features: [
-        { name: "25 Products", included: true },
-        { name: "25 Campaigns", included: true },
-        { name: "Unlimited Promotions", included: true },
-        { name: "10 Marketplaces", included: true },
-        { name: "Unlimited Reviews", included: true },
-        { name: "No Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$3" : "₹50"
-          } per product`,
-          included: true,
-        },
-      ],
-      ctaText: "Choose Pro",
-      ctaLink: `/checkout?plan=pro&billing=${billingCycle}`,
-    },
-    {
+  // Transform API plans to pricing component format, but keep Enterprise static
+  const pricingPlans: PricingPlan[] = React.useMemo(() => {
+    if (!plans || plans.length === 0) return [];
+
+    const apiPlans = plans.map((plan) =>
+      transformToPricingPlan(plan, currency, billingCycle)
+    );
+
+    // Add Enterprise plan (keep static as requested)
+    const enterprisePlan: PricingPlan = {
       title: "Enterprise",
       description: "Custom solutions for large sellers",
       price: {
@@ -131,8 +70,10 @@ export function Pricing() {
       ],
       ctaText: "Contact Sales",
       ctaLink: "/contact",
-    },
-  ];
+    };
+
+    return [...apiPlans, enterprisePlan];
+  }, [plans, currency, billingCycle]);
 
   const formatPrice = (plan: PricingPlan) => {
     const price = plan.price[billingCycle][currency];
@@ -141,6 +82,30 @@ export function Pricing() {
 
     return currency === "USD" ? `$${price}` : `₹${price}`;
   };
+
+  // Show loading skeleton while fetching plans
+  if (isLoading) {
+    return <PricingSkeleton />;
+  }
+
+  // Show error message if API fails
+  if (error) {
+    return (
+      <div id="pricing" className="w-full py-16 px-4 md:px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Let's Talk About <span className="text-yellow-500">Pricing</span>
+            </h2>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-red-700">Failed to load pricing plans</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="pricing" className="w-full py-16 px-4 md:px-6">

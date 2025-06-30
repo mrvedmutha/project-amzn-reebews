@@ -20,11 +20,43 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useCurrency } from "./currency-toggle";
 import { Feature } from "@/types/comparison.types";
-import { getComparisonFeatures } from "@/context/comparison-features";
+import { usePlans } from "@/hooks/plans/use-plans.hook";
+import { transformToComparisonFeatures } from "@/utils/plan-helpers";
+import { ComparisonSkeleton } from "@/components/skeletons/comparison-skeleton";
 
 export function Comparison() {
   const { currency } = useCurrency();
-  const features = getComparisonFeatures(currency);
+  const { plans, isLoading, error } = usePlans();
+
+  // Transform API plans to comparison features
+  const features = React.useMemo(() => {
+    if (!plans || plans.length === 0) return [];
+    return transformToComparisonFeatures(plans, currency);
+  }, [plans, currency]);
+
+  // Show loading skeleton while fetching plans
+  if (isLoading) {
+    return <ComparisonSkeleton />;
+  }
+
+  // Show error message if API fails
+  if (error) {
+    return (
+      <div id="comparison" className="w-full py-16 px-4 md:px-6">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              <span className="text-yellow-500">Feature</span> Comparison
+            </h2>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-red-700">Failed to load comparison data</p>
+              <p className="text-sm text-red-600 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="comparison" className="w-full py-16 px-4 md:px-6">

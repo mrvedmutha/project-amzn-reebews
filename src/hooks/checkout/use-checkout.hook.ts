@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 
 import { useCurrency } from "@/components/currency-toggle";
 import { useGeoLocation } from "@/hooks/useGeoLocation";
+import { usePlan } from "@/hooks/plans/use-plan.hook";
+import { transformToCheckoutPlanDetails } from "@/utils/plan-helpers";
 import {
   Plan,
   Currency,
@@ -54,6 +56,13 @@ export function useCheckout() {
     searchParams.get("plan") || existingCart?.subscription.planName || "basic";
   const cartId = searchParams.get("cartid");
   const paymentError = searchParams.get("error");
+
+  // Fetch plan data from API
+  const {
+    plan: apiPlan,
+    isLoading: isPlanLoading,
+    error: planError,
+  } = usePlan(plan);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(CheckoutFormZod) as any,
@@ -187,8 +196,13 @@ export function useCheckout() {
     // For non-Indian users, payment method is handled automatically (PayPal redirect)
   }, [selectedCountry, form]);
 
-  // Get plan details
+  // Get plan details from API or fallback to default
   const getPlanDetails = (): PlanDetails => {
+    if (apiPlan) {
+      return transformToCheckoutPlanDetails(apiPlan, currency, billingCycle);
+    }
+
+    // Fallback for when API data is not available yet or plan not found
     switch (plan) {
       case "free":
         return {
@@ -213,7 +227,7 @@ export function useCheckout() {
         const basicPrice =
           billingCycle === "monthly"
             ? { USD: 29.0, INR: 499.0 }
-            : { USD: 25.0 * 12, INR: 425.0 * 12 }; // Yearly price is monthly discounted price × 12
+            : { USD: 290.0, INR: 4990.0 }; // Use API yearly pricing
         return {
           name: "Basic Plan",
           price: basicPrice,
@@ -222,7 +236,7 @@ export function useCheckout() {
             "5 Products",
             "5 Campaigns",
             "5 Promotions",
-            "5 Marketplaces",
+            "3 Marketplaces",
             "Unlimited Reviews",
             "No Reebews branding",
             `Additional products at ${
@@ -237,7 +251,7 @@ export function useCheckout() {
         const proPrice =
           billingCycle === "monthly"
             ? { USD: 49.0, INR: 999.0 }
-            : { USD: 35.0 * 12, INR: 699.0 * 12 }; // Yearly price is monthly discounted price × 12
+            : { USD: 490.0, INR: 9990.0 }; // Use API yearly pricing
         return {
           name: "Pro Plan",
           price: proPrice,
@@ -245,7 +259,7 @@ export function useCheckout() {
           features: [
             "25 Products",
             "25 Campaigns",
-            "Unlimited Promotions",
+            "25 Promotions",
             "10 Marketplaces",
             "Unlimited Reviews",
             "No Reebews branding",
@@ -260,7 +274,7 @@ export function useCheckout() {
         const defaultPrice =
           billingCycle === BillingCycle.MONTHLY
             ? { USD: 29.0, INR: 499.0 }
-            : { USD: 25.0 * 12, INR: 425.0 * 12 }; // Yearly price is monthly discounted price × 12
+            : { USD: 290.0, INR: 4990.0 };
         return {
           name: "Basic Plan",
           price: defaultPrice,
@@ -269,7 +283,7 @@ export function useCheckout() {
             "5 Products",
             "5 Campaigns",
             "5 Promotions",
-            "5 Marketplaces",
+            "3 Marketplaces",
             "Unlimited Reviews",
             "No Reebews branding",
             `Additional products at ${
@@ -573,5 +587,9 @@ export function useCheckout() {
     isCartLoading,
     cartLoadError,
     paymentError,
+
+    // Plan API data
+    isPlanLoading,
+    planError,
   };
 }
