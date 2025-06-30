@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { BillingCycle } from "@/enums/checkout.enum";
 import { OrderSummaryProps } from "@/types/props/orderSummary.props";
 
-
 export function OrderSummary({
   planDetails,
   plan,
@@ -75,9 +74,13 @@ export function OrderSummary({
                 }`}
               >
                 Yearly
-                {billingCycle === BillingCycle.YEARLY && (
-                  <span className="text-xs font-bold">-30%</span>
-                )}
+                {billingCycle === BillingCycle.YEARLY &&
+                  planDetails.yearlyDiscountPercent &&
+                  planDetails.yearlyDiscountPercent > 0 && (
+                    <span className="text-xs font-bold">
+                      -{planDetails.yearlyDiscountPercent}%
+                    </span>
+                  )}
               </button>
             </div>
           </div>
@@ -93,14 +96,17 @@ export function OrderSummary({
         <div className="flex justify-between font-medium text-lg">
           <span>Total</span>
           <div className="flex flex-col items-end">
-            {showDiscount && plan !== "free" && (
-              <span className="text-sm line-through text-muted-foreground">
-                {currency === "USD"
-                  ? `$${formatPrice(originalPrice.USD)}`
-                  : `₹${formatPrice(originalPrice.INR)}`}
-                /{billingCycle === BillingCycle.MONTHLY ? "month" : "year"}
-              </span>
-            )}
+            {billingCycle === BillingCycle.YEARLY &&
+              planDetails.yearlyDiscountPercent &&
+              planDetails.yearlyDiscountPercent > 0 &&
+              showDiscount && (
+                <span className="text-sm text-muted-foreground line-through">
+                  {currency === "USD"
+                    ? `$${formatPrice(originalPrice.USD)}`
+                    : `₹${formatPrice(originalPrice.INR)}`}
+                  /{billingCycle === BillingCycle.MONTHLY ? "month" : "year"}
+                </span>
+              )}
             <span>
               {currency === "USD"
                 ? `$${formatPrice(finalPrice.USD)}`
@@ -177,4 +183,4 @@ export function OrderSummary({
       </div>
     </div>
   );
-} 
+}

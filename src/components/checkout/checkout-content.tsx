@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +56,18 @@ export function CheckoutContent() {
     cartLoadError,
     paymentError,
   } = useCheckout();
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const couponFromUrl = params.get("coupon");
+      if (couponFromUrl && !couponApplied) {
+        setCouponCode(couponFromUrl);
+        applyCoupon();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCompleteOrder = async (data: any) => {
     try {
@@ -279,50 +291,30 @@ export function CheckoutContent() {
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
                             className="flex-grow"
+                            disabled={couponApplied}
                           />
                           <Button
                             type="button"
                             onClick={applyCoupon}
-                            variant="outline"
+                            variant={couponApplied ? undefined : "outline"}
                             size="sm"
-                            className="whitespace-nowrap"
+                            className={`whitespace-nowrap ${couponApplied ? "bg-green-600 text-white border-green-600 hover:bg-green-700" : ""}`}
+                            disabled={couponApplied}
                           >
-                            Apply
+                            {couponApplied ? (
+                              <span className="flex items-center gap-1">
+                                <Check className="h-5 w-5" />
+                                Applied
+                              </span>
+                            ) : (
+                              "Apply"
+                            )}
                           </Button>
                         </div>
                         {couponError && (
                           <p className="text-sm text-red-500 mt-1">
                             {couponError}
                           </p>
-                        )}
-                        {couponApplied && couponDetails && (
-                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-md">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                                  {couponDetails.code}
-                                </p>
-                                <p className="text-xs text-green-600 dark:text-green-400">
-                                  {couponDetails.description}
-                                </p>
-                              </div>
-                              <Button
-                                type="button"
-                                onClick={removeCoupon}
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 text-xs hover:bg-green-100 dark:hover:bg-green-900"
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                              You save:{" "}
-                              {currency === "USD"
-                                ? `$${formatPrice(discountAmount.USD)}`
-                                : `₹${formatPrice(discountAmount.INR)}`}
-                            </p>
-                          </div>
                         )}
                       </div>
                     )}

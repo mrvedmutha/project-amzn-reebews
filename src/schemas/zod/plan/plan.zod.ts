@@ -50,6 +50,7 @@ export const PlanCreateZod = z.object({
     monthly: PlanPricingZod,
     yearly: PlanPricingZod,
   }),
+  yearlyDiscountPercent: z.number().min(0).max(100).default(0),
   features: PlanFeaturesZod,
   isActive: z.boolean().default(true),
   sortOrder: z.number().default(0),

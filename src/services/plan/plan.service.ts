@@ -68,7 +68,29 @@ export const planService = {
       .skip(skip)
       .limit(limit)
       .lean();
-    return plans as unknown as IPlan[];
+
+    // Calculate dynamic yearly pricing
+    const typedPlans = plans.map((plan) => {
+      const typedPlan = plan as unknown as IPlan;
+      // Always calculate yearly price dynamically, ignore stored value
+      if (typedPlan.pricing && typedPlan.pricing.monthly) {
+        const discount = typedPlan.yearlyDiscountPercent || 0;
+        typedPlan.pricing.yearly = {
+          USD: parseFloat(
+            (typedPlan.pricing.monthly.USD * 12 * (1 - discount / 100)).toFixed(
+              2
+            )
+          ),
+          INR: parseFloat(
+            (typedPlan.pricing.monthly.INR * 12 * (1 - discount / 100)).toFixed(
+              2
+            )
+          ),
+        };
+      }
+      return typedPlan;
+    });
+    return typedPlans;
   },
 
   /**
@@ -76,7 +98,26 @@ export const planService = {
    */
   async getById(id: string): Promise<IPlan | null> {
     await dbConnect();
-    const plan = await PlanModel.findById(id).lean();
+    let plan = await PlanModel.findById(id).lean();
+    if (plan && (plan as any).pricing && (plan as any).pricing.monthly) {
+      const discount = (plan as any).yearlyDiscountPercent || 0;
+      (plan as any).pricing.yearly = {
+        USD: parseFloat(
+          (
+            (plan as any).pricing.monthly.USD *
+            12 *
+            (1 - discount / 100)
+          ).toFixed(2)
+        ),
+        INR: parseFloat(
+          (
+            (plan as any).pricing.monthly.INR *
+            12 *
+            (1 - discount / 100)
+          ).toFixed(2)
+        ),
+      };
+    }
     return plan ? (plan as unknown as IPlan) : null;
   },
 
@@ -85,7 +126,26 @@ export const planService = {
    */
   async getByPlanId(planId: number): Promise<IPlan | null> {
     await dbConnect();
-    const plan = await PlanModel.findOne({ planId }).lean();
+    let plan = await PlanModel.findOne({ planId }).lean();
+    if (plan && (plan as any).pricing && (plan as any).pricing.monthly) {
+      const discount = (plan as any).yearlyDiscountPercent || 0;
+      (plan as any).pricing.yearly = {
+        USD: parseFloat(
+          (
+            (plan as any).pricing.monthly.USD *
+            12 *
+            (1 - discount / 100)
+          ).toFixed(2)
+        ),
+        INR: parseFloat(
+          (
+            (plan as any).pricing.monthly.INR *
+            12 *
+            (1 - discount / 100)
+          ).toFixed(2)
+        ),
+      };
+    }
     return plan ? (plan as unknown as IPlan) : null;
   },
 
@@ -106,7 +166,27 @@ export const planService = {
     const plans = await PlanModel.find({ isActive: true })
       .sort({ sortOrder: 1, planId: 1 })
       .lean();
-    return plans as unknown as IPlan[];
+    const typedPlans = plans.map((plan) => {
+      const typedPlan = plan as unknown as IPlan;
+      // Always calculate yearly price dynamically, ignore stored value
+      if (typedPlan.pricing && typedPlan.pricing.monthly) {
+        const discount = typedPlan.yearlyDiscountPercent || 0;
+        typedPlan.pricing.yearly = {
+          USD: parseFloat(
+            (typedPlan.pricing.monthly.USD * 12 * (1 - discount / 100)).toFixed(
+              2
+            )
+          ),
+          INR: parseFloat(
+            (typedPlan.pricing.monthly.INR * 12 * (1 - discount / 100)).toFixed(
+              2
+            )
+          ),
+        };
+      }
+      return typedPlan;
+    });
+    return typedPlans;
   },
 
   /**

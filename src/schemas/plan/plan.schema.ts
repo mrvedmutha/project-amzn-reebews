@@ -57,6 +57,13 @@ export const PlanSchema = new Schema<IPlan>(
         },
       },
     },
+    yearlyDiscountPercent: {
+      type: Number,
+      required: false,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
     features: {
       numberOfProducts: {
         type: Number,

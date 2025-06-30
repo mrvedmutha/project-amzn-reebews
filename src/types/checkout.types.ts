@@ -40,6 +40,7 @@ export interface PlanDetails {
   upgrades?: Plan[];
   downgrades?: Plan[];
   billingCycle: BillingCycle;
+  yearlyDiscountPercent?: number;
 }
 
 export interface CouponDetails {

@@ -97,6 +97,13 @@ export const cartPublicService = {
     };
     paymentGateway: PaymentGateway;
     userId?: string;
+    coupon?: {
+      code?: string;
+      type?: string;
+      value?: number;
+      discountAmount?: number;
+      affiliate?: string;
+    };
   }): Promise<{
     cartId: string;
     paymentId: string;
@@ -150,6 +157,26 @@ export const cartPublicService = {
       // Determine if this is a free plan
       const isFree = cartData.plan === Plan.FREE || validatedAmount === 0;
 
+      // Coupon calculation
+      let couponObj = undefined;
+      let finalAmount = validatedAmount;
+      if (cartData.coupon && cartData.coupon.code) {
+        let discountAmount = 0;
+        if (cartData.coupon.type === "percent" && cartData.coupon.value) {
+          discountAmount = (validatedAmount * cartData.coupon.value) / 100;
+        } else if (cartData.coupon.type === "fixed" && cartData.coupon.value) {
+          discountAmount = cartData.coupon.value;
+        }
+        finalAmount = Math.max(0, validatedAmount - discountAmount);
+        couponObj = {
+          code: cartData.coupon.code,
+          type: cartData.coupon.type,
+          value: cartData.coupon.value,
+          discountAmount,
+          affiliate: cartData.coupon.affiliate,
+        };
+      }
+
       // Create cart with embedded subscription first
       const cart = await CartModel.create({
         userId: cartData.userId,
@@ -166,7 +193,7 @@ export const cartPublicService = {
           planId: getPlanIdByName(cartData.plan),
           planName: cartData.plan,
           billingCycle: cartData.billingCycle,
-          amount: validatedAmount, // Use validated amount
+          amount: validatedAmount, // Base price before coupon
           currency: cartData.currency,
           isActive: true,
           startDate: isFree ? new Date() : undefined, // Set immediately for free plans
@@ -175,10 +202,11 @@ export const cartPublicService = {
         payment: {
           id: paymentId,
           method: cartData.paymentGateway,
-          totalAmount: validatedAmount, // Use validated amount
+          totalAmount: finalAmount, // Final price after coupon
           currency: cartData.currency,
           status: isFree ? PaymentStatus.COMPLETED : PaymentStatus.PENDING,
         },
+        coupon: couponObj,
         isSignupCompleted: false,
       });
 

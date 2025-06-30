@@ -73,8 +73,7 @@ export interface ICart {
   user: ICartUser;
   subscription: ICartSubscription; // Embedded subscription data
   payment: ICartPayment;
-  couponCode?: string;
-  discountAmount?: number;
+  coupon?: CartCouponDetails;
   signupToken?: string;
   tokenExpiry?: Date;
   isSignupCompleted: boolean;
@@ -113,4 +112,12 @@ export interface Cart extends ICart {
   expiryDate?: Date;
   status: PaymentStatus;
   tokenExpiresAt?: Date;
+}
+
+export interface CartCouponDetails {
+  code?: string;
+  type?: string;
+  value?: number;
+  discountAmount?: number;
+  affiliate?: string;
 }

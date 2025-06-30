@@ -300,7 +300,7 @@ export function useCheckout() {
   const planDetails = getPlanDetails();
 
   // Apply coupon logic
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     setCouponError("");
     setCouponDiscount(0);
     setCouponApplied(false);
@@ -311,46 +311,33 @@ export function useCheckout() {
       return;
     }
 
-    const validCoupons: Record<
-      string,
-      { discountValue: number; type: CouponType; description: string }
-    > = {
-      NEW10: {
-        discountValue: 10,
-        type: CouponType.PERCENTAGE,
-        description: "10% off for new customers",
-      },
-      WELCOME20: {
-        discountValue: 20,
-        type: CouponType.PERCENTAGE,
-        description: "20% off welcome offer",
-      },
-      FLAT50: {
-        discountValue: 50,
-        type: CouponType.AMOUNT,
-        description: `Flat ${currency === "USD" ? "$50.00" : "₹50.00"} off`,
-      },
-      SPECIAL30: {
-        discountValue: 30,
-        type: CouponType.PERCENTAGE,
-        description: "30% off special discount",
-      },
-    };
-
-    const upperCoupon = couponCode.toUpperCase();
-    if (validCoupons[upperCoupon]) {
-      const coupon = validCoupons[upperCoupon];
-      setCouponDiscount(coupon.discountValue);
-      setCouponType(coupon.type);
-      setCouponApplied(true);
-      setCouponDetails({
-        code: upperCoupon,
-        discountValue: coupon.discountValue,
-        type: coupon.type,
-        description: coupon.description,
-      });
-    } else {
-      setCouponError("Invalid coupon code");
+    try {
+      const res = await fetch(`/api/coupon?code=${couponCode.toUpperCase()}`);
+      const data = await res.json();
+      if (data.valid) {
+        setCouponDiscount(data.coupon.value);
+        setCouponType(
+          data.coupon.type === "percent"
+            ? CouponType.PERCENTAGE
+            : CouponType.AMOUNT
+        );
+        setCouponApplied(true);
+        setCouponDetails({
+          code: data.coupon.code,
+          discountValue: data.coupon.value,
+          type:
+            data.coupon.type === "percent"
+              ? CouponType.PERCENTAGE
+              : CouponType.AMOUNT,
+          description: data.coupon.affiliate
+            ? `Affiliate: ${data.coupon.affiliate}`
+            : "",
+        });
+      } else {
+        setCouponError(data.reason || "Invalid coupon code");
+      }
+    } catch (err) {
+      setCouponError("Could not validate coupon. Please try again.");
     }
   };
 

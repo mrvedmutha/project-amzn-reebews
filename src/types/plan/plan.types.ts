@@ -54,6 +54,7 @@ export interface IPlan {
   features: IPlanFeatures;
   isActive: boolean;
   sortOrder: number;
+  yearlyDiscountPercent?: number;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -202,14 +202,12 @@ export const CartSchema = new Schema<ICart>(
         index: true,
       },
     },
-    couponCode: {
-      type: String,
-      trim: true,
-      uppercase: true,
-    },
-    discountAmount: {
-      type: Number,
-      min: 0,
+    coupon: {
+      code: { type: String, trim: true, uppercase: true },
+      type: { type: String, enum: ["percent", "fixed"], trim: true },
+      value: { type: Number, min: 0 },
+      discountAmount: { type: Number, min: 0 },
+      affiliate: { type: String, trim: true },
     },
     signupToken: {
       type: String,

@@ -4,6 +4,23 @@ import { PlanDetails } from "@/types/checkout.types";
 import { Plan, BillingCycle, Currency } from "@/enums/checkout.enum";
 
 /**
+ * Rounds a price so that:
+ * - 1-4 => 5
+ * - 6-8, 0 => 9
+ */
+function roundPrice(val: number): number {
+  const intVal = Math.floor(val);
+  const lastDigit = intVal % 10;
+  if (lastDigit >= 1 && lastDigit <= 4) {
+    return intVal - lastDigit + 5;
+  } else if (lastDigit === 0 || (lastDigit >= 6 && lastDigit <= 8)) {
+    return intVal - lastDigit + 9;
+  } else {
+    return intVal;
+  }
+}
+
+/**
  * Transform API plan data to pricing component format
  */
 export function transformToPricingPlan(
@@ -18,9 +35,16 @@ export function transformToPricingPlan(
     title: plan.displayName.replace(" Plan", ""),
     description: plan.description,
     price: {
-      monthly: plan.pricing.monthly,
-      yearly: plan.pricing.yearly,
+      monthly: {
+        USD: roundPrice(plan.pricing.monthly.USD),
+        INR: roundPrice(plan.pricing.monthly.INR),
+      },
+      yearly: {
+        USD: roundPrice(plan.pricing.yearly.USD),
+        INR: roundPrice(plan.pricing.yearly.INR),
+      },
     },
+    yearlyDiscountPercent: plan.yearlyDiscountPercent,
     features: [
       {
         name: `${plan.features.numberOfProducts} Product${plan.features.numberOfProducts !== 1 ? "s" : ""}`,
@@ -127,12 +151,16 @@ export function transformToCheckoutPlanDetails(
 
   return {
     name: plan.displayName,
-    price,
+    price: {
+      USD: roundPrice(price.USD),
+      INR: roundPrice(price.INR),
+    },
     description: plan.description,
     features,
     upgrades,
     downgrades,
     billingCycle,
+    yearlyDiscountPercent: plan.yearlyDiscountPercent,
   };
 }
 

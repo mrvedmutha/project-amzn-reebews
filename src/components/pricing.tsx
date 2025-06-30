@@ -32,6 +32,7 @@ interface PricingPlan {
   isMostPopular?: boolean;
   ctaText: string;
   ctaLink: string;
+  yearlyDiscountPercent?: number;
 }
 
 export function Pricing() {
@@ -146,9 +147,22 @@ export function Pricing() {
                 }`}
               >
                 Yearly
-                <span className="text-xs text-yellow-500 font-bold">
-                  Save up to 30%
-                </span>
+                {billingCycle === "yearly" &&
+                  pricingPlans.some(
+                    (plan) =>
+                      plan.yearlyDiscountPercent &&
+                      plan.yearlyDiscountPercent > 0
+                  ) && (
+                    <span className="text-xs text-yellow-500 font-bold">
+                      Save{" "}
+                      {Math.max(
+                        ...pricingPlans.map(
+                          (plan) => plan.yearlyDiscountPercent || 0
+                        )
+                      )}
+                      %
+                    </span>
+                  )}
               </Label>
             </div>
           </div>
@@ -173,18 +187,36 @@ export function Pricing() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="mb-4">
-                  <span className="text-4xl font-bold">
-                    {formatPrice(plan)}
-                  </span>
-                  {plan.price[billingCycle][currency] > 0 && (
-                    <span className="text-sm">/month</span>
-                  )}
-                  {plan.price[billingCycle][currency] > 0 &&
-                    billingCycle === "yearly" && (
+                  {billingCycle === "yearly" &&
+                  plan.yearlyDiscountPercent &&
+                  plan.yearlyDiscountPercent > 0 ? (
+                    <>
+                      <span className="text-4xl font-bold">
+                        {currency === "USD"
+                          ? `$${(plan.price.yearly.USD / 12).toFixed(0)}`
+                          : `₹${(plan.price.yearly.INR / 12).toFixed(0)}`}
+                      </span>
+                      <span className="text-sm">/month</span>
                       <div className="text-xs text-muted-foreground mt-1">
                         billed yearly
                       </div>
-                    )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold">
+                        {formatPrice(plan)}
+                      </span>
+                      {plan.price[billingCycle][currency] > 0 && (
+                        <span className="text-sm">/month</span>
+                      )}
+                      {plan.price[billingCycle][currency] > 0 &&
+                        billingCycle === "yearly" && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            billed yearly
+                          </div>
+                        )}
+                    </>
+                  )}
                 </div>
                 <ul className="space-y-2">
                   {plan.features.map((feature, i) => (
