@@ -482,7 +482,9 @@ export function useCheckout() {
       setIsSubmitting(true);
       const isIndianUser = selectedCountry === "India";
       const currency = isIndianUser ? "INR" : "USD";
-      const amount = isIndianUser ? finalPrice.INR : finalPrice.USD;
+      const amount = isIndianUser
+        ? planDetails.price.INR
+        : planDetails.price.USD;
 
       // Map form data to new cart structure
       const userDetails = {
@@ -511,6 +513,15 @@ export function useCheckout() {
           userDetails,
           paymentGateway: isIndianUser ? "razorpay" : "paypal",
           billingCycle,
+          coupon:
+            couponApplied && couponDetails
+              ? {
+                  code: couponDetails.code,
+                  type:
+                    couponDetails.type === "percentage" ? "percent" : "fixed",
+                  value: couponDetails.discountValue,
+                }
+              : undefined,
         }),
       });
       if (!response.ok) {

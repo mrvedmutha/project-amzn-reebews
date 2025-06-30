@@ -96,15 +96,14 @@ export function OrderSummary({
         <div className="flex justify-between font-medium text-lg">
           <span>Total</span>
           <div className="flex flex-col items-end">
-            {billingCycle === BillingCycle.YEARLY &&
-              planDetails.yearlyDiscountPercent &&
-              planDetails.yearlyDiscountPercent > 0 &&
-              showDiscount && (
+            {showDiscount &&
+              (originalPrice.USD > finalPrice.USD ||
+                originalPrice.INR > finalPrice.INR) && (
                 <span className="text-sm text-muted-foreground line-through">
                   {currency === "USD"
                     ? `$${formatPrice(originalPrice.USD)}`
                     : `₹${formatPrice(originalPrice.INR)}`}
-                  /year
+                  /{billingCycle === BillingCycle.MONTHLY ? "month" : "year"}
                 </span>
               )}
             <span>
