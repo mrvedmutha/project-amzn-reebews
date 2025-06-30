@@ -501,6 +501,11 @@ export function useCheckout() {
         gstNumber: formData.gstNumber,
       };
 
+      const basePrice = isIndianUser
+        ? getOriginalPrice().INR
+        : getOriginalPrice().USD;
+      const discountedPrice = isIndianUser ? finalPrice.INR : finalPrice.USD;
+
       const response = await fetch("/api/cart/create", {
         method: "POST",
         headers: {
@@ -509,7 +514,8 @@ export function useCheckout() {
         body: JSON.stringify({
           plan,
           currency,
-          amount,
+          amount: basePrice,
+          totalAmount: discountedPrice,
           userDetails,
           paymentGateway: isIndianUser ? "razorpay" : "paypal",
           billingCycle,
@@ -520,6 +526,7 @@ export function useCheckout() {
                   type:
                     couponDetails.type === "percentage" ? "percent" : "fixed",
                   value: couponDetails.discountValue,
+                  affiliate: couponDetails.affiliate || undefined,
                 }
               : undefined,
         }),

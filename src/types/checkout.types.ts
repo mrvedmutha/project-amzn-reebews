@@ -48,6 +48,7 @@ export interface CouponDetails {
   discountValue: number;
   type: CouponType;
   description: string;
+  affiliate?: string;
 }
 
 // Re-export enums for convenience

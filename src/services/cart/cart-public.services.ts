@@ -81,6 +81,7 @@ export const cartPublicService = {
     plan: Plan;
     billingCycle: BillingCycle;
     amount: number;
+    totalAmount?: number;
     currency: Currency;
     userDetails: {
       name: string;
@@ -152,7 +153,10 @@ export const cartPublicService = {
 
       // Coupon calculation
       let couponObj = undefined;
-      let finalAmount = validatedAmount;
+      let finalAmount =
+        typeof cartData.totalAmount === "number"
+          ? cartData.totalAmount
+          : validatedAmount;
       if (cartData.coupon && cartData.coupon.code) {
         let discountAmount = 0;
         if (cartData.coupon.type === "percent" && cartData.coupon.value) {
@@ -160,7 +164,10 @@ export const cartPublicService = {
         } else if (cartData.coupon.type === "fixed" && cartData.coupon.value) {
           discountAmount = cartData.coupon.value;
         }
-        finalAmount = Math.max(0, validatedAmount - discountAmount);
+        // Only override finalAmount if totalAmount is not provided
+        if (typeof cartData.totalAmount !== "number") {
+          finalAmount = Math.max(0, validatedAmount - discountAmount);
+        }
         couponObj = {
           code: cartData.coupon.code,
           type: cartData.coupon.type,
@@ -195,7 +202,7 @@ export const cartPublicService = {
         payment: {
           id: paymentId,
           method: cartData.paymentGateway,
-          totalAmount: finalAmount, // Final price after coupon
+          totalAmount: finalAmount, // Final price after coupon (from frontend if provided)
           currency: cartData.currency,
           status: isFree ? PaymentStatus.COMPLETED : PaymentStatus.PENDING,
         },

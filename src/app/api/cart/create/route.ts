@@ -15,10 +15,12 @@ export async function POST(req: Request) {
       plan,
       currency,
       amount,
+      totalAmount,
       userDetails,
       paymentGateway,
       billingCycle,
       userId,
+      coupon,
     } = body;
 
     // Validate required fields
@@ -46,10 +48,12 @@ export async function POST(req: Request) {
       plan: plan as Plan,
       billingCycle: billingCycle || BillingCycle.MONTHLY,
       amount,
+      totalAmount,
       currency: currency as Currency,
       userDetails,
       paymentGateway: paymentGateway as PaymentGateway,
       userId,
+      coupon,
     });
 
     // For free plans, send welcome email immediately since they don't go through payment flow
