@@ -104,7 +104,7 @@ export function OrderSummary({
                   {currency === "USD"
                     ? `$${formatPrice(originalPrice.USD)}`
                     : `₹${formatPrice(originalPrice.INR)}`}
-                  /{billingCycle === BillingCycle.MONTHLY ? "month" : "year"}
+                  /year
                 </span>
               )}
             <span>
