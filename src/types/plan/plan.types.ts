@@ -57,15 +57,3 @@ export interface IPlan {
   createdAt: Date;
   updatedAt: Date;
 }
-
-/**
- * Plan creation interface (excludes auto-generated fields)
- */
-export interface IPlanCreate
-  extends Omit<IPlan, "_id" | "createdAt" | "updatedAt"> {}
-
-/**
- * Plan update interface (partial for updates)
- */
-export interface IPlanUpdate
-  extends Partial<Omit<IPlan, "_id" | "planId" | "createdAt" | "updatedAt">> {}

@@ -1,6 +1,11 @@
 import { PlanModel } from "@/models/plan/plan.model";
-import { PlanCreateZod, PlanUpdateZod } from "@/schemas/zod/plan/plan.zod";
-import type { IPlan, IPlanCreate, IPlanUpdate } from "@/types/plan/plan.types";
+import {
+  PlanCreateZod,
+  PlanUpdateZod,
+  PlanCreateType,
+  PlanUpdateType,
+} from "@/schemas/zod/plan/plan.zod";
+import type { IPlan } from "@/types/plan/plan.types";
 import { Plan } from "@/enums/checkout.enum";
 import { dbConnect } from "@/lib/database/db";
 
@@ -8,7 +13,7 @@ export const planService = {
   /**
    * Create a new plan
    */
-  async create(data: IPlanCreate): Promise<IPlan> {
+  async create(data: PlanCreateType): Promise<IPlan> {
     await dbConnect();
 
     // Validate input using Zod schema
@@ -47,7 +52,7 @@ export const planService = {
   ): Promise<IPlan[]> {
     await dbConnect();
 
-    let query: any = {};
+    const query: any = {};
 
     // Apply filters
     if (filters.isActive !== undefined) {
@@ -107,7 +112,7 @@ export const planService = {
   /**
    * Update plan by ID
    */
-  async updateById(id: string, data: IPlanUpdate): Promise<IPlan | null> {
+  async updateById(id: string, data: PlanUpdateType): Promise<IPlan | null> {
     await dbConnect();
 
     // Use partial validation for updates
@@ -141,7 +146,7 @@ export const planService = {
    */
   async updateByPlanId(
     planId: number,
-    data: IPlanUpdate
+    data: PlanUpdateType
   ): Promise<IPlan | null> {
     await dbConnect();
 
@@ -198,7 +203,7 @@ export const planService = {
   async getCount(filters: { isActive?: boolean } = {}): Promise<number> {
     await dbConnect();
 
-    let query: any = {};
+    const query: any = {};
     if (filters.isActive !== undefined) {
       query.isActive = filters.isActive;
     }
