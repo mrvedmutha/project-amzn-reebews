@@ -11,15 +11,9 @@ import {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const {
-      plan,
-      currency,
-      amount,
-      userDetails,
-      paymentGateway,
-      billingCycle,
-      userId,
-    } = body;
+    const { plan, currency, amount, userDetails, paymentGateway, userId } =
+      body;
+    const billingCycle = body.billingCycle || BillingCycle.MONTHLY;
 
     // Validate required fields
     if (!userDetails?.name || !userDetails?.email || !userDetails?.address) {
@@ -44,7 +38,7 @@ export async function POST(req: Request) {
     // Create cart using service
     const result = await cartPublicService.createCart({
       plan: plan as Plan,
-      billingCycle: billingCycle || BillingCycle.MONTHLY,
+      billingCycle,
       amount,
       currency: currency as Currency,
       userDetails,
@@ -72,10 +66,10 @@ export async function POST(req: Request) {
             cartWithSubscription.user.name,
             result.signupToken, // Use signupToken from creation result
             {
-              plan: cartWithSubscription.subscription.planName || plan, // Fallback to request plan
+              plan: plan, // Use the plan from the request
               amount: cartWithSubscription.payment.totalAmount,
               currency: cartWithSubscription.payment.currency,
-              billingCycle: billingCycle || BillingCycle.MONTHLY, // Use billingCycle from request
+              billingCycle: cartWithSubscription.billingCycle, // Use billingCycle from cart
             }
           );
 

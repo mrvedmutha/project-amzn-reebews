@@ -2,6 +2,16 @@ import { CartModel } from "@/models/cart/cart.model";
 import { ICart } from "@/types/cart/cart.types";
 import { getPlanIdByName } from "@/helpers/plan";
 import { generateSignupToken } from "@/lib/auth/token";
+import { PlanModel } from "@/models/plan/plan.model";
+import {
+  PaymentStatus,
+  PaymentGateway,
+  Plan,
+  BillingCycle,
+  Currency,
+} from "@/enums/checkout.enum";
+import { dbConnect } from "@/lib/database/db";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Calculate subscription end date based on billing cycle
@@ -22,15 +32,6 @@ const calculateSubscriptionEndDate = (
 
   return endDate;
 };
-import {
-  PaymentStatus,
-  PaymentGateway,
-  Plan,
-  BillingCycle,
-  Currency,
-} from "@/enums/checkout.enum";
-import { dbConnect } from "@/lib/database/db";
-import { v4 as uuidv4 } from "uuid";
 
 export const cartPublicService = {
   /**
@@ -129,6 +130,13 @@ export const cartPublicService = {
       // Determine if this is a free plan
       const isFree = cartData.plan === Plan.FREE || cartData.amount === 0;
 
+      // Fetch the plan document to get the correct price
+      const planDoc = await PlanModel.findOne({ name: cartData.plan });
+      if (!planDoc) throw new Error("Plan not found");
+      const planAmount =
+        planDoc.pricing[cartData.billingCycle][cartData.currency];
+      const planCurrency = cartData.currency;
+
       // Create cart with embedded subscription first
       const cart = await CartModel.create({
         userId: cartData.userId,
@@ -142,15 +150,14 @@ export const cartPublicService = {
           },
         },
         subscription: {
-          planId: getPlanIdByName(cartData.plan),
-          planName: cartData.plan,
-          billingCycle: cartData.billingCycle,
-          amount: cartData.amount,
-          currency: cartData.currency,
+          plan: planDoc._id,
+          planAmount,
+          planCurrency,
           isActive: true,
           startDate: isFree ? new Date() : undefined, // Set immediately for free plans
           endDate: isFree ? null : undefined, // Free plans never expire
         },
+        billingCycle: cartData.billingCycle,
         payment: {
           id: paymentId,
           method: cartData.paymentGateway,

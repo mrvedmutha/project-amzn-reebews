@@ -7,6 +7,8 @@ import {
   Plan,
   BillingCycle,
 } from "@/enums/checkout.enum";
+import { IPlan } from "@/types/plan/plan.types";
+import { ICoupon } from "@/types/coupon.types";
 
 /**
  * User address interface
@@ -54,11 +56,9 @@ export interface ICartPayment {
  * Subscription details embedded in cart
  */
 export interface ICartSubscription {
-  planId: number; // 0 = free, 1 = basic, 2 = pro, 3 = enterprise
-  planName: Plan;
-  billingCycle: BillingCycle;
-  amount: number;
-  currency: Currency;
+  plan: Types.ObjectId | IPlan; // Reference to Plan
+  planAmount: number; // Base plan price at checkout
+  planCurrency: Currency; // Currency of the plan price
   isActive: boolean;
   startDate?: Date;
   endDate?: Date | null; // null for free plans that never expire
@@ -72,8 +72,9 @@ export interface ICart {
   userId?: Types.ObjectId;
   user: ICartUser;
   subscription: ICartSubscription; // Embedded subscription data
+  billingCycle: BillingCycle;
   payment: ICartPayment;
-  couponCode?: string;
+  coupon?: Types.ObjectId | ICoupon;
   discountAmount?: number;
   signupToken?: string;
   tokenExpiry?: Date;

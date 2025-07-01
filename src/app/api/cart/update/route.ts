@@ -64,10 +64,10 @@ export async function PATCH(req: NextRequest) {
           updatedCart.user.name,
           updatedCart.signupToken, // Use the saved signupToken
           {
-            plan: updatedCart.subscription.planName,
+            plan: String(updatedCart.subscription.plan), // Convert to string for email
             amount: updatedCart.payment.totalAmount,
             currency: updatedCart.payment.currency,
-            billingCycle: updatedCart.subscription.billingCycle,
+            billingCycle: updatedCart.billingCycle,
           }
         );
 
@@ -98,14 +98,14 @@ export async function PATCH(req: NextRequest) {
         );
       }
     } else {
-      const skipReason = !isNowCompleted 
-        ? "payment not completed" 
-        : wasAlreadyCompleted 
-        ? "payment was already completed"
-        : !updatedCart.signupToken
-        ? "no signupToken generated"
-        : "unknown";
-      
+      const skipReason = !isNowCompleted
+        ? "payment not completed"
+        : wasAlreadyCompleted
+          ? "payment was already completed"
+          : !updatedCart.signupToken
+            ? "no signupToken generated"
+            : "unknown";
+
       console.log(
         `⏭️ Skipping email: isNowCompleted=${isNowCompleted}, wasAlreadyCompleted=${wasAlreadyCompleted}, hasSignupToken=${!!updatedCart.signupToken}, reason=${skipReason}`
       );

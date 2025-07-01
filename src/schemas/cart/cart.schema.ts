@@ -80,28 +80,17 @@ export const CartSchema = new Schema<ICart>(
       },
     },
     subscription: {
-      planId: {
-        type: Number,
+      plan: {
+        type: Types.ObjectId,
+        ref: "Plan",
         required: true,
-        min: 0,
-        max: 3,
       },
-      planName: {
-        type: String,
-        required: true,
-        enum: Object.values(Plan),
-      },
-      billingCycle: {
-        type: String,
-        required: true,
-        enum: Object.values(BillingCycle),
-      },
-      amount: {
+      planAmount: {
         type: Number,
         required: true,
         min: 0,
       },
-      currency: {
+      planCurrency: {
         type: String,
         required: true,
         enum: Object.values(Currency),
@@ -144,26 +133,17 @@ export const CartSchema = new Schema<ICart>(
               return false;
             }
 
-            // Free plans (planId 0) should have null endDate
-            if (this.planId === 0 && value !== null) {
-              return false;
-            }
-
-            // Paid plans should have endDate set after payment completion
-            if (
-              this.planId > 0 &&
-              this.parent().payment?.status === "completed" &&
-              value === null
-            ) {
-              return false;
-            }
-
             return true;
           },
           message:
             "End date must be after start date, null for free plans, and set for paid plans after completion",
         },
       },
+    },
+    billingCycle: {
+      type: String,
+      required: true,
+      enum: Object.values(BillingCycle),
     },
     payment: {
       id: {
@@ -202,10 +182,9 @@ export const CartSchema = new Schema<ICart>(
         index: true,
       },
     },
-    couponCode: {
-      type: String,
-      trim: true,
-      uppercase: true,
+    coupon: {
+      type: Types.ObjectId,
+      ref: "Coupon",
     },
     discountAmount: {
       type: Number,
