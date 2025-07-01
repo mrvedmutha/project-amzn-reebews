@@ -1,8 +1,8 @@
 import mongoose, { Model, Document } from "mongoose";
-import CouponSchema from "../schemas/coupon.schema";
+import CouponSchema from "../../schemas/coupon/coupon.schema";
 import { ICoupon } from "@/types/coupon.types";
 
-export interface ICouponDocument extends ICoupon, Document {}
+export interface ICouponDocument extends Omit<ICoupon, "id">, Document {}
 
 const Coupon: Model<ICouponDocument> =
   mongoose.models.Coupon ||
