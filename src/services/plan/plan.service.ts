@@ -53,4 +53,20 @@ export const PlanService = {
       throw new Error("Could not create plan.");
     }
   },
+
+  /**
+   * Retrieves a subscription plan by its ID from the database.
+   * @param id - The ID of the plan to retrieve.
+   * @returns A promise that resolves to the plan, or null if not found.
+   */
+  async getPlanById(id: string): Promise<IPlan | null> {
+    try {
+      await dbConnect();
+      const plan = await PlanModel.findById(id).lean();
+      return plan as IPlan | null;
+    } catch (error) {
+      console.error("Error fetching plan by ID:", error);
+      throw new Error("Could not retrieve plan by ID.");
+    }
+  },
 };
