@@ -286,7 +286,7 @@ export function useCheckout() {
   const planDetails = getPlanDetails();
 
   // Apply coupon logic
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     setCouponError("");
     setCouponDiscount(0);
     setCouponApplied(false);
@@ -297,46 +297,31 @@ export function useCheckout() {
       return;
     }
 
-    const validCoupons: Record<
-      string,
-      { discountValue: number; type: CouponType; description: string }
-    > = {
-      NEW10: {
-        discountValue: 10,
-        type: CouponType.PERCENTAGE,
-        description: "10% off for new customers",
-      },
-      WELCOME20: {
-        discountValue: 20,
-        type: CouponType.PERCENTAGE,
-        description: "20% off welcome offer",
-      },
-      FLAT50: {
-        discountValue: 50,
-        type: CouponType.AMOUNT,
-        description: `Flat ${currency === "USD" ? "$50.00" : "₹50.00"} off`,
-      },
-      SPECIAL30: {
-        discountValue: 30,
-        type: CouponType.PERCENTAGE,
-        description: "30% off special discount",
-      },
-    };
-
-    const upperCoupon = couponCode.toUpperCase();
-    if (validCoupons[upperCoupon]) {
-      const coupon = validCoupons[upperCoupon];
+    try {
+      const response = await fetch(`/api/coupons/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: couponCode.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        setCouponError(data.error || "Invalid coupon code");
+        return;
+      }
+      const coupon = data.coupon;
       setCouponDiscount(coupon.discountValue);
       setCouponType(coupon.type);
       setCouponApplied(true);
       setCouponDetails({
-        code: upperCoupon,
+        code: coupon.code,
         discountValue: coupon.discountValue,
         type: coupon.type,
         description: coupon.description,
       });
-    } else {
-      setCouponError("Invalid coupon code");
+    } catch (error: any) {
+      setCouponError("Failed to validate coupon. Please try again.");
     }
   };
 
@@ -345,25 +330,29 @@ export function useCheckout() {
     if (plan === "free") return { USD: 0.0, INR: 0.0 };
 
     const basePrice = planDetails.price;
-    if (!couponApplied) return basePrice;
-
-    if (couponType === "percentage") {
+    let result: { USD: number; INR: number };
+    if (!couponApplied) {
+      result = basePrice;
+    } else if (couponType === "percentage") {
       const discountMultiplier = (100 - couponDiscount) / 100;
-      return {
-        USD: parseFloat((basePrice.USD * discountMultiplier).toFixed(2)),
-        INR: parseFloat((basePrice.INR * discountMultiplier).toFixed(2)),
+      result = {
+        USD: basePrice.USD * discountMultiplier,
+        INR: basePrice.INR * discountMultiplier,
       };
     } else {
-      return {
-        USD: parseFloat(Math.max(0, basePrice.USD - couponDiscount).toFixed(2)),
-        INR: parseFloat(
-          Math.max(
-            0,
-            basePrice.INR - couponDiscount * (currency === "USD" ? 15 : 1)
-          ).toFixed(2)
+      result = {
+        USD: Math.max(0, basePrice.USD - couponDiscount),
+        INR: Math.max(
+          0,
+          basePrice.INR - couponDiscount * (currency === "USD" ? 15 : 1)
         ),
       };
     }
+    // Simple rounding to nearest integer
+    return {
+      USD: Math.round(result.USD),
+      INR: Math.round(result.INR),
+    };
   };
 
   // Get original price for comparison

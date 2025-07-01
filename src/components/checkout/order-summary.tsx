@@ -12,18 +12,33 @@ import { IPlan } from "@/types/plan/plan.types";
 import { useCurrency } from "../currency-toggle"; // Assuming path
 import { OrderSummarySkeleton } from "./order-summary-skeleton";
 
-export function OrderSummary() {
+export function OrderSummary({
+  finalPrice: propFinalPrice,
+  originalPrice: propOriginalPrice,
+  discountAmount: propDiscountAmount,
+  showDiscount: propShowDiscount,
+  currency: propCurrency,
+  billingCycle: propBillingCycle,
+  planName: propPlanName,
+}: {
+  finalPrice?: { USD: number; INR: number };
+  originalPrice?: { USD: number; INR: number };
+  discountAmount?: { USD: number; INR: number };
+  showDiscount?: boolean;
+  currency?: string;
+  billingCycle?: string;
+  planName?: string;
+} = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { currency } = useCurrency();
+  const { currency: contextCurrency } = useCurrency();
 
-  // Component state from URL
-  const planName = searchParams.get("plan") || "basic";
+  // Use props if provided, otherwise fallback to context/searchParams
+  const planName = propPlanName || searchParams.get("plan") || "basic";
   const initialBillingCycle =
     (searchParams.get("billing") as BillingCycle) || BillingCycle.MONTHLY;
-
-  const [billingCycle, setBillingCycle] =
-    React.useState<BillingCycle>(initialBillingCycle);
+  const billingCycle = propBillingCycle || initialBillingCycle;
+  const currency = propCurrency || contextCurrency;
 
   // Fetch all active plans
   const {
@@ -46,9 +61,22 @@ export function OrderSummary() {
     [plans, planName]
   );
 
-  // Calculate all prices dynamically
+  // Calculate all prices dynamically, but use props if provided
   const { finalPrice, originalPrice, discountAmount, showDiscount } =
     React.useMemo(() => {
+      if (
+        propFinalPrice &&
+        propOriginalPrice &&
+        propDiscountAmount &&
+        typeof propShowDiscount === "boolean"
+      ) {
+        return {
+          finalPrice: propFinalPrice,
+          originalPrice: propOriginalPrice,
+          discountAmount: propDiscountAmount,
+          showDiscount: propShowDiscount,
+        };
+      }
       if (!currentPlan)
         return {
           finalPrice: { USD: 0, INR: 0 },
@@ -56,7 +84,6 @@ export function OrderSummary() {
           discountAmount: { USD: 0, INR: 0 },
           showDiscount: false,
         };
-
       const isYearly = billingCycle === BillingCycle.YEARLY;
       const price = isYearly
         ? currentPlan.pricing.yearly
@@ -65,7 +92,6 @@ export function OrderSummary() {
       const original = { ...price };
       let discount = { USD: 0, INR: 0 };
       let show = false;
-
       if (isYearly && currentPlan.yearlyDiscountPercent) {
         const discountPercent = currentPlan.yearlyDiscountPercent / 100;
         final.USD = Math.round(price.USD * (1 - discountPercent));
@@ -76,18 +102,23 @@ export function OrderSummary() {
         };
         show = true;
       }
-
       return {
         finalPrice: final,
         originalPrice: original,
         discountAmount: discount,
         showDiscount: show,
       };
-    }, [currentPlan, billingCycle]);
+    }, [
+      propFinalPrice,
+      propOriginalPrice,
+      propDiscountAmount,
+      propShowDiscount,
+      currentPlan,
+      billingCycle,
+    ]);
 
   // Handle billing cycle changes and update URL
   const handleSetBillingCycle = (cycle: BillingCycle) => {
-    setBillingCycle(cycle);
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set("billing", cycle);
     router.replace(`/checkout?${newParams.toString()}`);
@@ -144,12 +175,6 @@ export function OrderSummary() {
                 }`}
               >
                 Yearly
-                {billingCycle === BillingCycle.YEARLY &&
-                  currentPlan.yearlyDiscountPercent && (
-                    <span className="text-xs font-bold">
-                      -{currentPlan.yearlyDiscountPercent}%
-                    </span>
-                  )}
               </button>
             </div>
           </div>
@@ -177,6 +202,21 @@ export function OrderSummary() {
                 {currency === "USD"
                   ? `$${discountAmount.USD}`
                   : `₹${discountAmount.INR}`}
+                {(() => {
+                  let percent = 0;
+                  if (originalPrice && finalPrice) {
+                    const orig =
+                      currency === "USD"
+                        ? originalPrice.USD
+                        : originalPrice.INR;
+                    const fin =
+                      currency === "USD" ? finalPrice.USD : finalPrice.INR;
+                    if (orig > 0) {
+                      percent = Math.round(((orig - fin) / orig) * 100);
+                    }
+                  }
+                  return percent > 0 ? ` (${percent}%)` : null;
+                })()}
               </span>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,7 @@ import { Plan } from "@/enums/checkout.enum";
 export function CheckoutContent() {
   const paymentFormRef = React.useRef<PaymentFormRef>(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isValidatingCoupon, setIsValidatingCoupon] = React.useState(false);
 
   const {
     form,
@@ -147,6 +148,13 @@ export function CheckoutContent() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Wrap applyCoupon to handle loading state
+  const handleApplyCoupon = async () => {
+    setIsValidatingCoupon(true);
+    await applyCoupon();
+    setIsValidatingCoupon(false);
   };
 
   return (
@@ -279,15 +287,26 @@ export function CheckoutContent() {
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
                             className="flex-grow"
+                            disabled={couponApplied || isValidatingCoupon}
                           />
                           <Button
                             type="button"
-                            onClick={applyCoupon}
+                            onClick={handleApplyCoupon}
                             variant="outline"
                             size="sm"
-                            className="whitespace-nowrap"
+                            className={`whitespace-nowrap ${couponApplied ? "bg-green-500 text-white hover:bg-green-600 cursor-default" : ""}`}
+                            disabled={couponApplied || isValidatingCoupon}
                           >
-                            Apply
+                            {isValidatingCoupon ? (
+                              "Please wait..."
+                            ) : couponApplied ? (
+                              <span className="flex items-center gap-1">
+                                <Check className="w-4 h-4" />
+                                Applied
+                              </span>
+                            ) : (
+                              "Apply"
+                            )}
                           </Button>
                         </div>
                         {couponError && (
@@ -348,7 +367,15 @@ export function CheckoutContent() {
 
             {/* Order Summary Sidebar */}
             <div className="lg:col-span-1">
-              <OrderSummary />
+              <OrderSummary
+                finalPrice={finalPrice}
+                originalPrice={originalPrice}
+                discountAmount={discountAmount}
+                showDiscount={showDiscount}
+                currency={currency}
+                billingCycle={billingCycle}
+                planName={plan}
+              />
             </div>
           </div>
         </div>
