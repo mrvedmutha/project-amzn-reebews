@@ -42,7 +42,9 @@ export async function dbConnect() {
 
   try {
     cached.conn = await cached.promise;
+    console.log("✅ MongoDB connected successfully!");
   } catch (e) {
+    console.error("❌ MongoDB connection error:", e);
     cached.promise = null;
     throw e;
   }

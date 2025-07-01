@@ -1,4 +1,4 @@
-import { connectToDB } from "@/lib/db";
+import { dbConnect } from "@/lib/database/db";
 import { PlanModel } from "@/models/plan/plan.model";
 import { IPlan } from "@/types/plan/plan.types";
 
@@ -12,7 +12,7 @@ export const PlanService = {
    */
   async getAllPlans(): Promise<IPlan[]> {
     try {
-      await connectToDB();
+      await dbConnect();
       const plans = await PlanModel.find({}).sort({ sortOrder: "asc" }).lean();
       return plans as IPlan[];
     } catch (error) {
@@ -27,7 +27,7 @@ export const PlanService = {
    */
   async getActivePlans(): Promise<IPlan[]> {
     try {
-      await connectToDB();
+      await dbConnect();
       const activePlans = await PlanModel.find({ isActive: true })
         .sort({ sortOrder: "asc" })
         .lean();
@@ -45,7 +45,7 @@ export const PlanService = {
    */
   async createPlan(planData: Omit<IPlan, "_id">): Promise<IPlan> {
     try {
-      await connectToDB();
+      await dbConnect();
       const newPlan = await PlanModel.create(planData);
       return newPlan.toObject() as IPlan;
     } catch (error) {

@@ -50,23 +50,6 @@ export function Pricing() {
     fetchPlans();
   }, []);
 
-  const formatPrice = (plan: IPlan) => {
-    // Always calculate the effective monthly price from the yearly total
-    // to ensure the display is consistent regardless of the toggle.
-    const price =
-      plan.name === "free" || plan.name === "enterprise"
-        ? plan.pricing.monthly[currency]
-        : plan.pricing.yearly[currency] / 12;
-
-    if (plan.name === "enterprise") return "Custom";
-    if (price === 0) return "Free";
-
-    const formattedPrice =
-      currency === "USD" ? `$${price.toFixed(0)}` : `₹${price.toFixed(0)}`;
-
-    return formattedPrice;
-  };
-
   const getPlanFeatures = (plan: IPlan) => {
     const { features } = plan;
     const featureList = [
@@ -207,20 +190,56 @@ export function Pricing() {
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <div className="mb-4">
-                      <span className="text-4xl font-bold">
-                        {formatPrice(plan)}
-                      </span>
-                      {plan.pricing.monthly[currency] > 0 &&
-                        plan.name !== "enterprise" && (
-                          <span className="text-sm">/month</span>
-                        )}
-                      {billingCycle === "yearly" &&
-                        plan.name !== "free" &&
-                        plan.name !== "enterprise" && (
-                          <div className="text-xs text-muted-foreground mt-1">
-                            billed yearly
-                          </div>
-                        )}
+                      {billingCycle === "monthly" && (
+                        <>
+                          <span className="text-4xl font-bold">
+                            {plan.name === "enterprise"
+                              ? "Custom"
+                              : plan.pricing.monthly[currency] === 0
+                                ? "Free"
+                                : currency === "USD"
+                                  ? `$${plan.pricing.monthly.USD}`
+                                  : `₹${plan.pricing.monthly.INR}`}
+                          </span>
+                          {plan.pricing.monthly[currency] > 0 &&
+                            plan.name !== "enterprise" && (
+                              <span className="text-sm">/month</span>
+                            )}
+                        </>
+                      )}
+                      {billingCycle === "yearly" && (
+                        <>
+                          <span className="text-4xl font-bold">
+                            {plan.name === "enterprise"
+                              ? "Custom"
+                              : plan.pricing.yearly[currency] === 0
+                                ? "Free"
+                                : (() => {
+                                    const discountedYearlyPrice =
+                                      plan.yearlyDiscountPercent
+                                        ? plan.pricing.yearly[currency] *
+                                          (1 - plan.yearlyDiscountPercent / 100)
+                                        : plan.pricing.yearly[currency];
+                                    const effectiveMonthlyPrice = Math.round(
+                                      discountedYearlyPrice / 12
+                                    );
+                                    return currency === "USD"
+                                      ? `$${effectiveMonthlyPrice}`
+                                      : `₹${effectiveMonthlyPrice}`;
+                                  })()}
+                          </span>
+                          {plan.pricing.yearly[currency] > 0 &&
+                            plan.name !== "enterprise" && (
+                              <span className="text-sm">/month</span>
+                            )}
+                          {plan.pricing.yearly[currency] > 0 &&
+                            plan.name !== "enterprise" && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Billed yearly
+                              </div>
+                            )}
+                        </>
+                      )}
                     </div>
                     <ul className="space-y-2">
                       {getPlanFeatures(plan).map((feature, i) => (

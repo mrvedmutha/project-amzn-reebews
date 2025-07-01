@@ -41,7 +41,8 @@
       "customerSegmentation": false
     },
     "isActive": true,
-    "sortOrder": 0
+    "sortOrder": 0,
+    "yearlyDiscountPercent": 0
   },
   {
     "planId": 1,
@@ -50,8 +51,8 @@
     "description": "Ideal for small businesses with growing review needs",
     "pricing": {
       "monthly": {
-        "USD": 348.0,
-        "INR": 5988.0
+        "USD": 29.0,
+        "INR": 499.0
       },
       "yearly": {
         "USD": 348.0,
@@ -85,7 +86,8 @@
       "customerSegmentation": false
     },
     "isActive": true,
-    "sortOrder": 1
+    "sortOrder": 1,
+    "yearlyDiscountPercent": 15
   },
   {
     "planId": 2,
@@ -129,6 +131,52 @@
       "customerSegmentation": false
     },
     "isActive": true,
-    "sortOrder": 2
+    "sortOrder": 2,
+    "yearlyDiscountPercent": 30
+  },
+  {
+    "planId": 3,
+    "name": "enterprise",
+    "displayName": "Enterprise Plan",
+    "description": "Custom solutions for large-scale businesses",
+    "pricing": {
+      "monthly": {
+        "USD": 0,
+        "INR": 0
+      },
+      "yearly": {
+        "USD": 0,
+        "INR": 0
+      }
+    },
+    "features": {
+      "numberOfProducts": 99999,
+      "numberOfCampaigns": 99999,
+      "numberOfPromotions": 99999,
+      "marketplaces": 999,
+      "monthlyReviews": "unlimited",
+      "additionalReviewsCost": false,
+      "additionalProductsCost": {
+        "additionalReviews": {
+          "USD": 0,
+          "INR": 0
+        },
+        "additionalProducts": {
+          "USD": 0,
+          "INR": 0
+        }
+      },
+      "whiteLabel": true,
+      "customDomain": true,
+      "emailSupport": true,
+      "prioritySupport": true,
+      "dedicatedAccountManager": true,
+      "analyticsDashboard": "advanced",
+      "reviewFiltering": true,
+      "customerSegmentation": true
+    },
+    "isActive": true,
+    "sortOrder": 3,
+    "yearlyDiscountPercent": 0
   }
 ]

@@ -55,6 +55,7 @@ export const PlanSchema = new Schema<IPlan>(
     },
     isActive: { type: Boolean, required: true },
     sortOrder: { type: Number, required: true },
+    yearlyDiscountPercent: { type: Number, default: 0 },
   },
   { timestamps: true, versionKey: false }
 );

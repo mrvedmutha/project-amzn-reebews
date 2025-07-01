@@ -53,10 +53,10 @@ export function Comparison() {
           if (plans.length === 0) return [];
 
           const findPlan = (name: string) => plans.find((p) => p.name === name);
-          const freePlan = findPlan("free")?.features;
-          const basicPlan = findPlan("basic")?.features;
-          const proPlan = findPlan("pro")?.features;
-          const enterprisePlan = findPlan("enterprise")?.features;
+          const freePlan = findPlan("free");
+          const basicPlan = findPlan("basic");
+          const proPlan = findPlan("pro");
+          const enterprisePlan = findPlan("enterprise");
 
           const formatValue = (value: any) => {
             if (typeof value === "boolean") return value;
@@ -81,60 +81,67 @@ export function Comparison() {
             {
               name: "Number of Products",
               tooltip: "The maximum number of products you can manage.",
-              free: formatValue(freePlan?.numberOfProducts),
-              basic: formatValue(basicPlan?.numberOfProducts),
-              pro: formatValue(proPlan?.numberOfProducts),
-              enterprise: formatValue(enterprisePlan?.numberOfProducts),
+              free: formatValue(freePlan?.features.numberOfProducts),
+              basic: formatValue(basicPlan?.features.numberOfProducts),
+              pro: formatValue(proPlan?.features.numberOfProducts),
+              enterprise: formatValue(
+                enterprisePlan?.features.numberOfProducts
+              ),
             },
             {
               name: "Number of Campaigns",
               tooltip: "The maximum number of active review campaigns.",
-              free: formatValue(freePlan?.numberOfCampaigns),
-              basic: formatValue(basicPlan?.numberOfCampaigns),
-              pro: formatValue(proPlan?.numberOfCampaigns),
-              enterprise: formatValue(enterprisePlan?.numberOfCampaigns),
+              free: formatValue(freePlan?.features.numberOfCampaigns),
+              basic: formatValue(basicPlan?.features.numberOfCampaigns),
+              pro: formatValue(proPlan?.features.numberOfCampaigns),
+              enterprise: formatValue(
+                enterprisePlan?.features.numberOfCampaigns
+              ),
             },
             {
               name: "Number of Promotions",
               tooltip: "The maximum number of promotions you can run.",
-              free: formatValue(freePlan?.numberOfPromotions),
-              basic: formatValue(basicPlan?.numberOfPromotions),
-              pro: formatValue(proPlan?.numberOfPromotions),
-              enterprise: formatValue(enterprisePlan?.numberOfPromotions),
+              free: formatValue(freePlan?.features.numberOfPromotions),
+              basic: formatValue(basicPlan?.features.numberOfPromotions),
+              pro: formatValue(proPlan?.features.numberOfPromotions),
+              enterprise: formatValue(
+                enterprisePlan?.features.numberOfPromotions
+              ),
             },
             {
               name: "Marketplaces",
               tooltip: "Number of marketplaces you can connect to.",
-              free: formatValue(freePlan?.marketplaces),
-              basic: formatValue(basicPlan?.marketplaces),
-              pro: formatValue(proPlan?.marketplaces),
-              enterprise: formatValue(enterprisePlan?.marketplaces),
+              free: formatValue(freePlan?.features.marketplaces),
+              basic: formatValue(basicPlan?.features.marketplaces),
+              pro: formatValue(proPlan?.features.marketplaces),
+              enterprise: formatValue(enterprisePlan?.features.marketplaces),
             },
             {
               name: "Monthly Reviews",
               tooltip: "The number of reviews you can collect per month.",
-              free: formatValue(freePlan?.monthlyReviews),
-              basic: formatValue(basicPlan?.monthlyReviews),
-              pro: formatValue(proPlan?.monthlyReviews),
-              enterprise: formatValue(enterprisePlan?.monthlyReviews),
+              free: formatValue(freePlan?.features.monthlyReviews),
+              basic: formatValue(basicPlan?.features.monthlyReviews),
+              pro: formatValue(proPlan?.features.monthlyReviews),
+              enterprise: formatValue(enterprisePlan?.features.monthlyReviews),
             },
             {
               name: "Additional Reviews Cost",
               tooltip: "Cost for reviews beyond the monthly limit.",
               free: formatCostWithSuffix(
-                freePlan?.additionalProductsCost.additionalReviews,
+                freePlan?.features.additionalProductsCost.additionalReviews,
                 "/review"
               ),
               basic: formatCostWithSuffix(
-                basicPlan?.additionalProductsCost.additionalReviews,
+                basicPlan?.features.additionalProductsCost.additionalReviews,
                 "/review"
               ),
               pro: formatCostWithSuffix(
-                proPlan?.additionalProductsCost.additionalReviews,
+                proPlan?.features.additionalProductsCost.additionalReviews,
                 "/review"
               ),
               enterprise: formatCostWithSuffix(
-                enterprisePlan?.additionalProductsCost.additionalReviews,
+                enterprisePlan?.features.additionalProductsCost
+                  .additionalReviews,
                 "/review"
               ),
             },
@@ -142,85 +149,99 @@ export function Comparison() {
               name: "Additional Products",
               tooltip: "Cost for adding products beyond the plan limit.",
               free: formatCostWithSuffix(
-                freePlan?.additionalProductsCost.additionalProducts,
+                freePlan?.features.additionalProductsCost.additionalProducts,
                 "/product"
               ),
               basic: formatCostWithSuffix(
-                basicPlan?.additionalProductsCost.additionalProducts,
+                basicPlan?.features.additionalProductsCost.additionalProducts,
                 "/product"
               ),
               pro: formatCostWithSuffix(
-                proPlan?.additionalProductsCost.additionalProducts,
+                proPlan?.features.additionalProductsCost.additionalProducts,
                 "/product"
               ),
               enterprise: formatCostWithSuffix(
-                enterprisePlan?.additionalProductsCost.additionalProducts,
+                enterprisePlan?.features.additionalProductsCost
+                  .additionalProducts,
                 "/product"
               ),
+            },
+            {
+              name: "Yearly Plan Discount",
+              tooltip:
+                "The discount you receive when you opt for a yearly subscription.",
+              free: `${freePlan?.yearlyDiscountPercent ?? 0}%`,
+              basic: `${basicPlan?.yearlyDiscountPercent ?? 0}%`,
+              pro: `${proPlan?.yearlyDiscountPercent ?? 0}%`,
+              enterprise: "Custom",
             },
             {
               name: "White Labeling",
               tooltip: "Remove Reebews branding from your communications.",
-              free: freePlan?.whiteLabel ?? false,
-              basic: basicPlan?.whiteLabel ?? false,
-              pro: proPlan?.whiteLabel ?? false,
-              enterprise: enterprisePlan?.whiteLabel ?? false,
+              free: freePlan?.features.whiteLabel ?? false,
+              basic: basicPlan?.features.whiteLabel ?? false,
+              pro: proPlan?.features.whiteLabel ?? false,
+              enterprise: enterprisePlan?.features.whiteLabel ?? false,
             },
             {
               name: "Custom Domain",
               tooltip: "Use your own domain for review collection pages.",
-              free: freePlan?.customDomain ?? false,
-              basic: basicPlan?.customDomain ?? false,
-              pro: proPlan?.customDomain ?? false,
-              enterprise: enterprisePlan?.customDomain ?? false,
+              free: freePlan?.features.customDomain ?? false,
+              basic: basicPlan?.features.customDomain ?? false,
+              pro: proPlan?.features.customDomain ?? false,
+              enterprise: enterprisePlan?.features.customDomain ?? false,
             },
             {
               name: "Email Support",
               tooltip: "Access to our email support team.",
-              free: freePlan?.emailSupport ?? false,
-              basic: basicPlan?.emailSupport ?? false,
-              pro: proPlan?.emailSupport ?? false,
-              enterprise: enterprisePlan?.emailSupport ?? false,
+              free: freePlan?.features.emailSupport ?? false,
+              basic: basicPlan?.features.emailSupport ?? false,
+              pro: proPlan?.features.emailSupport ?? false,
+              enterprise: enterprisePlan?.features.emailSupport ?? false,
             },
             {
               name: "Priority Support",
               tooltip: "Get faster response times from our support team.",
-              free: freePlan?.prioritySupport ?? false,
-              basic: basicPlan?.prioritySupport ?? false,
-              pro: proPlan?.prioritySupport ?? false,
-              enterprise: enterprisePlan?.prioritySupport ?? false,
+              free: freePlan?.features.prioritySupport ?? false,
+              basic: basicPlan?.features.prioritySupport ?? false,
+              pro: proPlan?.features.prioritySupport ?? false,
+              enterprise: enterprisePlan?.features.prioritySupport ?? false,
             },
             {
               name: "Dedicated Account Manager",
               tooltip: "A dedicated manager to help you with your account.",
-              free: freePlan?.dedicatedAccountManager ?? false,
-              basic: basicPlan?.dedicatedAccountManager ?? false,
-              pro: proPlan?.dedicatedAccountManager ?? false,
-              enterprise: enterprisePlan?.dedicatedAccountManager ?? false,
+              free: freePlan?.features.dedicatedAccountManager ?? false,
+              basic: basicPlan?.features.dedicatedAccountManager ?? false,
+              pro: proPlan?.features.dedicatedAccountManager ?? false,
+              enterprise:
+                enterprisePlan?.features.dedicatedAccountManager ?? false,
             },
             {
               name: "Analytics Dashboard",
               tooltip: "Access to different levels of analytics.",
-              free: formatValue(freePlan?.analyticsDashboard),
-              basic: formatValue(basicPlan?.analyticsDashboard),
-              pro: formatValue(proPlan?.analyticsDashboard),
-              enterprise: formatValue(enterprisePlan?.analyticsDashboard),
+              free: formatValue(freePlan?.features.analyticsDashboard),
+              basic: formatValue(basicPlan?.features.analyticsDashboard),
+              pro: formatValue(proPlan?.features.analyticsDashboard),
+              enterprise: formatValue(
+                enterprisePlan?.features.analyticsDashboard
+              ),
             },
             {
               name: "Review Filtering",
               tooltip: "Filter reviews based on criteria.",
-              free: freePlan?.reviewFiltering ?? false,
-              basic: basicPlan?.reviewFiltering ?? false,
-              pro: proPlan?.reviewFiltering ?? false,
-              enterprise: enterprisePlan?.reviewFiltering ?? false,
+              free: freePlan?.features.reviewFiltering ?? false,
+              basic: basicPlan?.features.reviewFiltering ?? false,
+              pro: proPlan?.features.reviewFiltering ?? false,
+              enterprise: enterprisePlan?.features.reviewFiltering ?? false,
             },
             {
               name: "Customer Segmentation",
               tooltip: "Segment customers for targeted campaigns.",
-              free: freePlan?.customerSegmentation ?? false,
-              basic: basicPlan?.customerSegmentation ?? false,
-              pro: proPlan?.customerSegmentation ?? false,
-              enterprise: enterprisePlan?.customerSegmentation ?? false,
+              free: freePlan?.features.customerSegmentation ?? false,
+              basic: basicPlan?.features.customerSegmentation ?? false,
+              pro: proPlan?.features.customerSegmentation ?? false,
+              enterprise:
+                enterprisePlan?.features.customerSegmentation ?? false,
             },
           ];
           return comparisonFeatures;
