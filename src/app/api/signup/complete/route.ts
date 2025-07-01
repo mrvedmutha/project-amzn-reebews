@@ -37,7 +37,8 @@ export async function PATCH(req: NextRequest) {
         {
           success: false,
           message: "Signup completion failed",
-          error: "No cart found with the provided signup token or signup already completed",
+          error:
+            "No cart found with the provided signup token or signup already completed",
         },
         { status: 404 }
       );
@@ -57,9 +58,9 @@ export async function PATCH(req: NextRequest) {
             email: updatedCart.user.email,
           },
           subscription: {
-            planName: updatedCart.subscription.planName,
-            amount: updatedCart.subscription.amount,
-            currency: updatedCart.subscription.currency,
+            plan: updatedCart.subscription.plan,
+            amount: updatedCart.subscription.planAmount,
+            currency: updatedCart.subscription.planCurrency,
           },
           updatedAt: updatedCart.updatedAt,
         },

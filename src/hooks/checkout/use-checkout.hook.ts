@@ -51,7 +51,13 @@ export function useCheckout() {
     React.useState<CouponDetails | null>(null);
 
   const plan =
-    searchParams.get("plan") || existingCart?.subscription.planName || "basic";
+    searchParams.get("plan") ||
+    (existingCart?.subscription.plan &&
+    typeof existingCart.subscription.plan === "object" &&
+    "name" in existingCart.subscription.plan
+      ? (existingCart.subscription.plan as { name: string }).name
+      : undefined) ||
+    "basic";
   const cartId = searchParams.get("cartid");
   const paymentError = searchParams.get("error");
 
