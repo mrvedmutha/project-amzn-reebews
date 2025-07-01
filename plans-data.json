@@ -1,0 +1,134 @@
+[
+  {
+    "planId": 0,
+    "name": "free",
+    "displayName": "Free Plan",
+    "description": "Perfect for getting started with basic review management",
+    "pricing": {
+      "monthly": {
+        "USD": 0.0,
+        "INR": 0.0
+      },
+      "yearly": {
+        "USD": 0.0,
+        "INR": 0.0
+      }
+    },
+    "features": {
+      "numberOfProducts": 3,
+      "numberOfCampaigns": 1,
+      "numberOfPromotions": 1,
+      "marketplaces": 1,
+      "monthlyReviews": 10,
+      "additionalReviewsCost": true,
+      "additionalProductsCost": {
+        "additionalReviews": {
+          "USD": 0.8,
+          "INR": 5.0
+        },
+        "additionalProducts": {
+          "USD": 8.0,
+          "INR": 125.0
+        }
+      },
+      "whiteLabel": false,
+      "customDomain": false,
+      "emailSupport": true,
+      "prioritySupport": false,
+      "dedicatedAccountManager": false,
+      "analyticsDashboard": "basic",
+      "reviewFiltering": true,
+      "customerSegmentation": false
+    },
+    "isActive": true,
+    "sortOrder": 0
+  },
+  {
+    "planId": 1,
+    "name": "basic",
+    "displayName": "Basic Plan",
+    "description": "Ideal for small businesses with growing review needs",
+    "pricing": {
+      "monthly": {
+        "USD": 348.0,
+        "INR": 5988.0
+      },
+      "yearly": {
+        "USD": 348.0,
+        "INR": 5988.0
+      }
+    },
+    "features": {
+      "numberOfProducts": 5,
+      "numberOfCampaigns": 5,
+      "numberOfPromotions": 5,
+      "marketplaces": 3,
+      "monthlyReviews": "unlimited",
+      "additionalReviewsCost": false,
+      "additionalProductsCost": {
+        "additionalReviews": {
+          "USD": 0.0,
+          "INR": 0.0
+        },
+        "additionalProducts": {
+          "USD": 5.0,
+          "INR": 70.0
+        }
+      },
+      "whiteLabel": false,
+      "customDomain": false,
+      "emailSupport": true,
+      "prioritySupport": false,
+      "dedicatedAccountManager": false,
+      "analyticsDashboard": "advanced",
+      "reviewFiltering": true,
+      "customerSegmentation": false
+    },
+    "isActive": true,
+    "sortOrder": 1
+  },
+  {
+    "planId": 2,
+    "name": "pro",
+    "displayName": "Pro Plan",
+    "description": "Perfect for established businesses needing advanced features",
+    "pricing": {
+      "monthly": {
+        "USD": 49.0,
+        "INR": 999.0
+      },
+      "yearly": {
+        "USD": 588.0,
+        "INR": 11988.0
+      }
+    },
+    "features": {
+      "numberOfProducts": 25,
+      "numberOfCampaigns": 25,
+      "numberOfPromotions": 25,
+      "marketplaces": 10,
+      "monthlyReviews": "unlimited",
+      "additionalReviewsCost": false,
+      "additionalProductsCost": {
+        "additionalReviews": {
+          "USD": 0,
+          "INR": 0
+        },
+        "additionalProducts": {
+          "USD": 3,
+          "INR": 50
+        }
+      },
+      "whiteLabel": true,
+      "customDomain": false,
+      "emailSupport": true,
+      "prioritySupport": true,
+      "dedicatedAccountManager": false,
+      "analyticsDashboard": "advanced",
+      "reviewFiltering": true,
+      "customerSegmentation": false
+    },
+    "isActive": true,
+    "sortOrder": 2
+  }
+]
