@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Check, X } from "lucide-react";
 import {
   Card,
@@ -17,19 +16,8 @@ import { useCurrency } from "./currency-toggle";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-
-interface PricingPlan {
-  title: string;
-  description: string;
-  price: {
-    monthly: { USD: number; INR: number };
-    yearly: { USD: number; INR: number };
-  };
-  features: Array<{ name: string; included: boolean }>;
-  isMostPopular?: boolean;
-  ctaText: string;
-  ctaLink: string;
-}
+import { IPlan } from "@/types/plan/plan.types";
+import { PricingSkeleton } from "./pricing-skeleton";
 
 export function Pricing() {
   const { currency } = useCurrency();
@@ -37,90 +25,87 @@ export function Pricing() {
     "monthly"
   );
   const [loadingPlan, setLoadingPlan] = React.useState<string | null>(null);
+  const [plans, setPlans] = React.useState<IPlan[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const router = useRouter();
 
-  const pricingPlans: PricingPlan[] = [
-    {
-      title: "Free",
-      description: "Get started with the basics",
-      price: {
-        monthly: { USD: 0, INR: 0 },
-        yearly: { USD: 0, INR: 0 },
+  React.useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/plans/active");
+        if (!response.ok) {
+          throw new Error("Failed to fetch plans");
+        }
+        const data = await response.json();
+        setPlans(data.plans);
+      } catch (error) {
+        console.error(error);
+        // Handle error state, maybe show a toast
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  const formatPrice = (plan: IPlan) => {
+    // Always calculate the effective monthly price from the yearly total
+    // to ensure the display is consistent regardless of the toggle.
+    const price =
+      plan.name === "free" || plan.name === "enterprise"
+        ? plan.pricing.monthly[currency]
+        : plan.pricing.yearly[currency] / 12;
+
+    if (plan.name === "enterprise") return "Custom";
+    if (price === 0) return "Free";
+
+    const formattedPrice =
+      currency === "USD" ? `$${price.toFixed(0)}` : `₹${price.toFixed(0)}`;
+
+    return formattedPrice;
+  };
+
+  const getPlanFeatures = (plan: IPlan) => {
+    const { features } = plan;
+    const featureList = [
+      {
+        name: `${features.numberOfProducts} Products`,
+        included: true,
       },
-      features: [
-        { name: "3 Products", included: true },
-        { name: "1 Campaign", included: true },
-        { name: "1 Promotion", included: true },
-        { name: "1 Marketplace", included: true },
-        { name: "10 Reviews per month", included: true },
-        { name: "Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$8" : "₹125"
-          } per product`,
-          included: true,
-        },
-      ],
-      ctaText: "Get Started",
-      ctaLink: `/checkout?plan=free`,
-    },
-    {
-      title: "Basic",
-      description: "Perfect for small sellers",
-      price: {
-        monthly: { USD: 29, INR: 499 },
-        yearly: { USD: 25, INR: 425 },
+      {
+        name: `${features.numberOfCampaigns} Campaigns`,
+        included: true,
       },
-      features: [
-        { name: "5 Products", included: true },
-        { name: "5 Campaigns", included: true },
-        { name: "5 Promotions", included: true },
-        { name: "5 Marketplaces", included: true },
-        { name: "Unlimited Reviews", included: true },
-        { name: "No Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$5" : "₹70"
-          } per product`,
-          included: true,
-        },
-      ],
-      isMostPopular: true,
-      ctaText: "Choose Basic",
-      ctaLink: `/checkout?plan=basic&billing=${billingCycle}`,
-    },
-    {
-      title: "Pro",
-      description: "For growing businesses",
-      price: {
-        monthly: { USD: 49, INR: 999 },
-        yearly: { USD: 35, INR: 699 },
+      {
+        name: `${features.numberOfPromotions} Promotions`,
+        included: true,
       },
-      features: [
-        { name: "25 Products", included: true },
-        { name: "25 Campaigns", included: true },
-        { name: "Unlimited Promotions", included: true },
-        { name: "10 Marketplaces", included: true },
-        { name: "Unlimited Reviews", included: true },
-        { name: "No Reebews branding", included: true },
-        {
-          name: `Additional products at ${
-            currency === "USD" ? "$3" : "₹50"
-          } per product`,
-          included: true,
-        },
-      ],
-      ctaText: "Choose Pro",
-      ctaLink: `/checkout?plan=pro&billing=${billingCycle}`,
-    },
-    {
-      title: "Enterprise",
-      description: "Custom solutions for large sellers",
-      price: {
-        monthly: { USD: 0, INR: 0 },
-        yearly: { USD: 0, INR: 0 },
+      { name: `${features.marketplaces} Marketplaces`, included: true },
+      {
+        name: `${
+          features.monthlyReviews === "unlimited"
+            ? "Unlimited"
+            : features.monthlyReviews
+        } Reviews per month`,
+        included: true,
       },
-      features: [
+      { name: "Reebews branding", included: !features.whiteLabel },
+      {
+        name: `Additional products at ${
+          currency === "USD"
+            ? `$${features.additionalProductsCost.additionalProducts.USD}`
+            : `₹${features.additionalProductsCost.additionalProducts.INR}`
+        } per product`,
+        included:
+          features.additionalProductsCost.additionalProducts.USD > 0 ||
+          features.additionalProductsCost.additionalProducts.INR > 0,
+      },
+    ];
+
+    if (plan.name === "enterprise") {
+      return [
         { name: "Unlimited Products", included: true },
         { name: "Unlimited Campaigns", included: true },
         { name: "Unlimited Promotions", included: true },
@@ -128,18 +113,23 @@ export function Pricing() {
         { name: "Unlimited Reviews", included: true },
         { name: "Custom domain support", included: true },
         { name: "Dedicated support", included: true },
-      ],
-      ctaText: "Contact Sales",
-      ctaLink: "/contact",
-    },
-  ];
+      ];
+    }
 
-  const formatPrice = (plan: PricingPlan) => {
-    const price = plan.price[billingCycle][currency];
-    if (price === 0 && plan.title === "Enterprise") return "Custom";
-    if (price === 0) return "Free";
+    return featureList;
+  };
 
-    return currency === "USD" ? `$${price}` : `₹${price}`;
+  const getCtaInfo = (plan: IPlan) => {
+    if (plan.name === "enterprise") {
+      return { text: "Contact Sales", link: "/contact" };
+    }
+    if (plan.name === "free") {
+      return { text: "Get Started", link: "/checkout?plan=free" };
+    }
+    return {
+      text: `Choose ${plan.displayName.split(" ")[0]}`,
+      link: `/checkout?plan=${plan.name}&billing=${billingCycle}`,
+    };
   };
 
   return (
@@ -189,78 +179,84 @@ export function Pricing() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pricingPlans.map((plan) => (
-            <Card
-              key={plan.title}
-              className={`relative flex flex-col ${
-                plan.isMostPopular ? "border-yellow-500 shadow-lg" : ""
-              }`}
-            >
-              {plan.isMostPopular && (
-                <Badge className="absolute -top-2 right-5 bg-yellow-500 hover:bg-yellow-600">
-                  Most Popular
-                </Badge>
-              )}
-              <CardHeader>
-                <CardTitle className="text-xl">{plan.title}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <div className="mb-4">
-                  <span className="text-4xl font-bold">
-                    {formatPrice(plan)}
-                  </span>
-                  {plan.price[billingCycle][currency] > 0 && (
-                    <span className="text-sm">/month</span>
-                  )}
-                  {plan.price[billingCycle][currency] > 0 &&
-                    billingCycle === "yearly" && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        billed yearly
-                      </div>
-                    )}
-                </div>
-                <ul className="space-y-2">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start">
-                      {feature.included ? (
-                        <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
-                      ) : (
-                        <X className="h-5 w-5 text-red-500 mr-2 shrink-0" />
-                      )}
-                      <span className="text-sm">{feature.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  className="w-full"
-                  variant={plan.isMostPopular ? "default" : "outline"}
-                  disabled={loadingPlan === plan.title}
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    setLoadingPlan(plan.title);
-                    // Small delay to show loading state
-                    setTimeout(() => {
-                      router.push(plan.ctaLink);
-                    }, 600);
-                  }}
-                >
-                  {loadingPlan === plan.title ? "Please wait..." : plan.ctaText}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        {isLoading ? (
+          <PricingSkeleton />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {plans.map((plan) => {
+              const cta = getCtaInfo(plan);
+              const isMostPopular = plan.name === "basic"; // Example logic
 
-        <div className="mt-8 text-center">
-          <p className="text-muted-foreground text-sm">
-            Review costs: {currency === "USD" ? "$0.08" : "₹5"} per review (
-            {currency === "USD" ? "$8" : "₹500"} per 100 reviews)
-          </p>
-        </div>
+              return (
+                <Card
+                  key={plan.name}
+                  className={`relative flex flex-col ${
+                    isMostPopular ? "border-yellow-500 shadow-lg" : ""
+                  }`}
+                >
+                  {isMostPopular && (
+                    <Badge className="absolute -top-2 right-5 bg-yellow-500 hover:bg-yellow-600">
+                      Most Popular
+                    </Badge>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      {plan.displayName}
+                    </CardTitle>
+                    <CardDescription>{plan.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <div className="mb-4">
+                      <span className="text-4xl font-bold">
+                        {formatPrice(plan)}
+                      </span>
+                      {plan.pricing.monthly[currency] > 0 &&
+                        plan.name !== "enterprise" && (
+                          <span className="text-sm">/month</span>
+                        )}
+                      {billingCycle === "yearly" &&
+                        plan.name !== "free" &&
+                        plan.name !== "enterprise" && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            billed yearly
+                          </div>
+                        )}
+                    </div>
+                    <ul className="space-y-2">
+                      {getPlanFeatures(plan).map((feature, i) => (
+                        <li key={i} className="flex items-start">
+                          {feature.included ? (
+                            <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
+                          ) : (
+                            <X className="h-5 w-5 text-red-500 mr-2 shrink-0" />
+                          )}
+                          <span className="text-sm">{feature.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      className="w-full"
+                      variant={isMostPopular ? "default" : "outline"}
+                      disabled={loadingPlan === plan.name}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        setLoadingPlan(plan.name);
+                        // Small delay to show loading state
+                        setTimeout(() => {
+                          router.push(cta.link);
+                        }, 600);
+                      }}
+                    >
+                      {loadingPlan === plan.name ? "Please wait..." : cta.text}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
