@@ -1,10 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
-declare global {
-  var mongoose: any; // This is a workaround for a known issue with mongoose and Next.js
-}
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -12,10 +8,21 @@ if (!MONGODB_URI) {
   );
 }
 
-let cached = global.mongoose;
+interface MongooseCache {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
+}
+
+// Augment the NodeJS global type to include our mongoose cache property.
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: MongooseCache;
+}
+
+let cached: MongooseCache = global.mongooseCache;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global.mongooseCache = { conn: null, promise: null };
 }
 
 async function connectToDB() {
@@ -27,12 +34,18 @@ async function connectToDB() {
     const opts = {
       bufferCommands: false,
     };
-
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       return mongoose;
     });
   }
-  cached.conn = await cached.promise;
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
   return cached.conn;
 }
 
