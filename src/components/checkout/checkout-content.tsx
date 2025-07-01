@@ -348,18 +348,7 @@ export function CheckoutContent() {
 
             {/* Order Summary Sidebar */}
             <div className="lg:col-span-1">
-              <OrderSummary
-                planDetails={planDetails}
-                plan={plan}
-                billingCycle={billingCycle}
-                setBillingCycle={setBillingCycle}
-                currency={currency}
-                finalPrice={finalPrice}
-                originalPrice={originalPrice}
-                discountAmount={discountAmount}
-                showDiscount={showDiscount}
-                formatPrice={formatPrice}
-              />
+              <OrderSummary />
             </div>
           </div>
         </div>
