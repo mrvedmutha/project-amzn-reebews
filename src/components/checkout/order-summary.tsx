@@ -61,8 +61,8 @@ export function OrderSummary() {
       const price = isYearly
         ? currentPlan.pricing.yearly
         : currentPlan.pricing.monthly;
-      let final = { ...price };
-      let original = { ...price };
+      const final = { ...price };
+      const original = { ...price };
       let discount = { USD: 0, INR: 0 };
       let show = false;
 
