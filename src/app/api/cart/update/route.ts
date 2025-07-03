@@ -61,7 +61,8 @@ export async function PATCH(req: NextRequest) {
         // Use the signupToken that was generated and saved to database
         await EmailService.sendSignupEmail(
           updatedCart.user.email,
-          updatedCart.user.name,
+          updatedCart.user.firstName,
+          updatedCart.user.lastName,
           updatedCart.signupToken, // Use the saved signupToken
           {
             plan: String(updatedCart.subscription.plan), // Convert to string for email

@@ -63,7 +63,8 @@ export async function POST(req: Request) {
           // Send welcome email with signup link using embedded subscription data
           await EmailService.sendSignupEmail(
             cartWithSubscription.user.email,
-            cartWithSubscription.user.name,
+            cartWithSubscription.user.firstName,
+            cartWithSubscription.user.lastName,
             result.signupToken, // Use signupToken from creation result
             {
               plan: plan, // Use the plan from the request

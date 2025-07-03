@@ -34,7 +34,8 @@ export class EmailService {
    */
   static async sendSignupEmail(
     email: string,
-    name: string,
+    firstName: string,
+    lastName: string,
     signupToken: string,
     planDetails: {
       plan: string;
@@ -179,7 +180,7 @@ export class EmailService {
               </div>
               
               <div class="content">
-                <h2>Hi ${name},</h2>
+                <h2>Hi ${firstName} ${lastName},</h2>
                 
                 <p>Thank you for choosing ReeBews! We're thrilled to have you on board. Your payment has been processed successfully, and we're ready to help you get started.</p>
                 
@@ -239,7 +240,7 @@ export class EmailService {
       const textContent = `
 Welcome to ReeBews!
 
-Hi ${name},
+Hi ${firstName} ${lastName},
 
 Thank you for choosing ReeBews! We're thrilled to have you on board. Your payment has been processed successfully, and we're ready to help you get started.
 
