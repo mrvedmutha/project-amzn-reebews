@@ -74,7 +74,8 @@ export function CheckoutContent() {
         } else {
           // Create new cart record
           const userDetails = {
-            name: `${data.firstName} ${data.lastName}`.trim(),
+            firstName: data.firstName,
+            lastName: data.lastName,
             email: data.email,
             address: {
               street: data.address.street,

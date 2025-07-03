@@ -1,6 +1,5 @@
 import { CartModel } from "@/models/cart/cart.model";
 import { ICart } from "@/types/cart/cart.types";
-import { getPlanIdByName } from "@/helpers/plan";
 import { generateSignupToken } from "@/lib/auth/token";
 import { PlanModel } from "@/models/plan/plan.model";
 import {
@@ -102,7 +101,8 @@ export const cartPublicService = {
     amount: number;
     currency: Currency;
     userDetails: {
-      name: string;
+      firstName: string;
+      lastName: string;
       email: string;
       address: {
         street: string;
@@ -141,7 +141,8 @@ export const cartPublicService = {
       const cart = await CartModel.create({
         userId: cartData.userId,
         user: {
-          name: cartData.userDetails.name,
+          firstName: cartData.userDetails.firstName,
+          lastName: cartData.userDetails.lastName,
           email: cartData.userDetails.email,
           address: cartData.userDetails.address,
           business: {

@@ -33,8 +33,10 @@ export interface ICartUserBusiness {
  * User details interface
  */
 export interface ICartUser {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone: string;
   address: ICartUserAddress;
   business?: ICartUserBusiness;
 }
