@@ -54,7 +54,8 @@ export async function PATCH(req: NextRequest) {
           signupToken: updatedCart.signupToken,
           isSignupCompleted: updatedCart.isSignupCompleted,
           user: {
-            name: updatedCart.user.name,
+            firstName: updatedCart.user.firstName,
+            lastName: updatedCart.user.lastName,
             email: updatedCart.user.email,
           },
           subscription: {
