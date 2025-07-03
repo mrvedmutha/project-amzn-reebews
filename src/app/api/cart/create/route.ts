@@ -16,7 +16,12 @@ export async function POST(req: Request) {
     const billingCycle = body.billingCycle || BillingCycle.MONTHLY;
 
     // Validate required fields
-    if (!userDetails?.name || !userDetails?.email || !userDetails?.address) {
+    if (
+      !userDetails?.firstName ||
+      !userDetails?.lastName ||
+      !userDetails?.email ||
+      !userDetails?.address
+    ) {
       return NextResponse.json(
         { error: "Missing required user details" },
         { status: 400 }
