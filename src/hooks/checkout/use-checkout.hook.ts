@@ -117,9 +117,18 @@ export function useCheckout() {
         setExistingCart(cart);
 
         // Pre-populate form with existing cart data
-        const nameParts = cart.user.name.split(" ");
-        form.setValue("firstName", nameParts[0] || "");
-        form.setValue("lastName", nameParts.slice(1).join(" ") || "");
+        // Handle both older carts with `name` field and newer carts with `firstName`/`lastName` fields
+        const firstNameFromCart = (cart.user as any).firstName || "";
+        const lastNameFromCart = (cart.user as any).lastName || "";
+
+        if (firstNameFromCart || lastNameFromCart) {
+          form.setValue("firstName", firstNameFromCart);
+          form.setValue("lastName", lastNameFromCart);
+        } else if (cart.user.name) {
+          const nameParts = cart.user.name.split(" ");
+          form.setValue("firstName", nameParts[0] || "");
+          form.setValue("lastName", nameParts.slice(1).join(" ") || "");
+        }
         form.setValue("email", cart.user.email);
         form.setValue("companyName", cart.user.business?.company || "");
         form.setValue("gstNumber", cart.user.business?.gstin || "");
@@ -480,7 +489,8 @@ export function useCheckout() {
 
       // Map form data to new cart structure
       const userDetails = {
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
         email: formData.email,
         address: {
           street: formData.address.street,
