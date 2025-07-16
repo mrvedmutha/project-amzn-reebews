@@ -139,9 +139,9 @@ export function useCheckout() {
         form.setValue("address.pincode", cart.user.address.pincode);
 
         // Set billing cycle and country from cart
-        setBillingCycle(cart.subscription.billingCycle);
+        setBillingCycle(cart.billingCycle);
         setSelectedCountry(cart.user.address.country);
-        setCurrency(cart.subscription.currency);
+        setCurrency(cart.payment.currency);
       } catch (error) {
         console.error("Error loading cart:", error);
         setCartLoadError("Failed to load cart. Please try again.");
@@ -427,6 +427,20 @@ export function useCheckout() {
   // Calculate discount amount - this should show the difference between original price and final price
   const calculateDiscountAmount = () => {
     if (plan === "free") return { USD: 0.0, INR: 0.0 };
+
+    // For existing carts, calculate discount from subscription amount vs payment amount
+    if (existingCart && existingCart.subscription?.planAmount !== existingCart.payment?.totalAmount) {
+      const subscriptionAmount = existingCart.subscription.planAmount;
+      const paymentAmount = existingCart.payment.totalAmount;
+      const currency = existingCart.payment.currency;
+      
+      const discountAmount = subscriptionAmount - paymentAmount;
+      
+      return {
+        USD: currency === "USD" ? parseFloat(discountAmount.toFixed(2)) : 0,
+        INR: currency === "INR" ? parseFloat(discountAmount.toFixed(2)) : 0,
+      };
+    }
 
     // For yearly billing, calculate discount from monthly * 12 vs yearly price
     if (billingCycle === "yearly" && !couponApplied) {
