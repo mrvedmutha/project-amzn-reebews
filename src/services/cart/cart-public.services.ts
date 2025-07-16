@@ -82,7 +82,7 @@ export const cartPublicService = {
     await dbConnect();
 
     try {
-      const cart = (await CartModel.findById(cartId).lean()) as ICart | null;
+      const cart = (await CartModel.findById(cartId).populate('subscription.plan').lean()) as ICart | null;
 
       return cart;
     } catch (error) {

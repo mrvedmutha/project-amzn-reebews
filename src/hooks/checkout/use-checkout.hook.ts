@@ -347,15 +347,15 @@ export function useCheckout() {
     // Use cart's stored pricing if available, otherwise use planDetails
     let basePrice: { USD: number; INR: number };
     
-    if (existingCart && existingCart.subscription?.planAmount !== undefined) {
-      // Use the exact pricing from the cart when resuming
-      const cartAmount = existingCart.subscription.planAmount;
-      const cartCurrency = existingCart.subscription.planCurrency;
+    if (existingCart && existingCart.payment?.totalAmount !== undefined) {
+      // Use the actual payment amount (what user is paying) when resuming
+      const paymentAmount = existingCart.payment.totalAmount;
+      const paymentCurrency = existingCart.payment.currency;
       
-      // Create base price object using the cart's stored amount and currency
+      // Create base price object using the payment amount and currency
       basePrice = {
-        USD: cartCurrency === "USD" ? cartAmount : 0,
-        INR: cartCurrency === "INR" ? cartAmount : 0,
+        USD: paymentCurrency === "USD" ? paymentAmount : 0,
+        INR: paymentCurrency === "INR" ? paymentAmount : 0,
       };
     } else {
       basePrice = planDetails.price;
@@ -390,14 +390,14 @@ export function useCheckout() {
   const getOriginalPrice = () => {
     if (plan === "free") return { USD: 0.0, INR: 0.0 };
 
-    // If we have an existing cart, use its stored amount as the original price
+    // If we have an existing cart, use subscription amount as the original price
     if (existingCart && existingCart.subscription?.planAmount !== undefined) {
-      const cartAmount = existingCart.subscription.planAmount;
-      const cartCurrency = existingCart.subscription.planCurrency;
+      const subscriptionAmount = existingCart.subscription.planAmount;
+      const subscriptionCurrency = existingCart.subscription.planCurrency;
       
       return {
-        USD: cartCurrency === "USD" ? cartAmount : 0,
-        INR: cartCurrency === "INR" ? cartAmount : 0,
+        USD: subscriptionCurrency === "USD" ? subscriptionAmount : 0,
+        INR: subscriptionCurrency === "INR" ? subscriptionAmount : 0,
       };
     }
 
@@ -502,7 +502,8 @@ export function useCheckout() {
 
   const finalPrice = calculateFinalPrice();
   const discountAmount = calculateDiscountAmount();
-  const showDiscount = billingCycle === "yearly" || couponApplied;
+  const showDiscount = billingCycle === "yearly" || couponApplied || 
+    (existingCart && existingCart.subscription?.planAmount !== existingCart.payment?.totalAmount);
   const originalPrice = getOriginalPrice();
   const isIndianUser = selectedCountry === "India";
 
