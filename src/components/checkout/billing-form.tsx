@@ -71,10 +71,16 @@ export function BillingForm({
   const states = getStatesForCountry(selectedCountry);
   const showStateField = states.length > 0;
 
-  // Reset state when country changes
+  // Reset state when country changes (but only if there's no existing valid state)
   React.useEffect(() => {
     if (selectedCountry) {
-      form.setValue("address.state", "");
+      const currentState = form.getValues("address.state");
+      const validStates = getStatesForCountry(selectedCountry);
+      
+      // Only reset if current state is not valid for the selected country
+      if (currentState && validStates.length > 0 && !(validStates as string[]).includes(currentState)) {
+        form.setValue("address.state", "");
+      }
     }
   }, [selectedCountry, form]);
 
