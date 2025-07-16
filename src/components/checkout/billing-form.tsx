@@ -52,7 +52,6 @@ export function BillingForm({
   setSelectedCountry,
   isIndianUser,
 }: BillingFormProps) {
-  const [selectedState, setSelectedState] = React.useState("");
   const [stateOpen, setStateOpen] = React.useState(false);
 
   // Get states based on selected country
@@ -75,7 +74,6 @@ export function BillingForm({
   // Reset state when country changes
   React.useEffect(() => {
     if (selectedCountry) {
-      setSelectedState("");
       form.setValue("address.state", "");
     }
   }, [selectedCountry, form]);
@@ -240,9 +238,6 @@ export function BillingForm({
                             value={state}
                             onSelect={(currentValue) => {
                               field.onChange(
-                                currentValue === field.value ? "" : currentValue
-                              );
-                              setSelectedState(
                                 currentValue === field.value ? "" : currentValue
                               );
                               setStateOpen(false);
