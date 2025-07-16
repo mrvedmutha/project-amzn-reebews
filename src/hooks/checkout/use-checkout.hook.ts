@@ -344,7 +344,23 @@ export function useCheckout() {
   const calculateFinalPrice = () => {
     if (plan === "free") return { USD: 0.0, INR: 0.0 };
 
-    const basePrice = planDetails.price;
+    // Use cart's stored pricing if available, otherwise use planDetails
+    let basePrice: { USD: number; INR: number };
+    
+    if (existingCart && existingCart.subscription?.planAmount !== undefined) {
+      // Use the exact pricing from the cart when resuming
+      const cartAmount = existingCart.subscription.planAmount;
+      const cartCurrency = existingCart.subscription.planCurrency;
+      
+      // Create base price object using the cart's stored amount and currency
+      basePrice = {
+        USD: cartCurrency === "USD" ? cartAmount : 0,
+        INR: cartCurrency === "INR" ? cartAmount : 0,
+      };
+    } else {
+      basePrice = planDetails.price;
+    }
+
     let result: { USD: number; INR: number };
     if (!couponApplied) {
       result = basePrice;
@@ -373,6 +389,17 @@ export function useCheckout() {
   // Get original price for comparison
   const getOriginalPrice = () => {
     if (plan === "free") return { USD: 0.0, INR: 0.0 };
+
+    // If we have an existing cart, use its stored amount as the original price
+    if (existingCart && existingCart.subscription?.planAmount !== undefined) {
+      const cartAmount = existingCart.subscription.planAmount;
+      const cartCurrency = existingCart.subscription.planCurrency;
+      
+      return {
+        USD: cartCurrency === "USD" ? cartAmount : 0,
+        INR: cartCurrency === "INR" ? cartAmount : 0,
+      };
+    }
 
     // For yearly billing, return the original monthly price * 12 (before yearly discount)
     if (billingCycle === "yearly") {
