@@ -244,7 +244,7 @@ export const cartPublicService = {
             // Calculate end date based on billing cycle
             const endDate = calculateSubscriptionEndDate(
               now,
-              cart.subscription.billingCycle
+              cart.billingCycle
             );
             updateFields["subscription.endDate"] = endDate;
           }

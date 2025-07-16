@@ -13,7 +13,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { plan, currency, amount, userDetails, paymentGateway, userId } =
       body;
-    const billingCycle = body.billingCycle || BillingCycle.MONTHLY;
+    const billingCycle = body.billingCycle;
+
+    // Validate billingCycle is provided
+    if (!billingCycle || !Object.values(BillingCycle).includes(billingCycle)) {
+      return NextResponse.json(
+        { error: "Valid billingCycle is required (monthly or yearly)" },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (
