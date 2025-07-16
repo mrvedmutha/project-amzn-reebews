@@ -503,7 +503,7 @@ export function useCheckout() {
   const finalPrice = calculateFinalPrice();
   const discountAmount = calculateDiscountAmount();
   const showDiscount = billingCycle === "yearly" || couponApplied || 
-    (existingCart && existingCart.subscription?.planAmount !== existingCart.payment?.totalAmount);
+    !!(existingCart && existingCart.subscription?.planAmount !== existingCart.payment?.totalAmount);
   const originalPrice = getOriginalPrice();
   const isIndianUser = selectedCountry === "India";
 
