@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { BillingCycle } from "@/enums/checkout.enum";
 import { IPlan } from "@/types/plan/plan.types";
+import { ICart } from "@/types/cart/cart.types";
 import { useCurrency } from "../currency-toggle"; // Assuming path
 import { OrderSummarySkeleton } from "./order-summary-skeleton";
 
@@ -20,6 +21,7 @@ export function OrderSummary({
   currency: propCurrency,
   billingCycle: propBillingCycle,
   planName: propPlanName,
+  existingCart: propExistingCart,
 }: {
   finalPrice?: { USD: number; INR: number };
   originalPrice?: { USD: number; INR: number };
@@ -28,6 +30,7 @@ export function OrderSummary({
   currency?: string;
   billingCycle?: string;
   planName?: string;
+  existingCart?: ICart | null;
 } = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -153,29 +156,42 @@ export function OrderSummary({
         {planName !== "free" && (
           <div className="flex justify-between">
             <span>Billing Cycle</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleSetBillingCycle(BillingCycle.MONTHLY)}
-                className={`text-sm px-2 py-1 rounded ${
-                  billingCycle === BillingCycle.MONTHLY
-                    ? "bg-yellow-500 text-black font-medium"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetBillingCycle(BillingCycle.YEARLY)}
-                className={`text-sm px-2 py-1 rounded flex items-center gap-1 ${
-                  billingCycle === BillingCycle.YEARLY
-                    ? "bg-yellow-500 text-black font-medium"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                Yearly
-              </button>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleSetBillingCycle(BillingCycle.MONTHLY)}
+                  disabled={!!propExistingCart}
+                  className={`text-sm px-2 py-1 rounded ${
+                    billingCycle === BillingCycle.MONTHLY
+                      ? "bg-yellow-500 text-black font-medium"
+                      : "bg-muted text-muted-foreground"
+                  } ${
+                    propExistingCart ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSetBillingCycle(BillingCycle.YEARLY)}
+                  disabled={!!propExistingCart}
+                  className={`text-sm px-2 py-1 rounded flex items-center gap-1 ${
+                    billingCycle === BillingCycle.YEARLY
+                      ? "bg-yellow-500 text-black font-medium"
+                      : "bg-muted text-muted-foreground"
+                  } ${
+                    propExistingCart ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  Yearly
+                </button>
+              </div>
+              {propExistingCart && (
+                <span className="text-xs text-muted-foreground">
+                  Locked for resumed order
+                </span>
+              )}
             </div>
           </div>
         )}

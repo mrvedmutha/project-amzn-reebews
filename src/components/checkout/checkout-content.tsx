@@ -376,6 +376,7 @@ export function CheckoutContent() {
                 currency={currency}
                 billingCycle={billingCycle}
                 planName={plan}
+                existingCart={existingCart}
               />
             </div>
           </div>
