@@ -8,19 +8,19 @@ export default function RefundPage() {
       <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">REFUND POLICY</h1>
       
-      <p className="text-sm text-gray-600 mb-8">
+      <p className="text-sm text-muted-foreground mb-8">
         <strong>Last Updated:</strong> 17-July-2025
       </p>
       
       <div className="space-y-6">
         <section>
           <h2 className="text-xl font-semibold mb-4">1. INTRODUCTION</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             This Refund Policy outlines the terms and conditions for refunds on Reebews ("we," "our," or "us") review 
             platform services. This policy applies to all users who have purchased our services and should be read in 
             conjunction with our Terms of Service and Privacy Policy.
           </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
+          <p className="text-foreground leading-relaxed mt-4">
             By purchasing our services, you agree to the terms outlined in this Refund Policy. We are committed to 
             providing quality services and will process eligible refunds in accordance with the conditions specified below.
           </p>
@@ -36,7 +36,7 @@ export default function RefundPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Conditions:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Payment amount has been debited from your account</li>
               <li>Service was not activated or delivered due to our technical failure</li>
               <li>You can provide proof of payment deduction</li>
@@ -51,7 +51,7 @@ export default function RefundPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Conditions:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Refund request must be made within <strong>7 days</strong> from the date of purchase</li>
               <li>Applies only to the <strong>initial purchase</strong> of services</li>
               <li>Service must not be the right fit for your business requirements</li>
@@ -67,7 +67,7 @@ export default function RefundPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Conditions:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Refund request must be made within <strong>3 days</strong> from the date the recurring payment was deducted from your bank account</li>
               <li>Applies only to <strong>renewed/recurring payments</strong>, not initial purchases</li>
               <li>Service must not have been extensively used during the billing period</li>
@@ -92,7 +92,7 @@ export default function RefundPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Reason for Non-Refundability:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>These credits are consumable digital goods</li>
               <li>They provide immediate value upon purchase</li>
               <li>They cannot be "returned" once the credit allocation is made to your account</li>
@@ -108,7 +108,7 @@ export default function RefundPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">3.3 Promotional and Discounted Services</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Services purchased at promotional prices or with discount codes</li>
             <li>Free trial extensions or bonus services</li>
             <li>Bundled services where individual components cannot be separated</li>
@@ -129,7 +129,7 @@ export default function RefundPage() {
           </div>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Required Information:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Your account email address</li>
               <li>Order/transaction ID</li>
               <li>Date of purchase or payment deduction</li>
@@ -150,7 +150,7 @@ export default function RefundPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             Refunds will be processed through the same payment method used for the original purchase:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Razorpay Payments:</strong> Refunded to the original payment method (card/bank account)</li>
             <li><strong>PayPal Payments:</strong> Refunded to your PayPal account</li>
             <li><strong>Bank Transfers:</strong> Refunded to the original bank account</li>
@@ -175,7 +175,7 @@ export default function RefundPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">5.3 Future Service Access</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Refunded customers may re-purchase services at any time</li>
             <li>Previous refunds do not affect eligibility for future purchases</li>
             <li>However, repeated refund requests may be subject to additional review</li>
@@ -203,7 +203,7 @@ export default function RefundPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">6.3 Account Violations</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Refunds will not be provided for accounts terminated due to Terms of Service violations</li>
             <li>Fraudulent activity or misuse of services disqualifies accounts from refunds</li>
             <li>Chargebacks initiated without first contacting our support team may result in account suspension</li>
@@ -231,7 +231,7 @@ export default function RefundPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">7.3 External Dispute Resolution</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>For unresolved disputes, you may contact your payment provider</li>
             <li>Credit card chargebacks should be a last resort after exhausting our internal process</li>
             <li>Legal disputes will be handled according to our Terms of Service</li>
@@ -244,11 +244,11 @@ export default function RefundPage() {
             For refund requests, questions, or concerns about this Refund Policy, please contact us:
           </p>
           <div className="mb-4">
-            <p className="text-gray-700"><strong>Email:</strong> contact@reebews.com</p>
+            <p className="text-foreground"><strong>Email:</strong> contact@reebews.com</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-700 font-medium">Postal Address:</p>
-            <p className="text-gray-700">
+            <p className="text-foreground">
               Reebews<br />
               c/o The Cybershop India<br />
               #4/7, Venkataryan Lane<br />
@@ -272,7 +272,7 @@ export default function RefundPage() {
             <li>Platform notifications and announcements</li>
             <li>Updates to the "Last Updated" date at the top of this policy</li>
           </ul>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Your continued use of our services after policy updates constitutes acceptance of the revised terms.
           </p>
         </section>
@@ -283,7 +283,7 @@ export default function RefundPage() {
             This Refund Policy is designed to comply with applicable consumer protection laws and regulations. 
             Our refund practices are fair, transparent, and in accordance with:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Indian Consumer Protection Act</li>
             <li>Payment gateway regulations (Razorpay, PayPal)</li>
             <li>International consumer protection standards</li>
@@ -293,7 +293,7 @@ export default function RefundPage() {
 
         <section>
           <h2 className="text-xl font-semibold mb-4">11. IMPORTANT NOTES</h2>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Refunds are processed in the original currency of purchase</li>
             <li>Currency conversion fees (if applicable) are borne by the customer</li>
             <li>Processing fees charged by payment gateways may be deducted from refund amounts</li>
@@ -304,7 +304,7 @@ export default function RefundPage() {
 
         <hr className="my-8 border-gray-300" />
         
-        <p className="text-sm text-gray-600 italic">
+        <p className="text-sm text-muted-foreground italic">
           This Refund Policy is effective as of the date listed above and governs all refund requests for Reebews services.
         </p>
       </div>

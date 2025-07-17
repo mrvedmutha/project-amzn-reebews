@@ -8,20 +8,20 @@ export default function PrivacyPage() {
       <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">PRIVACY POLICY</h1>
       
-      <p className="text-sm text-gray-600 mb-8">
+      <p className="text-sm text-muted-foreground mb-8">
         <strong>Last Updated:</strong> 17-July-2025
       </p>
       
       <div className="space-y-6">
         <section>
           <h2 className="text-xl font-semibold mb-4">1. INTRODUCTION</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Welcome to Reebews ("we," "our," or "us"). This Privacy Policy explains how we collect, use, disclose, 
             and safeguard your information when you use our review platform service ("Service"). This policy applies 
             to all users of our platform, including businesses that use our services (B2B clients) and individuals 
             who interact with our platform through business implementations.
           </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
+          <p className="text-foreground leading-relaxed mt-4">
             By using our Service, you agree to the collection and use of information in accordance with this Privacy 
             Policy. If you do not agree with this policy, please do not use our Service.
           </p>
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           
           <div className="mb-4">
             <h4 className="font-medium mb-2">For Business Clients (B2B):</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Full name and contact person details</li>
               <li>Business email address</li>
               <li>Business phone number</li>
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           
           <div className="mb-4">
             <h4 className="font-medium mb-2">For Review Platform Users:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Name (as provided by reviewers)</li>
               <li>Email address (when provided)</li>
               <li>Review content and ratings</li>
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
             <li><strong>Razorpay</strong> (for Indian users) - PCI DSS compliant</li>
             <li><strong>PayPal</strong> (for international users) - PCI DSS compliant</li>
           </ul>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             We do not store credit card numbers, payment card details, or other sensitive payment information on our servers.
           </p>
           
@@ -75,7 +75,7 @@ export default function PrivacyPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             We automatically collect certain information when you use our Service:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>IP address and device information</li>
             <li>Browser type and version</li>
             <li>Operating system</li>
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             We collect information through:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Direct Input:</strong> Information you provide when registering, creating profiles, or using our services</li>
             <li><strong>Automatic Collection:</strong> Through cookies, analytics tools, and similar technologies</li>
             <li><strong>Third-Party Authentication:</strong> Through Clerk authentication services</li>
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">4.5 Legal and Compliance</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Complying with applicable laws and regulations</li>
             <li>Protecting our rights and interests</li>
             <li>Preventing fraud and abuse</li>
@@ -175,7 +175,7 @@ export default function PrivacyPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">5.3 Business Transfers</h3>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of the transaction.
           </p>
         </section>
@@ -207,7 +207,7 @@ export default function PrivacyPage() {
             <li>Campaign effectiveness measurement</li>
           </ul>
           
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             You can manage cookie preferences through your browser settings. Note that disabling certain cookies may affect platform functionality.
           </p>
         </section>
@@ -230,7 +230,7 @@ export default function PrivacyPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">7.3 Data Retention</h3>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             We retain your personal information only as long as necessary to fulfill the purposes outlined in this Privacy Policy or as required by law. When you request deletion of your account, we will permanently delete your data without retention.
           </p>
         </section>
@@ -266,28 +266,28 @@ export default function PrivacyPage() {
             <li>Manage communication preferences</li>
           </ul>
           
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             To exercise these rights, please contact us at contact@reebews.com.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-4">9. INTERNATIONAL DATA TRANSFERS</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Currently, all data is stored and processed in India through Hostinger's Indian servers. If we expand our services internationally, we will implement appropriate safeguards to protect your data during any international transfers.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-4">10. CHILDREN'S PRIVACY</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Our Service is not directed to individuals under the age of 18. We do not knowingly collect personal information from children under 18. If we become aware that we have collected personal information from a child under 18, we will take steps to delete such information.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-4">11. THIRD-PARTY LINKS</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Our Service may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties. We encourage you to review the privacy policies of any third-party services you access.
           </p>
         </section>
@@ -302,7 +302,7 @@ export default function PrivacyPage() {
             <li>Sending email notifications to registered users</li>
             <li>Updating the "Last Updated" date at the top of this policy</li>
           </ul>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Your continued use of our Service after any changes constitutes acceptance of the updated Privacy Policy.
           </p>
         </section>
@@ -313,11 +313,11 @@ export default function PrivacyPage() {
             If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
           </p>
           <div className="mb-4">
-            <p className="text-gray-700"><strong>Email:</strong> contact@reebews.com</p>
+            <p className="text-foreground"><strong>Email:</strong> contact@reebews.com</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-700 font-medium">Postal Address:</p>
-            <p className="text-gray-700">
+            <p className="text-foreground">
               Reebews<br />
               c/o The Cybershop India<br />
               #4/7, Venkataryan Lane<br />
@@ -335,14 +335,14 @@ export default function PrivacyPage() {
           <p className="text-gray-700 leading-relaxed mb-4">
             This Privacy Policy is designed to comply with applicable Indian privacy laws and regulations. As our services expand globally, we will update this policy to ensure compliance with relevant international privacy regulations.
           </p>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             For payment processing, we rely on PCI DSS compliant payment processors (Razorpay and PayPal) to ensure the security of payment card information.
           </p>
         </section>
 
         <hr className="my-8 border-gray-300" />
         
-        <p className="text-sm text-gray-600 italic">
+        <p className="text-sm text-muted-foreground italic">
           This Privacy Policy is effective as of the date listed above and governs the use of personal information collected by Reebews.
         </p>
       </div>

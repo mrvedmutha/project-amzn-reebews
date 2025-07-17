@@ -8,19 +8,19 @@ export default function CookiesPage() {
       <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">COOKIE POLICY</h1>
       
-      <p className="text-sm text-gray-600 mb-8">
+      <p className="text-sm text-muted-foreground mb-8">
         <strong>Last Updated:</strong> 17-July-2025
       </p>
       
       <div className="space-y-6">
         <section>
           <h2 className="text-xl font-semibold mb-4">1. INTRODUCTION</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             This Cookie Policy explains how Reebews ("we," "our," or "us") uses cookies and similar tracking technologies 
             on our review platform service ("Service"). This policy should be read together with our Privacy Policy and 
             Terms of Service.
           </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
+          <p className="text-foreground leading-relaxed mt-4">
             By using our Service, you consent to the use of cookies as described in this policy. If you do not agree with 
             our use of cookies, you should adjust your browser settings or discontinue use of our Service.
           </p>
@@ -28,12 +28,12 @@ export default function CookiesPage() {
 
         <section>
           <h2 className="text-xl font-semibold mb-4">2. WHAT ARE COOKIES?</h2>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             Cookies are small text files that are placed on your device (computer, smartphone, tablet) when you visit a 
             website. They are widely used to make websites work more efficiently and to provide information to website 
             owners about how users interact with their sites.
           </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
+          <p className="text-foreground leading-relaxed mt-4">
             Cookies contain information that is transferred to your device's hard drive and stored there. They allow us to 
             recognize your device and remember certain information about your preferences or past actions.
           </p>
@@ -49,7 +49,7 @@ export default function CookiesPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Purpose:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>User authentication and security</li>
               <li>Session management</li>
               <li>Platform functionality</li>
@@ -67,14 +67,14 @@ export default function CookiesPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Services We Use:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li><strong>Google Analytics:</strong> Tracks website usage, visitor behavior, and performance metrics</li>
               <li><strong>Microsoft Clarity:</strong> Records user sessions and provides heatmaps and user interaction insights</li>
             </ul>
           </div>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Information Collected:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Pages visited and time spent on pages</li>
               <li>Click patterns and navigation paths</li>
               <li>Device and browser information</li>
@@ -93,7 +93,7 @@ export default function CookiesPage() {
           </p>
           <div className="mb-4">
             <h4 className="font-medium mb-2">Potential Uses:</h4>
-            <ul className="list-disc pl-6 text-gray-700 space-y-1">
+            <ul className="list-disc pl-6 text-foreground space-y-1">
               <li>Personalized advertising</li>
               <li>Campaign effectiveness measurement</li>
               <li>Cross-platform marketing attribution</li>
@@ -101,7 +101,7 @@ export default function CookiesPage() {
               <li>Retargeting and remarketing</li>
             </ul>
           </div>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             <strong>Legal Basis:</strong> Consent (where required) or legitimate interest for marketing purposes.
           </p>
         </section>
@@ -134,7 +134,7 @@ export default function CookiesPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">4.4 Service Improvement</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Analyzing user feedback and behavior</li>
             <li>Testing new features and improvements</li>
             <li>Monitoring platform errors and issues</li>
@@ -173,7 +173,7 @@ export default function CookiesPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">5.4 Future Marketing Partners</h3>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             We may integrate with additional marketing and advertising platforms in the future. When we do, we will 
             update this policy and provide appropriate notice and consent mechanisms.
           </p>
@@ -197,7 +197,7 @@ export default function CookiesPage() {
           </ul>
           
           <h3 className="text-lg font-medium mb-3">6.3 Specific Cookie Lifespans</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Authentication Cookies:</strong> 30 days or until logout</li>
             <li><strong>Preference Cookies:</strong> 1 year</li>
             <li><strong>Analytics Cookies:</strong> 2 years (Google Analytics default)</li>
@@ -242,7 +242,7 @@ export default function CookiesPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             You can opt out of analytics tracking:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Google Analytics:</strong> Use the Google Analytics Opt-out Browser Add-on</li>
             <li><strong>Microsoft Clarity:</strong> Disable through browser privacy settings</li>
             <li><strong>Platform Settings:</strong> We may provide opt-out options in your account settings</li>
@@ -254,7 +254,7 @@ export default function CookiesPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             If you use our mobile applications, similar technologies may be used:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Mobile Analytics:</strong> Usage tracking and performance monitoring</li>
             <li><strong>Push Notifications:</strong> Notification preferences and delivery</li>
             <li><strong>App Performance:</strong> Crash reporting and error tracking</li>
@@ -276,7 +276,7 @@ export default function CookiesPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             When we make significant changes, we will:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Update the "Last Updated" date</li>
             <li>Notify users through email or platform notifications</li>
             <li>Provide clear information about the changes</li>
@@ -289,7 +289,7 @@ export default function CookiesPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             Under applicable privacy laws, you may have the right to:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li><strong>Access:</strong> Request information about cookies we use</li>
             <li><strong>Control:</strong> Manage your cookie preferences</li>
             <li><strong>Withdraw Consent:</strong> Opt out of non-essential cookies</li>
@@ -304,11 +304,11 @@ export default function CookiesPage() {
             If you have questions about our use of cookies or this Cookie Policy, please contact us:
           </p>
           <div className="mb-4">
-            <p className="text-gray-700"><strong>Email:</strong> contact@reebews.com</p>
+            <p className="text-foreground"><strong>Email:</strong> contact@reebews.com</p>
           </div>
           <div className="mb-4">
             <p className="text-gray-700 font-medium">Postal Address:</p>
-            <p className="text-gray-700">
+            <p className="text-foreground">
               Reebews<br />
               c/o The Cybershop India<br />
               #4/7, Venkataryan Lane<br />
@@ -323,7 +323,7 @@ export default function CookiesPage() {
           <p className="text-gray-700 leading-relaxed mb-3">
             This Cookie Policy is designed to comply with applicable laws and regulations, including:
           </p>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
+          <ul className="list-disc pl-6 text-foreground space-y-1">
             <li>Indian Information Technology Act and rules</li>
             <li>General Data Protection Regulation (GDPR) for EU users</li>
             <li>California Consumer Privacy Act (CCPA) for California users</li>
@@ -338,7 +338,7 @@ export default function CookiesPage() {
             as described in this policy. You can withdraw your consent at any time by adjusting your browser settings or 
             contacting us.
           </p>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-foreground leading-relaxed">
             For essential cookies required for platform functionality, we rely on legitimate interest rather than consent, 
             as these are necessary to provide the service you have requested.
           </p>
@@ -346,7 +346,7 @@ export default function CookiesPage() {
 
         <hr className="my-8 border-gray-300" />
         
-        <p className="text-sm text-gray-600 italic">
+        <p className="text-sm text-muted-foreground italic">
           This Cookie Policy is effective as of the date listed above and governs the use of cookies and similar 
           technologies by Reebews.
         </p>
