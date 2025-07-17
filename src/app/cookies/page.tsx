@@ -1,6 +1,11 @@
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+
 export default function CookiesPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <main className="flex min-h-screen flex-col">
+      <Navbar />
+      <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">COOKIE POLICY</h1>
       
       <p className="text-sm text-gray-600 mb-8">
@@ -346,6 +351,8 @@ export default function CookiesPage() {
           technologies by Reebews.
         </p>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </main>
   );
 }
