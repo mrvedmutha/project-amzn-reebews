@@ -10,7 +10,6 @@ import {
   Currency,
   BillingCycle,
   CouponType,
-  PaymentMethod,
   PaymentStatus,
 } from "@/enums/checkout.enum";
 import { CheckoutFormZod } from "@/schemas/zod/checkout/checkout.zod";
@@ -555,7 +554,9 @@ export function useCheckout() {
           currency,
           amount,
           userDetails,
-          paymentGateway: isIndianUser ? "razorpay" : "paypal",
+          paymentGateway: plan === "free" 
+            ? (isIndianUser ? "free-india" : "free-us")
+            : (isIndianUser ? "razorpay" : "paypal"),
           billingCycle,
         }),
       });

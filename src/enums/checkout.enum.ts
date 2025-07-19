@@ -26,6 +26,8 @@ export enum Plan {
 export enum PaymentGateway {
   RAZORPAY = "razorpay",
   PAYPAL = "paypal",
+  FREE_INDIA = "free-india",
+  FREE_US = "free-us",
 }
 
 /**
