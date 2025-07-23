@@ -9,7 +9,6 @@ import {
   Instagram,
   Linkedin,
   Mail,
-  Phone,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
@@ -126,18 +125,11 @@ export function Footer() {
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-6">
               <Link
-                href="mailto:info@reebews.com"
+                href="mailto:contact@reebews.com"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
               >
                 <Mail className="h-4 w-4" />
-                <span>info@reebews.com</span>
-              </Link>
-              <Link
-                href="tel:+1234567890"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
-              >
-                <Phone className="h-4 w-4" />
-                <span>+1 (234) 567-890</span>
+                <span>contact@reebews.com</span>
               </Link>
             </div>
           </div>
