@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react"
-import { IContactFormData, IContactSubmissionRequest, IContactSubmissionResponse } from "@/types/contact/contact.types"
+import { IContactFormData, IContactFormErrors, IContactSubmissionRequest, IContactSubmissionResponse } from "@/types/contact/contact.types"
 
 export function Contact() {
   const [formData, setFormData] = useState<IContactFormData>({
@@ -22,7 +22,7 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [errors, setErrors] = useState<Partial<IContactFormData>>({})
+  const [errors, setErrors] = useState<IContactFormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
 
@@ -45,7 +45,7 @@ export function Contact() {
   }
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<IContactFormData> = {}
+    const newErrors: IContactFormErrors = {}
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required"

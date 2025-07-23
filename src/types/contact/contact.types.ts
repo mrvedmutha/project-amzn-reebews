@@ -15,6 +15,13 @@ export interface IContactFormData {
   query: string;
 }
 
+export interface IContactFormErrors {
+  fullName?: string;
+  email?: string;
+  userType?: string;
+  query?: string;
+}
+
 export interface IContactSubmissionRequest {
   fullName: string;
   email: string;

@@ -3,6 +3,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Bell, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function BlogPage() {
   return (
@@ -51,20 +52,20 @@ export default function BlogPage() {
                   
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button variant="outline" asChild>
-                      <a href="/faq">Browse FAQ</a>
+                      <Link href="/faq">Browse FAQ</Link>
                     </Button>
                     
                     <Button variant="outline" asChild>
-                      <a href="/contact">Contact Support</a>
+                      <Link href="/contact">Contact Support</Link>
                     </Button>
                   </div>
                   
                   <div className="pt-6">
                     <Button variant="ghost" asChild>
-                      <a href="/" className="inline-flex items-center gap-2">
+                      <Link href="/" className="inline-flex items-center gap-2">
                         <ArrowLeft className="w-4 h-4" />
                         Back to Home
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 </div>

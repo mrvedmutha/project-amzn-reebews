@@ -15,7 +15,7 @@ import React from "react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {

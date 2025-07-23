@@ -120,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<IContactS
     let body: IContactSubmissionRequest;
     try {
       body = await request.json();
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { success: false, message: "Invalid JSON in request body" },
         { status: 400 }
