@@ -309,7 +309,7 @@ export function Contact() {
                   <div className="flex justify-center">
                     <ReCAPTCHA
                       ref={recaptchaRef}
-                      sitekey={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
+                      sitekey={process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_V2_SITE || ""}
                       theme="light"
                     />
                   </div>
