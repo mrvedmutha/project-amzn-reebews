@@ -34,7 +34,7 @@ export function Footer() {
         { name: "Features", href: "#features" },
         { name: "Pricing", href: "#pricing" },
         { name: "Comparison", href: "#comparison" },
-        { name: "FAQ", href: "#faq" },
+        { name: "FAQ", href: "/faq" },
       ],
     },
     {
@@ -42,7 +42,6 @@ export function Footer() {
       links: [
         { name: "About", href: "/about" },
         { name: "Blog", href: "/blog" },
-        { name: "Careers", href: "/careers" },
         { name: "Contact", href: "/contact" },
       ],
     },
