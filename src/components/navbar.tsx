@@ -63,7 +63,7 @@ export function Navbar() {
             <CurrencyToggle />
             <ThemeToggle />
             <Button asChild size="sm">
-              <Link href="admin.reebews.com/login">Login</Link>
+              <Link href="https://admin.reebews.com/login">Login</Link>
             </Button>
           </div>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
