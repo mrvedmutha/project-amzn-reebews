@@ -39,6 +39,20 @@ export default function TermsPage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-semibold mb-4">CAMPAIGN MODES AND SELLER RESPONSIBILITY</h2>
+          <p className="text-foreground leading-relaxed">
+            <strong>Campaign Modes.</strong> Reebews offers two campaign‑flow modes:
+          </p>
+          <ul className="list-disc list-inside text-foreground leading-relaxed mt-4 ml-4">
+            <li><strong>Compliant Funnel Mode:</strong> a neutral flow that treats all reviewers equally and does not condition incentives (if any) on the content or rating of their review.</li>
+            <li><strong>Smart Funnel Mode:</strong> a gated flow that may show marketplace‑review links only to higher‑rating reviewers, and/or tie incentives to review completion.</li>
+          </ul>
+          <p className="text-foreground leading-relaxed mt-4">
+            <strong>Seller Acknowledgment.</strong> You (the "Seller") choose which mode to run for each campaign. You acknowledge and agree that <strong>Smart Funnel Mode may conflict with the review policies</strong> of certain marketplaces (including Amazon) and that you alone are responsible for ensuring your campaigns comply with all applicable rules.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-xl font-semibold mb-4">SECTION 1 – SAAS PLATFORM TERMS</h2>
           <p className="text-foreground leading-relaxed">
             By agreeing to these Terms of Service, you represent that you are at least the age of majority in your state or 
@@ -75,6 +89,9 @@ export default function TermsPage() {
           <p className="text-foreground leading-relaxed mt-4">
             The headings used in this agreement are included for convenience only and will not limit or otherwise affect 
             these Terms.
+          </p>
+          <p className="text-foreground leading-relaxed mt-4">
+            <strong>Campaign Records.</strong> You agree to maintain and provide, upon request by Reebews or any marketplace, records of your campaign settings, mode selection, incentive terms, and any buyer communications. These records will support the defense of your account in case of any marketplace audit or dispute.
           </p>
         </section>
 
@@ -299,6 +316,13 @@ export default function TermsPage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-semibold mb-4">MARKETPLACE COMPLIANCE DISCLAIMER</h2>
+          <p className="text-foreground leading-relaxed">
+            <strong>Marketplace Compliance Disclaimer.</strong> Reebews provides tools that can be configured in multiple ways. <strong>We do not guarantee</strong> that any campaign you run—especially those using Smart Funnel Mode—will comply with the terms of any third‑party platform (e.g. Amazon, Shopify, Etsy). You are solely responsible for verifying that your use of Reebews with any marketplace is compliant with that marketplace's seller policies. Reebews and its affiliates shall have no liability for any suspension, removal of listings, loss of selling privileges, fines, or other penalties imposed by any marketplace or regulatory body arising from your campaigns.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-xl font-semibold mb-4">SECTION 14 – INDEMNIFICATION</h2>
           <p className="text-foreground leading-relaxed">
             You agree to indemnify, defend and hold harmless Reebews and our parent, subsidiaries, affiliates, partners, 
@@ -306,6 +330,9 @@ export default function TermsPage() {
             employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third-party due 
             to or arising out of your breach of these Terms of Service or the documents they incorporate by reference, or 
             your violation of any law or the rights of a third-party.
+          </p>
+          <p className="text-foreground leading-relaxed mt-4">
+            <strong>Indemnification—Marketplace Claims.</strong> In addition to other indemnities in these Terms, you agree to indemnify, defend, and hold harmless Reebews and its affiliates from any third‑party claim, demand, fine, or penalty arising from your violation of a marketplace's review or seller policy, including any suspension or removal of your seller account or listings.
           </p>
         </section>
 

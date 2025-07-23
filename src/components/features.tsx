@@ -28,22 +28,24 @@ export function Features() {
               <QrCode className="h-8 w-8 group-hover:text-black" />
               <div className="space-y-4">
                 <CardTitle className="group-hover:text-black">
-                  Choose Your Campaign Strategy
+                  Step 1: Set Up a Review or Feedback Campaign
                 </CardTitle>
                 <CardDescription className="group-hover:text-black">
                   <p className="mb-4">
-                    With our highly customizable smart funnel, you can offer
-                    your customers several promotional offers with their product
-                    purchase.
+                    Craft a campaign that fits your brand and goals. 
+                    Whether you're collecting feedback, offering product support, or delivering bonuses,
+                    Reebews gives you full control. 
+                  </p>
+                  <p className="mb-4">
+                    What you can offer:
                   </p>
                   <ul className="space-y-2">
-                    <li>- Free Gift</li>
-                    <li>- Physical Gift or Digital Card or Coupon</li>
+                    <li>- Helpful extras like extended warranties or how-to guides</li>
+                    <li>- Bonus content like eBooks or downloadable resources</li>
                     <li>
-                      - Downloadable Content such as instructions, eBook, or
-                      Extended Warranty
+                      - Discount codes or store credit
                     </li>
-                    <li>- Collect email address only</li>
+                    <li>- Feedback-only options to collect emails and insights</li>
                   </ul>
                 </CardDescription>
               </div>
@@ -55,19 +57,21 @@ export function Features() {
               <Gift className="h-8 w-8 group-hover:text-black" />
               <div className="space-y-4">
                 <CardTitle className="group-hover:text-black">
-                  Add Your Unique QR Code to Your Product Inserts
+                  Step 2: Add a QR Code to Your Product Inserts
                 </CardTitle>
                 <CardDescription className="group-hover:text-black">
                   <p className="mb-4">
-                    Supercharge your product inserts marketing effectiveness by
-                    adding your unique promotion QR Code to lead your customers
-                    into our smart funnel
+                    Make every package a touchpoint. 
+                    Automatically generate a unique QR code for each campaign to include 
+                    on your packaging, inserts, or thank-you cards.
+                  </p>
+                  <p className="mb-4">
+                    Highlights&colon;
                   </p>
                   <ul className="space-y-2">
-                    <li>- Make your product inserts to do more for you</li>
                     <li>- Frictionless Call-to-Action for your customers</li>
-                    <li>- QR Codes are automatically generated</li>
-                    <li>- Easily download and print your QR Codes</li>
+                    <li>- Printable, high-resolution QR code files</li>
+                    <li>- Boost post-purchase engagement</li>
                   </ul>
                 </CardDescription>
               </div>
@@ -81,13 +85,13 @@ export function Features() {
               <UserCheck className="h-8 w-8 group-hover:text-black" />
               <div className="space-y-4">
                 <CardTitle className="group-hover:text-black">
-                  Your Customers Scan Your QR Code to Enter Your Smart Funnel
+                  Step 3: Your Customers Scan & Enter the Funnel
                 </CardTitle>
                 <CardDescription className="group-hover:text-black">
                   <p>
-                    With our highly customizable smart funnel, you can offer
-                    your customers several promotional offers with their product
-                    purchase.
+                    When customers scan the QR code, 
+                    they&apos;re guided through a branded experience where they can leave feedback 
+                    and receive your offer (if provided).
                   </p>
                 </CardDescription>
               </div>
@@ -99,15 +103,17 @@ export function Features() {
               <MessageCircle className="h-8 w-8 group-hover:text-black" />
               <div className="space-y-4">
                 <CardTitle className="group-hover:text-black">
-                  Collect Customer Feedback, Reviews and Emails
+                  Step 4: Collect Feedback, Reviews & Insights
                 </CardTitle>
                 <CardDescription className="group-hover:text-black">
                   <p>
-                    Based on your settings, our smart funnel will offer your
-                    customers your free promotion while collecting their email
-                    and product review, or if you choose not to offer a free
-                    promotion, only collect their email and feedback
+                    Based on your campaign setup, you&apos;ll capture&colon;
                   </p>
+                  <ul className="space-y-2">
+                    <li>- Honest reviews on Amazon, Shopify, or your platform</li>
+                    <li>- Customer feedback and insights</li>
+                    <li>- Email addresses for future marketing</li>
+                  </ul>
                 </CardDescription>
               </div>
             </CardHeader>

@@ -33,19 +33,19 @@ export function Hero() {
           <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl font-bold">
-                Get Positive Reviews
+                Smart
               </h1>
               <h1 className="text-4xl md:text-5xl font-bold">
-                <span className="text-yellow-500">Guaranteed.</span>
+                <span className="text-yellow-500">Review Funnels</span>
               </h1>
               <h1 className="text-4xl md:text-5xl font-bold">
-                With Reebew.
+                Smart Sellers
               </h1>
             </div>
             <p className="text-lg max-w-md mx-auto md:mx-0">
-              Boost your marketplace presence across Amazon, Flipkart, Etsy, and more. 
-              Reebews helps you collect authentic reviews, increase visibility, and build 
-              customer trust on any platform.
+              Reebews empowers small businesses to gather honest reviews, 
+              reward real customers, and boost visibility across 
+              Amazon, Shopify, and more — all while staying platform-compliant.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               <Button asChild size="lg">
