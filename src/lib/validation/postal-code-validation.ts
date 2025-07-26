@@ -157,6 +157,99 @@ export function requiresState(country: Country): boolean {
 }
 
 /**
+ * Gets city/locality configuration for different countries
+ */
+export function getCityConfig(country: Country) {
+  switch (country) {
+    case Country.UNITED_KINGDOM:
+      return {
+        label: "Town/City",
+        placeholder: "London"
+      };
+    case Country.GERMANY:
+      return {
+        label: "City",
+        placeholder: "Berlin"
+      };
+    case Country.FRANCE:
+      return {
+        label: "City",
+        placeholder: "Paris"
+      };
+    case Country.NETHERLANDS:
+      return {
+        label: "City",
+        placeholder: "Amsterdam"
+      };
+    case Country.SPAIN:
+      return {
+        label: "City",
+        placeholder: "Madrid"
+      };
+    case Country.ITALY:
+      return {
+        label: "City",
+        placeholder: "Rome"
+      };
+    case Country.JAPAN:
+      return {
+        label: "City",
+        placeholder: "Tokyo"
+      };
+    case Country.SOUTH_KOREA:
+      return {
+        label: "City",
+        placeholder: "Seoul"
+      };
+    case Country.SINGAPORE:
+      return {
+        label: "District",
+        placeholder: "Orchard"
+      };
+    case Country.AUSTRALIA:
+      return {
+        label: "Suburb/City",
+        placeholder: "Sydney"
+      };
+    case Country.BRAZIL:
+      return {
+        label: "City",
+        placeholder: "São Paulo"
+      };
+    case Country.ARGENTINA:
+      return {
+        label: "City",
+        placeholder: "Buenos Aires"
+      };
+    case Country.SOUTH_AFRICA:
+      return {
+        label: "City",
+        placeholder: "Cape Town"
+      };
+    case Country.INDIA:
+      return {
+        label: "City",
+        placeholder: "Mumbai"
+      };
+    case Country.UNITED_STATES:
+      return {
+        label: "City",
+        placeholder: "New York"
+      };
+    case Country.CANADA:
+      return {
+        label: "City",
+        placeholder: "Toronto"
+      };
+    default:
+      return {
+        label: "City",
+        placeholder: "Enter city name"
+      };
+  }
+}
+
+/**
  * Formats postal code according to country standards
  */
 export function formatPostalCode(postalCode: string, country: Country): string {

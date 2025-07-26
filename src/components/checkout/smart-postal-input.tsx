@@ -146,6 +146,34 @@ export const SmartPostalInput = React.forwardRef<HTMLInputElement, SmartPostalIn
     const config = getPostalCodeConfig(country);
     const { inputMode, pattern } = getInputTypeAndPattern(country);
     
+    // Dynamic placeholder based on country and current input
+    const getDynamicPlaceholder = () => {
+      if (!value || value.length === 0) {
+        return config.placeholder;
+      }
+      
+      // Show format hint based on country
+      switch (country) {
+        case Country.CANADA:
+          return value.length <= 3 ? "K1A 0A6" : "0A6";
+        case Country.UNITED_KINGDOM:
+          if (value.length <= 2) return "SW1A 1AA";
+          if (value.length <= 4) return "1AA";
+          return "AA";
+        case Country.JAPAN:
+          return value.length <= 3 ? "123-4567" : "4567";
+        case Country.NETHERLANDS:
+          return value.length <= 4 ? "1234 AB" : "AB";
+        case Country.BRAZIL:
+          return value.length <= 5 ? "12345-678" : "678";
+        case Country.UNITED_STATES:
+          if (value.length <= 5) return "12345-6789";
+          return "6789";
+        default:
+          return config.placeholder;
+      }
+    };
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
       const formatted = autoFormatPostalCode(inputValue, country);
@@ -178,7 +206,7 @@ export const SmartPostalInput = React.forwardRef<HTMLInputElement, SmartPostalIn
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={config.placeholder}
+        placeholder={getDynamicPlaceholder()}
         className={cn(className)}
         autoComplete="postal-code"
         {...props}

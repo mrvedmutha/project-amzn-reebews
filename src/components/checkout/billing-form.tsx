@@ -43,7 +43,7 @@ import {
   BrazilianState,
   SouthAfricanProvince,
 } from "@/enums/checkout.enum";
-import { getPostalCodeConfig, requiresState } from "@/lib/validation/postal-code-validation";
+import { getPostalCodeConfig, requiresState, getCityConfig } from "@/lib/validation/postal-code-validation";
 
 interface BillingFormProps {
   form: UseFormReturn<CheckoutFormValues>;
@@ -87,6 +87,9 @@ export function BillingForm({
   
   // Get postal code configuration for the selected country
   const postalCodeConfig = getPostalCodeConfig(selectedCountry as Country);
+  
+  // Get city configuration for the selected country
+  const cityConfig = getCityConfig(selectedCountry as Country);
   
   // Get appropriate state/province label
   const getStateLabel = (country: string) => {
@@ -205,9 +208,9 @@ export function BillingForm({
           name="address.city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>City</FormLabel>
+              <FormLabel>{cityConfig.label}</FormLabel>
               <FormControl>
-                <Input placeholder="New York" {...field} />
+                <Input placeholder={cityConfig.placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
