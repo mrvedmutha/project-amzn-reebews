@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SmartPostalInput } from "./smart-postal-input";
 import {
   Select,
   SelectContent,
@@ -219,7 +220,11 @@ export function BillingForm({
             <FormItem>
               <FormLabel>{postalCodeConfig.label}</FormLabel>
               <FormControl>
-                <Input placeholder={postalCodeConfig.placeholder} {...field} />
+                <SmartPostalInput
+                  country={selectedCountry as Country}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
