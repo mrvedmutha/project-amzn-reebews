@@ -74,11 +74,38 @@ const autoFormatPostalCode = (value: string, country: Country): string => {
     case Country.UNITED_KINGDOM: {
       // Format: SW1A 1AA
       const alphanumeric = cleaned.replace(/\s/g, '').toUpperCase();
-      if (alphanumeric.length <= 4) return alphanumeric;
-      // Try to detect outcode/incode split
-      const match = alphanumeric.match(/^([A-Z]{1,2}\d[A-Z\d]?)(\d[A-Z]{2})$/);
-      if (match) return `${match[1]} ${match[2]}`;
-      return alphanumeric;
+      
+      // For UK postcodes, we need to handle different patterns:
+      // A9 9AA, A99 9AA, AA9 9AA, AA99 9AA, A9A 9AA, AA9A 9AA
+      if (alphanumeric.length <= 3) return alphanumeric;
+      if (alphanumeric.length <= 4) {
+        // Could be A9A pattern, check if 3rd char is letter
+        if (/^[A-Z]\d[A-Z]/.test(alphanumeric)) {
+          return alphanumeric;
+        }
+        // Otherwise add space after 3rd character for A99 pattern
+        return `${alphanumeric.slice(0, 3)} ${alphanumeric.slice(3)}`;
+      }
+      if (alphanumeric.length <= 5) {
+        // Check for A9A pattern
+        if (/^[A-Z]\d[A-Z]/.test(alphanumeric)) {
+          return `${alphanumeric.slice(0, 3)} ${alphanumeric.slice(3)}`;
+        }
+        // AA99 or A999 pattern  
+        return `${alphanumeric.slice(0, 4)} ${alphanumeric.slice(4)}`;
+      }
+      if (alphanumeric.length <= 6) {
+        // AA9A pattern
+        if (/^[A-Z]{2}\d[A-Z]/.test(alphanumeric)) {
+          return `${alphanumeric.slice(0, 4)} ${alphanumeric.slice(4)}`;
+        }
+        // Other patterns
+        const outcode = /^[A-Z]\d[A-Z]/.test(alphanumeric) ? 3 : 4;
+        return `${alphanumeric.slice(0, outcode)} ${alphanumeric.slice(outcode)}`;
+      }
+      // Max 7 characters with space
+      const outcode = /^[A-Z]\d[A-Z]/.test(alphanumeric) ? 3 : 4;
+      return `${alphanumeric.slice(0, outcode)} ${alphanumeric.slice(outcode, outcode + 3)}`;
     }
     
     case Country.NETHERLANDS: {
