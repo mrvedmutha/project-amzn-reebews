@@ -10,21 +10,73 @@ import {
   USState,
   CanadianProvince,
 } from "@/enums/checkout.enum";
+import { validatePostalCode, getPostalCodeConfig, requiresState } from "@/lib/validation/postal-code-validation";
 
 /**
- * Address validation schema
+ * Address validation schema with dynamic postal code validation
  */
 export const AddressZod = z.object({
   street: z
     .string()
     .min(5, { message: "Street address must be at least 5 characters" }),
   city: z.string().min(2, { message: "City must be at least 2 characters" }),
-  state: z.string().min(2, { message: "State must be at least 2 characters" }),
+  state: z.string().optional(),
   country: z.nativeEnum(Country, { message: "Please select a valid country" }),
-  pincode: z
-    .string()
-    .regex(/^\d{6}$/, { message: "Please enter a valid 6-digit pincode" }),
+  pincode: z.string().min(1, { message: "Postal code is required" }),
+}).refine((data) => {
+  // Validate postal code
+  if (!validatePostalCode(data.pincode, data.country)) {
+    return false;
+  }
+  // Validate state is provided for countries that require it
+  if (requiresState(data.country) && (!data.state || data.state.length < 2)) {
+    return false;
+  }
+  return true;
+}, (data) => {
+  // Check which validation failed and return appropriate error
+  if (!validatePostalCode(data.pincode, data.country)) {
+    return {
+      message: "Please enter a valid postal code for the selected country",
+      path: ["pincode"],
+    };
+  }
+  if (requiresState(data.country) && (!data.state || data.state.length < 2)) {
+    return {
+      message: "State/Province is required for the selected country",
+      path: ["state"],
+    };
+  }
+  return {
+    message: "Please check your address details",
+    path: ["country"],
+  };
 });
+
+/**
+ * Creates address schema with country-specific postal code validation
+ */
+export const createAddressZodWithCountry = (country: Country) => {
+  const config = getPostalCodeConfig(country);
+  const needsState = requiresState(country);
+  
+  return z.object({
+    street: z
+      .string()
+      .min(5, { message: "Street address must be at least 5 characters" }),
+    city: z.string().min(2, { message: "City must be at least 2 characters" }),
+    state: needsState 
+      ? z.string().min(2, { message: "State/Province is required" })
+      : z.string().optional(),
+    country: z.nativeEnum(Country, { message: "Please select a valid country" }),
+    pincode: z
+      .string()
+      .min(1, { message: `${config.label} is required` })
+      .refine((value) => validatePostalCode(value, country), {
+        message: config.errorMessage,
+      }),
+  });
+};
 
 /**
  * Checkout form validation schema

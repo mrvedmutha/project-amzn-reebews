@@ -37,7 +37,12 @@ import {
   IndianState,
   USState,
   CanadianProvince,
+  GermanState,
+  AustralianState,
+  BrazilianState,
+  SouthAfricanProvince,
 } from "@/enums/checkout.enum";
+import { getPostalCodeConfig, requiresState } from "@/lib/validation/postal-code-validation";
 
 interface BillingFormProps {
   form: UseFormReturn<CheckoutFormValues>;
@@ -63,6 +68,14 @@ export function BillingForm({
         return Object.values(USState);
       case Country.CANADA:
         return Object.values(CanadianProvince);
+      case Country.GERMANY:
+        return Object.values(GermanState);
+      case Country.AUSTRALIA:
+        return Object.values(AustralianState);
+      case Country.BRAZIL:
+        return Object.values(BrazilianState);
+      case Country.SOUTH_AFRICA:
+        return Object.values(SouthAfricanProvince);
       default:
         return [];
     }
@@ -70,15 +83,41 @@ export function BillingForm({
 
   const states = getStatesForCountry(selectedCountry);
   const showStateField = states.length > 0;
+  
+  // Get postal code configuration for the selected country
+  const postalCodeConfig = getPostalCodeConfig(selectedCountry as Country);
+  
+  // Get appropriate state/province label
+  const getStateLabel = (country: string) => {
+    switch (country) {
+      case Country.CANADA:
+        return "Province";
+      case Country.GERMANY:
+        return "State (Land)";
+      case Country.AUSTRALIA:
+        return "State/Territory";
+      case Country.BRAZIL:
+        return "State";
+      case Country.SOUTH_AFRICA:
+        return "Province";
+      default:
+        return "State";
+    }
+  };
 
-  // Reset state when country changes (but only if there's no existing valid state)
+  // Reset state when country changes
   React.useEffect(() => {
     if (selectedCountry) {
       const currentState = form.getValues("address.state");
       const validStates = getStatesForCountry(selectedCountry);
+      const countryRequiresState = requiresState(selectedCountry as Country);
       
-      // Only reset if current state is not valid for the selected country
-      if (currentState && validStates.length > 0 && !(validStates as string[]).includes(currentState)) {
+      // Clear state if country doesn't require states
+      if (!countryRequiresState && currentState) {
+        form.setValue("address.state", "");
+      }
+      // Reset if current state is not valid for the selected country that has states
+      else if (currentState && validStates.length > 0 && !(validStates as string[]).includes(currentState)) {
         form.setValue("address.state", "");
       }
     }
@@ -178,9 +217,9 @@ export function BillingForm({
           name="address.pincode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Postal Code</FormLabel>
+              <FormLabel>{postalCodeConfig.label}</FormLabel>
               <FormControl>
-                <Input placeholder="10001" {...field} />
+                <Input placeholder={postalCodeConfig.placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -196,7 +235,7 @@ export function BillingForm({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>
-                  {selectedCountry === Country.CANADA ? "Province" : "State"}
+                  {getStateLabel(selectedCountry)}
                 </FormLabel>
                 <Popover open={stateOpen} onOpenChange={setStateOpen}>
                   <PopoverTrigger asChild>
@@ -212,11 +251,7 @@ export function BillingForm({
                       >
                         {field.value
                           ? states.find((state) => state === field.value)
-                          : `Select a ${
-                              selectedCountry === Country.CANADA
-                                ? "province"
-                                : "state"
-                            }`}
+                          : `Select a ${getStateLabel(selectedCountry).toLowerCase()}`}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
@@ -224,18 +259,10 @@ export function BillingForm({
                   <PopoverContent className="w-full p-0">
                     <Command>
                       <CommandInput
-                        placeholder={`Search ${
-                          selectedCountry === Country.CANADA
-                            ? "province"
-                            : "state"
-                        }...`}
+                        placeholder={`Search ${getStateLabel(selectedCountry).toLowerCase()}...`}
                       />
                       <CommandEmpty>
-                        No{" "}
-                        {selectedCountry === Country.CANADA
-                          ? "province"
-                          : "state"}{" "}
-                        found.
+                        No {getStateLabel(selectedCountry).toLowerCase()} found.
                       </CommandEmpty>
                       <CommandGroup className="max-h-64 overflow-auto">
                         {states.map((state) => (

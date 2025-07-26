@@ -69,16 +69,31 @@ export enum CouponType {
  * Supported countries for checkout
  */
 export enum Country {
+  // Asia-Pacific
   INDIA = "India",
+  AUSTRALIA = "Australia",
+  SINGAPORE = "Singapore", 
+  JAPAN = "Japan",
+  SOUTH_KOREA = "South Korea",
+  
+  // North America
   UNITED_STATES = "United States",
   CANADA = "Canada",
+  
+  // Europe
   UNITED_KINGDOM = "United Kingdom",
-  AUSTRALIA = "Australia",
   GERMANY = "Germany",
   FRANCE = "France",
-  SINGAPORE = "Singapore",
-  JAPAN = "Japan",
+  NETHERLANDS = "Netherlands",
+  SPAIN = "Spain",
+  ITALY = "Italy",
+  
+  // South America
   BRAZIL = "Brazil",
+  ARGENTINA = "Argentina",
+  
+  // Africa
+  SOUTH_AFRICA = "South Africa",
 }
 
 /**
@@ -197,4 +212,88 @@ export enum CanadianProvince {
   QUEBEC = "Quebec",
   SASKATCHEWAN = "Saskatchewan",
   YUKON = "Yukon",
+}
+
+/**
+ * German states (Länder) for checkout
+ */
+export enum GermanState {
+  BADEN_WURTTEMBERG = "Baden-Württemberg",
+  BAVARIA = "Bavaria",
+  BERLIN = "Berlin",
+  BRANDENBURG = "Brandenburg",
+  BREMEN = "Bremen",
+  HAMBURG = "Hamburg",
+  HESSE = "Hesse",
+  LOWER_SAXONY = "Lower Saxony",
+  MECKLENBURG_VORPOMMERN = "Mecklenburg-Vorpommern",
+  NORTH_RHINE_WESTPHALIA = "North Rhine-Westphalia",
+  RHINELAND_PALATINATE = "Rhineland-Palatinate",
+  SAARLAND = "Saarland",
+  SAXONY = "Saxony",
+  SAXONY_ANHALT = "Saxony-Anhalt",
+  SCHLESWIG_HOLSTEIN = "Schleswig-Holstein",
+  THURINGIA = "Thuringia",
+}
+
+/**
+ * Australian states and territories for checkout
+ */
+export enum AustralianState {
+  NEW_SOUTH_WALES = "New South Wales",
+  VICTORIA = "Victoria",
+  QUEENSLAND = "Queensland",
+  WESTERN_AUSTRALIA = "Western Australia",
+  SOUTH_AUSTRALIA = "South Australia",
+  TASMANIA = "Tasmania",
+  NORTHERN_TERRITORY = "Northern Territory",
+  AUSTRALIAN_CAPITAL_TERRITORY = "Australian Capital Territory",
+}
+
+/**
+ * Brazilian states for checkout
+ */
+export enum BrazilianState {
+  ACRE = "Acre",
+  ALAGOAS = "Alagoas",
+  AMAPA = "Amapá",
+  AMAZONAS = "Amazonas",
+  BAHIA = "Bahia",
+  CEARA = "Ceará",
+  DISTRITO_FEDERAL = "Distrito Federal",
+  ESPIRITO_SANTO = "Espírito Santo",
+  GOIAS = "Goiás",
+  MARANHAO = "Maranhão",
+  MATO_GROSSO = "Mato Grosso",
+  MATO_GROSSO_DO_SUL = "Mato Grosso do Sul",
+  MINAS_GERAIS = "Minas Gerais",
+  PARA = "Pará",
+  PARAIBA = "Paraíba",
+  PARANA = "Paraná",
+  PERNAMBUCO = "Pernambuco",
+  PIAUI = "Piauí",
+  RIO_DE_JANEIRO = "Rio de Janeiro",
+  RIO_GRANDE_DO_NORTE = "Rio Grande do Norte",
+  RIO_GRANDE_DO_SUL = "Rio Grande do Sul",
+  RONDONIA = "Rondônia",
+  RORAIMA = "Roraima",
+  SANTA_CATARINA = "Santa Catarina",
+  SAO_PAULO = "São Paulo",
+  SERGIPE = "Sergipe",
+  TOCANTINS = "Tocantins",
+}
+
+/**
+ * South African provinces for checkout
+ */
+export enum SouthAfricanProvince {
+  EASTERN_CAPE = "Eastern Cape",
+  FREE_STATE = "Free State",
+  GAUTENG = "Gauteng",
+  KWAZULU_NATAL = "KwaZulu-Natal",
+  LIMPOPO = "Limpopo",
+  MPUMALANGA = "Mpumalanga",
+  NORTHERN_CAPE = "Northern Cape",
+  NORTH_WEST = "North West",
+  WESTERN_CAPE = "Western Cape",
 }
