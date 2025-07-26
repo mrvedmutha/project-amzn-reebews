@@ -74,7 +74,8 @@ export function Pricing() {
         } Reviews per month`,
         included: true,
       },
-      { name: "Reebews branding", included: !features.whiteLabel },
+      // Only show White Labelling for Pro plans that have it
+      ...(features.whiteLabel ? [{ name: "White Labelling", included: true }] : []),
       {
         name: `Additional products at ${
           currency === "USD"
