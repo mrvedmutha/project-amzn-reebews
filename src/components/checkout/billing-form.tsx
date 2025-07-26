@@ -86,10 +86,23 @@ export function BillingForm({
   const showStateField = states.length > 0;
   
   // Get postal code configuration for the selected country
-  const postalCodeConfig = getPostalCodeConfig(selectedCountry as Country);
+  const postalCodeConfig = selectedCountry ? getPostalCodeConfig(selectedCountry as Country) : {
+    label: "Postal Code",
+    placeholder: "Enter postal code",
+    pattern: /^.+$/,
+    errorMessage: "Please enter a valid postal code"
+  };
   
   // Get city configuration for the selected country
-  const cityConfig = getCityConfig(selectedCountry as Country);
+  const cityConfig = React.useMemo(() => {
+    if (!selectedCountry) {
+      return {
+        label: "City",
+        placeholder: "Enter city name"
+      };
+    }
+    return getCityConfig(selectedCountry as Country);
+  }, [selectedCountry]);
   
   // Get appropriate state/province label
   const getStateLabel = (country: string) => {
