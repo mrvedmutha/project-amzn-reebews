@@ -54,7 +54,7 @@ export const HealthcheckService = {
         throw new Error("Database connection is not ready");
       }
 
-      await mongoose.connection.db.admin().ping();
+      await mongoose.connection.db?.admin().ping();
       
       const responseTime = Date.now() - startTime;
       
