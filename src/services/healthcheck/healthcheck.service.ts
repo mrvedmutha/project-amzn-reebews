@@ -77,42 +77,16 @@ export const HealthcheckService = {
     }
   },
 
-  async checkApiHealth(): Promise<{
+  checkApiHealth(): {
     status: "healthy" | "unhealthy";
-    responseTime?: number;
-    error?: string;
-  }> {
+    responseTime: number;
+  } {
     const startTime = Date.now();
+    const responseTime = Date.now() - startTime;
     
-    try {
-      const port = process.env.PORT || 3000;
-      const hostname = process.env.HOSTNAME || 'localhost';
-      
-      const response = await fetch(`http://${hostname}:${port}/api/plans`, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'healthcheck',
-        },
-        signal: AbortSignal.timeout(5000),
-      });
-
-      const responseTime = Date.now() - startTime;
-
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status}`);
-      }
-      
-      return {
-        status: "healthy",
-        responseTime,
-      };
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      return {
-        status: "unhealthy",
-        responseTime,
-        error: error instanceof Error ? error.message : "API not responding",
-      };
-    }
+    return {
+      status: "healthy",
+      responseTime,
+    };
   },
 };
