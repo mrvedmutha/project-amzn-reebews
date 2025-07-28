@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Check } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +29,8 @@ export function CheckoutContent() {
   const paymentFormRef = React.useRef<PaymentFormRef>(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [isValidatingCoupon, setIsValidatingCoupon] = React.useState(false);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
   const {
     form,
@@ -57,6 +61,15 @@ export function CheckoutContent() {
     cartLoadError,
     paymentError,
   } = useCheckout();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc =
+    mounted && resolvedTheme === "dark"
+      ? "/uploads/logo/reebews-logo-dark.svg"
+      : "/uploads/logo/reebews-logo-light.svg";
 
   const handleCompleteOrder = async (data: any) => {
     try {
@@ -164,9 +177,17 @@ export function CheckoutContent() {
         <div className="container max-w-6xl py-8 mx-auto px-4">
           <Link
             href="/"
-            className="flex items-center mb-6 text-yellow-500 font-bold text-2xl"
+            className="flex items-center mb-6"
           >
-            Reebews
+            {mounted && (
+              <Image
+                src={logoSrc}
+                alt="Reebews Logo"
+                width={160}
+                height={32}
+                priority
+              />
+            )}
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
