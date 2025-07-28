@@ -1,52 +1,74 @@
 import { NextResponse } from "next/server";
-import { dbConnect } from "@/lib/database/db";
-import mongoose from "mongoose";
 
-export async function GET() {
+async function checkDatabase(): Promise<{ status: string; error?: string }> {
   try {
-    // Basic API check - if we can respond, API is working
-    const timestamp = new Date().toISOString();
+    const { dbConnect } = await import("@/lib/database/db");
+    const mongoose = await import("mongoose");
     
-    // Quick database connectivity check
-    let dbStatus = "healthy";
-    let dbError = null;
+    // Set a timeout for database check
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database check timeout')), 2000)
+    );
     
-    try {
+    const dbCheckPromise = (async () => {
       await dbConnect();
-      const isConnected = mongoose.connection.readyState === 1;
-      if (!isConnected) {
-        dbStatus = "unhealthy";
-        dbError = "Database not connected";
-      }
-    } catch (error) {
-      dbStatus = "unhealthy";
-      dbError = "Database connection failed";
-    }
-
-    const response = {
-      status: dbStatus === "healthy" ? "ok" : "error",
-      timestamp,
-      database: dbStatus,
-      ...(dbError && { error: dbError })
-    };
-
-    // Return appropriate status code
-    const statusCode = dbStatus === "healthy" ? 200 : 503;
+      return mongoose.default.connection.readyState === 1;
+    })();
     
-    return NextResponse.json(response, { 
-      status: statusCode,
+    const isConnected = await Promise.race([dbCheckPromise, timeoutPromise]);
+    
+    return isConnected 
+      ? { status: "healthy" }
+      : { status: "unhealthy", error: "Database not connected" };
+      
+  } catch (error) {
+    return { 
+      status: "unhealthy", 
+      error: error instanceof Error ? error.message : "Database check failed" 
+    };
+  }
+}
+
+export async function GET(request: Request) {
+  const timestamp = new Date().toISOString();
+  
+  // Check if detailed health check is requested
+  const { searchParams } = new URL(request.url);
+  const detailed = searchParams.get('detailed') === 'true';
+  
+  if (detailed) {
+    const dbHealth = await checkDatabase();
+    
+    return NextResponse.json(
+      {
+        status: dbHealth.status === "healthy" ? "ok" : "error",
+        timestamp,
+        services: {
+          api: "healthy",
+          database: dbHealth.status,
+          ...(dbHealth.error && { database_error: dbHealth.error })
+        }
+      },
+      {
+        status: dbHealth.status === "healthy" ? 200 : 503,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        }
+      }
+    );
+  }
+  
+  // Simple healthcheck for Docker
+  return NextResponse.json(
+    { 
+      status: "ok",
+      timestamp
+    },
+    {
+      status: 200,
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       }
-    });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        status: "error",
-        timestamp: new Date().toISOString(),
-        error: "Healthcheck failed"
-      },
-      { status: 503 }
-    );
-  }
+    }
+  );
 }
