@@ -107,13 +107,8 @@ export function Features() {
                 </CardTitle>
                 <CardDescription className="group-hover:text-black">
                   <p>
-                    Based on your campaign setup, you&apos;ll capture&colon;
+                    Based on your campaign setup, you&apos;ll capture honest reviews on Amazon, Shopify, or your platform, customer feedback and insights, and email addresses for future marketing.
                   </p>
-                  <ul className="space-y-2">
-                    <li>- Honest reviews on Amazon, Shopify, or your platform</li>
-                    <li>- Customer feedback and insights</li>
-                    <li>- Email addresses for future marketing</li>
-                  </ul>
                 </CardDescription>
               </div>
             </CardHeader>
