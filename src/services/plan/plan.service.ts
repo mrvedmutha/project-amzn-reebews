@@ -43,16 +43,16 @@ export const PlanService = {
    * @param planData - The data for the new plan to create.
    * @returns A promise that resolves to the newly created plan.
    */
-  async createPlan(planData: Omit<IPlan, "_id">): Promise<IPlan> {
-    try {
-      await dbConnect();
-      const newPlan = await PlanModel.create(planData);
-      return newPlan.toObject() as IPlan;
-    } catch (error) {
-      console.error("Error creating plan:", error);
-      throw new Error("Could not create plan.");
-    }
-  },
+  // async createPlan(planData: Omit<IPlan, "_id">): Promise<IPlan> {
+  //   try {
+  //     await dbConnect();
+  //     const newPlan = await PlanModel.create(planData);
+  //     return newPlan.toObject() as IPlan;
+  //   } catch (error) {
+  //     console.error("Error creating plan:", error);
+  //     throw new Error("Could not create plan.");
+  //   }
+  // },
 
   /**
    * Retrieves a subscription plan by its ID from the database.

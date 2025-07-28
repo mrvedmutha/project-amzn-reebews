@@ -8,11 +8,6 @@ if (!resendApiKey) {
   throw new Error("RESEND_API_KEY is not configured in environment variables");
 }
 
-console.log(
-  "✅ Resend API Key configured:",
-  resendApiKey.substring(0, 10) + "..."
-);
-
 const resend = new Resend(resendApiKey);
 
 // Default sender email if none configured (using your verified domain)
@@ -20,7 +15,6 @@ const DEFAULT_FROM = "Reebews <noreply@resend.reebews.com>";
 
 // Check if custom from email is configured
 const fromEmail = process.env.REEBEWS_EMAIL_FROM || DEFAULT_FROM;
-console.log("📧 Email sender configured as:", fromEmail);
 
 // ReeBews logo URL for email embedding (more reliable than base64 in emails)
 const getLogoUrl = () => {
