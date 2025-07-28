@@ -1,29 +1,50 @@
 import { NextResponse } from "next/server";
-import { HealthcheckService } from "@/services/healthcheck/healthcheck.service";
+import { dbConnect } from "@/lib/database/db";
+import mongoose from "mongoose";
 
 export async function GET() {
   try {
-    const healthcheck = await HealthcheckService.performHealthcheck();
+    // Basic API check - if we can respond, API is working
+    const timestamp = new Date().toISOString();
     
-    const statusCode = healthcheck.status === "healthy" ? 200 : 503;
+    // Quick database connectivity check
+    let dbStatus = "healthy";
+    let dbError = null;
     
-    return NextResponse.json(healthcheck, { status: statusCode });
+    try {
+      await dbConnect();
+      const isConnected = mongoose.connection.readyState === 1;
+      if (!isConnected) {
+        dbStatus = "unhealthy";
+        dbError = "Database not connected";
+      }
+    } catch (error) {
+      dbStatus = "unhealthy";
+      dbError = "Database connection failed";
+    }
+
+    const response = {
+      status: dbStatus === "healthy" ? "ok" : "error",
+      timestamp,
+      database: dbStatus,
+      ...(dbError && { error: dbError })
+    };
+
+    // Return appropriate status code
+    const statusCode = dbStatus === "healthy" ? 200 : 503;
+    
+    return NextResponse.json(response, { 
+      status: statusCode,
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      }
+    });
   } catch (error) {
-    console.error("Healthcheck API Error:", error);
-    
     return NextResponse.json(
       {
-        status: "unhealthy",
+        status: "error",
         timestamp: new Date().toISOString(),
-        services: {
-          database: {
-            status: "unhealthy",
-            error: "Healthcheck service failed",
-          },
-          api: {
-            status: "unhealthy",
-          },
-        },
+        error: "Healthcheck failed"
       },
       { status: 503 }
     );
