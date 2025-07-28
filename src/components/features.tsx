@@ -66,7 +66,7 @@ export function Features() {
                     on your packaging, inserts, or thank-you cards.
                   </p>
                   <p className="mb-4">
-                    Highlights&colon;
+                    Highlights:
                   </p>
                   <ul className="space-y-2">
                     <li>- Frictionless Call-to-Action for your customers</li>
